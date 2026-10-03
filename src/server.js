@@ -26,8 +26,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
-app.use(express.static(path.resolve(__dirname, '../public')));
+app.use(express.static(path.resolve(__dirname, '../public'), { extensions: ['html'] }));
+
+// Explicit route for admin dashboard
+app.get('/admin', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../public/admin.html'));
+});
 
 // -------------------------------------------------------------
 // WEBHOOKS (Sections O, P, Q, R)
