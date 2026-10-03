@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evergreen Hospital — Autonomous Healthcare Operations Platform</title>
+  <title>Evergreen Hospital — Healthcare Operations Platform</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <style>
@@ -287,13 +287,13 @@
             <a href="#ai-modules" class="nav-item" data-view="ai-modules" onclick="switchView('ai-modules'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2a4 4 0 0 1 4 4v1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2v1a4 4 0 0 1-8 0v-1a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2V6a4 4 0 0 1 4-4z"></path>
-                    <circle cx="9" cy="9" r="1"></circle>
-                    <circle cx="15" cy="9" r="1"></circle>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
                   </svg>
                 </span>
-                <span>AI Ops</span>
+                <span>Operations</span>
               </span>
               <span class="nav-count-badge" style="background:#ecfdf5; color:#027a48;">26/26</span>
             </a>
@@ -694,21 +694,21 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- VIEW 2: AI OPS & 26 MASTER MODULES         -->
+        <!-- VIEW 2: OPERATIONS & 26 MASTER MODULES     -->
         <!-- ========================================== -->
         <div id="view-ai-modules" class="view-panel">
           <div class="ai-ops-container">
-            <!-- Left: Interactive AI Chatbot -->
+            <!-- Left: Operations Assistant -->
             <div class="chat-card-panel">
               <div class="card-shell-header" style="margin-bottom:12px;">
                 <div>
-                  <h3 class="card-title">AI Operations Assistant</h3>
+                  <h3 class="card-title">Operations Assistant</h3>
                 </div>
-                <span class="pill-badge pill-green">Claude & Ops Engine Active</span>
+                <span class="pill-badge pill-green">Operations Engine Active</span>
               </div>
               <div class="chat-messages-stream" id="chatStream">
                 <div class="chat-bubble bot">
-                  Hello! I am your AI Operations Assistant for Evergreen Hospital. Ask me about real-time bed allocations, doctor availability, appointment queues, or SLA alerts.
+                  Hello! I am your Operations Assistant for Evergreen Hospital. Ask me about real-time bed allocations, doctor availability, appointment queues, or SLA alerts.
                   <div class="chat-bubble-source">Engine: Operational Gateway V3</div>
                 </div>
               </div>
@@ -774,7 +774,7 @@
             <div class="metric-card">
               <div class="metric-header"><span>No-Show Recovery Rate</span></div>
               <div class="metric-main-val"><span class="stat-number-huge">87.5%</span><span class="pill-badge pill-green">Recovered</span></div>
-              <div class="metric-caption-text">7 of 8 rescheduled via AI Bot</div>
+              <div class="metric-caption-text">7 of 8 rescheduled automatically</div>
             </div>
             <div class="metric-card">
               <div class="metric-header"><span>Avg Check-in Time</span></div>
@@ -1446,7 +1446,7 @@
       // Update topbar title and contextual action
       const titles = {
         'home': 'Dashboard',
-        'ai-modules': 'AI Operations',
+        'ai-modules': 'Operations',
         'appointments': 'Appointments Management',
         'doctors': 'Doctors & Medical Staff',
         'patients': 'Patients & Triage Registry',
@@ -1959,7 +1959,7 @@
       input.value = '';
 
       try {
-        const res = await fetch('/api/ai/operations-assistant', {
+        const res = await fetch('/api/operations/assistant', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: text, role: 'Operations Coordinator' })

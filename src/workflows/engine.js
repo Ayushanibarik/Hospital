@@ -1305,14 +1305,14 @@ export async function handleAiOperationsQuery({ query, user_role = 'HOSPITAL_STA
   } else if (qLower.includes('queue') || qLower.includes('opd') || qLower.includes('waiting')) {
     answer = `There are currently ${waitingTokens} patients waiting across OPD departments with live queue tokens assigned.`;
   } else if (qLower.includes('lead') || qLower.includes('conversion') || qLower.includes('appointment')) {
-    answer = `Total leads processed: ${totalLeads}. Confirmed appointments booked: ${bookedAppts}. The AI appointment engine has matched slot availability without double-booking.`;
+    answer = `Total leads processed: ${totalLeads}. Confirmed appointments booked: ${bookedAppts}. The scheduling engine has matched slot availability without double-booking.`;
   } else {
     answer = `DemoCare Operations Status: ${totalLeads} leads processed, ${bookedAppts} confirmed appointments, ${noShows} no-shows, ${openExceptions} open exceptions, and ${waitingTokens} patients in OPD token queues. All 26 Master Blueprint workflows are operational.`;
   }
 
   db.prepare(`
     INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, record_id, correlation_id)
-    VALUES (?, 'HOSPITAL | 24 AI Operations Assistant', 'v3.0', 'STAFF', 'ASSISTANT_QUERY_ANSWERED', 'AI_OPS', ?)
+    VALUES (?, 'HOSPITAL | 24 Operations Assistant', 'v3.0', 'STAFF', 'ASSISTANT_QUERY_ANSWERED', 'OPS_CENTER', ?)
   `).run(generateUniqueId('EVT'), correlationId);
 
   return {
@@ -1392,11 +1392,11 @@ export async function runSystemMaintenanceAudit() {
 export function get26ModulesStatus() {
   const modules = [
     { id: 1, name: 'Lead Capture', category: 'Acquisition', route: '/webhook/lead-intake', status: 'ONLINE', description: 'Web, social, and form multi-channel lead ingestion with auto-deduplication' },
-    { id: 2, name: 'Lead Qualification', category: 'AI Intelligence', route: 'Claude/Prompt 1', status: 'ONLINE', description: 'Clinical emergency guardrail and intelligent department classification' },
+    { id: 2, name: 'Lead Qualification', category: 'Clinical Intelligence', route: 'Automated/Prompt 1', status: 'ONLINE', description: 'Clinical emergency guardrail and intelligent department classification' },
     { id: 3, name: 'Department Routing', category: 'Workflow Routing', route: '/api/leads/route', status: 'ONLINE', description: 'Automated specialty routing (Cardiology, Dermatology, Ortho, Gen Med)' },
     { id: 4, name: 'Appointment Availability', category: 'Scheduling', route: '/api/mcp/execute (get_slots)', status: 'ONLINE', description: 'Real-time calendar slot lookup and doctor roster querying' },
     { id: 5, name: 'Appointment Booking', category: 'Scheduling', route: '/webhook/lead-intake', status: 'ONLINE', description: 'Atomic slot reservation and confirmed appointment creation' },
-    { id: 6, name: 'Confirmation', category: 'Patient Communication', route: 'WhatsApp APPT_CONFIRM_01', status: 'ONLINE', description: 'Deterministic & AI-drafted appointment confirmation dispatch' },
+    { id: 6, name: 'Confirmation', category: 'Patient Communication', route: 'WhatsApp APPT_CONFIRM_01', status: 'ONLINE', description: 'Deterministic & verified appointment confirmation dispatch' },
     { id: 7, name: 'Reminder', category: 'Patient Communication', route: '/api/scheduler/run-reminders', status: 'ONLINE', description: 'Automated background 24h & 3h appointment reminder scheduler' },
     { id: 8, name: 'Cancellation / Reschedule', category: 'Scheduling', route: '/api/appointments/:id/reschedule & cancel', status: 'ONLINE', description: 'Self-serve patient reschedule & cancellation with automated slot release' },
     { id: 9, name: 'No-Show Recovery', category: 'Revenue Recovery', route: '/webhook/no-show-recovery', status: 'ONLINE', description: 'Idempotent no-show detection, polite WhatsApp recovery & follow-up task' },
@@ -1411,10 +1411,10 @@ export function get26ModulesStatus() {
     { id: 18, name: 'Repeat Visit / Preventive Reminder', category: 'Patient Retention', route: '/api/chronic/check-ins & /campaigns/reactivation', status: 'ONLINE', description: 'Quarterly chronic care recall and 180-day wellness screening campaigns' },
     { id: 19, name: 'Referral Engine', category: 'Network Growth', route: '/api/referrals/intake', status: 'ONLINE', description: 'Doctor-to-doctor & partner clinic referral logging with automated ack' },
     { id: 20, name: 'Lead SLA Escalation', category: 'Operational Governance', route: '/api/scheduler/run-lead-sla', status: 'ONLINE', description: 'Automated 15-minute lead response SLA breach monitoring & exception alerts' },
-    { id: 21, name: 'Admin Daily Report', category: 'Executive Analytics', route: '/api/reports/daily', status: 'ONLINE', description: 'Executive daily brief aggregating leads, revenue, census, and AI insights' },
+    { id: 21, name: 'Admin Daily Report', category: 'Executive Analytics', route: '/api/reports/daily', status: 'ONLINE', description: 'Executive daily brief aggregating leads, revenue, census, and operational insights' },
     { id: 22, name: 'Department Performance', category: 'Executive Analytics', route: '/api/dashboard/department-performance', status: 'ONLINE', description: 'Granular metrics by department: conversion, no-shows, slot utilization' },
-    { id: 23, name: 'Exception Queue', category: 'Governance & Safety', route: '/api/dashboard/exceptions', status: 'ONLINE', description: 'Centralized exception tracking, AI classification, and staff resolution' },
-    { id: 24, name: 'AI Operations Assistant', category: 'AI Intelligence', route: '/api/ai/operations-assistant', status: 'ONLINE', description: 'Conversational assistant adhering strictly to Master System Prompt invariants' },
+    { id: 23, name: 'Exception Queue', category: 'Governance & Safety', route: '/api/dashboard/exceptions', status: 'ONLINE', description: 'Centralized exception tracking, automated classification, and staff resolution' },
+    { id: 24, name: 'Operations Assistant', category: 'Clinical Intelligence', route: '/api/operations/assistant', status: 'ONLINE', description: 'Conversational assistant adhering strictly to operational standards' },
     { id: 25, name: 'Audit / Logging', category: 'Compliance & Safety', route: '/api/dashboard/audit-logs', status: 'ONLINE', description: 'Correlation ID (HOSP-YYYYMMDD-XXXXXX) audit trail across all workflows' },
     { id: 26, name: 'Maintenance / Monitoring', category: 'System Reliability', route: '/api/system/maintenance-audit & /health', status: 'ONLINE', description: 'DB integrity checks, stale task detection, self-healing recommendations' }
   ];

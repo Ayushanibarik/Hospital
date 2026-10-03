@@ -751,7 +751,7 @@ app.get('/api/dashboard/department-performance', async (req, res) => {
   }
 });
 
-app.post('/api/ai/operations-assistant', async (req, res) => {
+const opsAssistantHandler = async (req, res) => {
   try {
     const { query, role } = req.body;
     if (!query) return res.status(400).json({ success: false, error: 'query parameter is required' });
@@ -760,7 +760,9 @@ app.post('/api/ai/operations-assistant', async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
-});
+};
+app.post('/api/ai/operations-assistant', opsAssistantHandler);
+app.post('/api/operations/assistant', opsAssistantHandler);
 
 app.get('/api/system/maintenance-audit', async (req, res) => {
   try {
