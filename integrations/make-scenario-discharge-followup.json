@@ -1,0 +1,79 @@
+{
+  "name": "HOSPITAL | 04 Discharge Follow-Up",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "HOSPITAL_DISCHARGE_TRIGGER"
+      },
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0,
+          "name": "Approved Discharge Event Inbound"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "json:ParseJSON",
+      "version": 1,
+      "parameters": {
+        "type": "string",
+        "json": "{{1.data}}"
+      },
+      "metadata": {
+        "designer": {
+          "x": 250,
+          "y": 0,
+          "name": "Extract Operational Fields (No Clinical Fact Guessing)"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "http:ActionMakeRequest",
+      "version": 3,
+      "parameters": {
+        "url": "http://localhost:3000/webhook/discharge-followup",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "bodyType": "raw",
+        "data": "{\"patient_id\":\"{{2.patient_id}}\",\"patient_name\":\"{{2.patient_name}}\",\"phone\":\"{{2.phone}}\",\"discharge_date\":\"{{2.discharge_date}}\",\"approved_window\":\"{{2.approved_window}}\"}"
+      },
+      "metadata": {
+        "designer": {
+          "x": 500,
+          "y": 0,
+          "name": "Create Follow-Up Task & Send WhatsApp Check-in"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "util:Router",
+      "version": 1,
+      "routes": [
+        {
+          "name": "Follow-Up Scheduled & Logged",
+          "filter": "{{3.status}} = 200"
+        },
+        {
+          "name": "Service Recovery Needed (Rating <= 2) -> Exception Queue",
+          "filter": "{{3.status}} != 200"
+        }
+      ],
+      "metadata": {
+        "designer": {
+          "x": 750,
+          "y": 0,
+          "name": "Service Recovery & Feedback Routing"
+        }
+      }
+    }
+  ]
+}

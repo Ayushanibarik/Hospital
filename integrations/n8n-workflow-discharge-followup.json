@@ -1,0 +1,80 @@
+{
+  "name": "HOSPITAL | 04 Discharge Follow-Up",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "hospital-discharge",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "node-webhook-discharge",
+      "name": "Discharge Event Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "name": "patient_id", "value": "={{$json.patient_id}}", "type": "string" },
+            { "name": "patient_name", "value": "={{$json.patient_name}}", "type": "string" },
+            { "name": "phone", "value": "={{$json.phone}}", "type": "string" },
+            { "name": "discharge_date", "value": "={{$json.discharge_date}}", "type": "string" },
+            { "name": "approved_window", "value": "={{$json.approved_window || 'morning 10am-12pm'}}", "type": "string" }
+          ]
+        }
+      },
+      "id": "node-set-operational-fields",
+      "name": "Extract Operational Fields Only",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/webhook/discharge-followup",
+        "body": {
+          "patient_id": "={{$json.patient_id}}",
+          "patient_name": "={{$json.patient_name}}",
+          "phone": "={{$json.phone}}",
+          "discharge_date": "={{$json.discharge_date}}",
+          "approved_window": "={{$json.approved_window}}"
+        }
+      },
+      "id": "node-http-discharge-engine",
+      "name": "Trigger Discharge & Day-2 Outreach",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/feedback",
+        "body": {
+          "patient_id": "={{$json.patient_id}}",
+          "rating": 5,
+          "comments": "Automated post-discharge checkup completed."
+        }
+      },
+      "id": "node-post-feedback-step",
+      "name": "Capture Post-Care Rating & NPS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Discharge Event Trigger": {
+      "main": [[{ "node": "Extract Operational Fields Only", "type": "main", "index": 0 }]]
+    },
+    "Extract Operational Fields Only": {
+      "main": [[{ "node": "Trigger Discharge & Day-2 Outreach", "type": "main", "index": 0 }]]
+    },
+    "Trigger Discharge & Day-2 Outreach": {
+      "main": [[{ "node": "Capture Post-Care Rating & NPS", "type": "main", "index": 0 }]]
+    }
+  }
+}

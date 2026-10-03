@@ -107,6 +107,66 @@
       border-radius: 10px;
       padding: 1rem;
     }
+    .pipeline-wrapper {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+    }
+    .pipeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .pipeline-steps {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 980px;
+    }
+    .pipeline-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.45rem 0.6rem;
+      min-width: 78px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pipeline-chip:hover {
+      border-color: var(--teal);
+      background: rgba(14, 165, 233, 0.08);
+      transform: translateY(-2px);
+    }
+    .pipeline-chip .chip-num {
+      font-size: 0.68rem;
+      color: var(--teal);
+      font-weight: 700;
+    }
+    .pipeline-chip .chip-title {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-top: 0.1rem;
+      white-space: nowrap;
+    }
+    .pipeline-arrow {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -127,6 +187,7 @@
         <button class="nav-btn" id="waBridgeBtn" onclick="connectWhatsApp()" style="border-color: #25d366; color: #25d366;">
           <span id="waStatusText">📲 Connect Live WhatsApp</span>
         </button>
+        <button class="nav-btn" onclick="openAuditScorecardModal()" style="border-color:var(--amber); color:var(--amber);">📋 Paid Audit Scorecard</button>
         <button class="nav-btn" onclick="openAssistantModal()" style="border-color:var(--purple); color:var(--purple);">🤖 AI Ops Assistant</button>
         <button class="nav-btn primary" onclick="generateAiSummary()">📊 AI Daily Summary</button>
         <button class="nav-btn" onclick="openMaintenanceModal()">🛡️ System Health</button>
@@ -134,6 +195,122 @@
       </div>
     </header>
 
+    <!-- MASTER BLUEPRINT PAGE 1: 13-STAGE ARCHITECTURE PIPELINE -->
+    <div class="pipeline-wrapper">
+      <div class="pipeline-header">
+        <span>🗺️ Blueprint V3: 13-Stage Revenue & Patient Lifecycle Architecture</span>
+        <span style="color:var(--teal); font-weight:700;">Live Interactive Pipeline</span>
+      </div>
+      <div class="pipeline-steps">
+        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
+          <span class="chip-num">01</span>
+          <span class="chip-title">Inbound</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
+          <span class="chip-num">02</span>
+          <span class="chip-title">Lead Capture</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
+          <span class="chip-num">03</span>
+          <span class="chip-title">AI Qualify</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
+          <span class="chip-num">04</span>
+          <span class="chip-title">CRM / Data</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
+          <span class="chip-num">05</span>
+          <span class="chip-title">Appt Engine</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="window.scrollTo({top: 650, behavior: 'smooth'})">
+          <span class="chip-num">06</span>
+          <span class="chip-title">Clinical Path</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="triggerBillingDemo()">
+          <span class="chip-num">07</span>
+          <span class="chip-title">Billing / ERP</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="triggerDischargeClearanceDemo()">
+          <span class="chip-num">08</span>
+          <span class="chip-title">Discharge</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="triggerDischargeFollowupDemo()">
+          <span class="chip-num">09</span>
+          <span class="chip-title">Follow-Up</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="triggerRemindersDemo()">
+          <span class="chip-num">10</span>
+          <span class="chip-title">Retention</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="triggerBadFeedbackDemo()">
+          <span class="chip-num">11</span>
+          <span class="chip-title">Feedback/Ref</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="triggerSlaScanDemo()">
+          <span class="chip-num">12</span>
+          <span class="chip-title">Analytics/SLA</span>
+        </div>
+        <span class="pipeline-arrow">→</span>
+        <div class="pipeline-chip" onclick="generateAiSummary()">
+          <span class="chip-num">13</span>
+          <span class="chip-title">Mgmt AI</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION AA: DASHBOARD VIEW MODES (DAILY / WEEKLY / MANAGEMENT) -->
+    <div style="display:flex; gap:0.6rem; margin-bottom:1.25rem; align-items:center; flex-wrap:wrap;">
+      <span style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Section AA Dashboard:</span>
+      <button class="action-btn" id="tabDailyBtn" onclick="switchDashboardView('daily')" style="border-color:var(--teal); background:rgba(14,165,233,0.12); color:var(--teal);">
+        ⚡ Daily Operations
+      </button>
+      <button class="action-btn" id="tabWeeklyBtn" onclick="switchDashboardView('weekly')">
+        📈 Weekly Review (Conversion & SLA)
+      </button>
+      <button class="action-btn" id="tabMgmtBtn" onclick="switchDashboardView('management')">
+        👔 Management Executive (Trends & Uptime)
+      </button>
+    </div>
+
+    <!-- WEEKLY REVIEW CONTAINER (Hidden by default) -->
+    <div id="weeklyViewContainer" style="display:none; margin-bottom:2rem;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>📈</span> Section AA: Weekly Performance & Conversion Review</h3>
+          <span class="badge badge-teal">Past 7 Days Analytics</span>
+        </div>
+        <div id="weeklyMetricsArea" style="padding:1rem 0;">
+          <p style="text-align:center; color:var(--text-muted);">Loading weekly review metrics...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MANAGEMENT EXECUTIVE CONTAINER (Hidden by default) -->
+    <div id="managementViewContainer" style="display:none; margin-bottom:2rem;">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>👔</span> Section AA: Management Executive View (Trends, Sources, Uptime)</h3>
+          <span class="badge badge-purple">Executive Telemetry</span>
+        </div>
+        <div id="managementMetricsArea" style="padding:1rem 0;">
+          <p style="text-align:center; color:var(--text-muted);">Loading executive telemetry...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY OPERATIONS VIEW CONTAINER -->
+    <div id="dailyViewContainer">
     <!-- SECTION AA: OPERATIONAL METRICS -->
     <div class="stats-grid">
       <div class="stat-card">
@@ -456,6 +633,7 @@
         <!-- Injected via /api/dashboard/department-performance -->
       </div>
     </div>
+    </div> <!-- dailyViewContainer -->
   </div>
 
   <!-- AI DAILY SUMMARY MODAL (Prompt 5) -->
@@ -511,6 +689,111 @@
         <p style="text-align:center; padding:2rem;">Running diagnostic scans...</p>
       </div>
     </div>
+  <!-- HOSPITAL AUTOMATION AUDIT SCORECARD MODAL (Blueprint Sections AB & AC) -->
+  <div class="modal-overlay" id="auditScorecardModal" onclick="closeAuditScorecardModal(event)">
+    <div class="modal-card" style="max-width:850px;" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <div>
+          <h2 style="font-size:1.25rem; font-weight:700; color:var(--amber);">📋 Hospital Automation Audit Scorecard (Sections AB & AC)</h2>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
+            Paid Discovery Product: Evaluate hospital leakage across 11 operational dimensions and calculate pilot priority.
+          </p>
+        </div>
+        <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('auditScorecardModal').style.display='none'">×</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.2rem;">
+        <!-- 11 Criteria Assessment Grid -->
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.82rem; max-height:360px; overflow-y:auto;">
+          <h4 style="color:var(--text-main); font-weight:700; margin-bottom:0.75rem;">11 Operational Dimensions (Rate 1=Broken to 5=Automated)</h4>
+          
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>1. Lead Response Time (<5m):</span>
+            <select id="score1" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>2. Lead Capture Consistency:</span>
+            <select id="score2" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>3. Appt Conversion Visibility:</span>
+            <select id="score3" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>4. No-Show Recovery Engine:</span>
+            <select id="score4" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>5. Follow-Up & Recall Tracking:</span>
+            <select id="score5" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>6. Diagnostic Coordination:</span>
+            <select id="score6" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2">2 (Fair)</option><option value="3" selected>3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>7. Discharge Coordination:</span>
+            <select id="score7" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>8. Feedback & Service Recovery:</span>
+            <select id="score8" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>9. Reporting & C-Suite Daily:</span>
+            <select id="score9" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>10. Integration & API Readiness:</span>
+            <select id="score10" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2">2 (Fair)</option><option value="3" selected>3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+            <span>11. Security & Governance:</span>
+            <select id="score11" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4" selected>4 (Very Good)</option><option value="5">5 (Automated)</option></select>
+          </div>
+        </div>
+
+        <!-- Opportunity Prioritization Calculator -->
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.82rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <h4 style="color:var(--text-main); font-weight:700; margin-bottom:0.75rem;">Formula: (Impact × Freq × Feasibility) ÷ Risk</h4>
+            
+            <div style="margin-bottom:0.6rem;">
+              <div style="display:flex; justify-content:space-between;"><span>Revenue Impact (1–5):</span> <strong id="valImpact">5</strong></div>
+              <input type="range" id="paramImpact" min="1" max="5" value="5" style="width:100%;" oninput="document.getElementById('valImpact').innerText=this.value; calculateAuditScore()">
+            </div>
+            <div style="margin-bottom:0.6rem;">
+              <div style="display:flex; justify-content:space-between;"><span>Occurrence Frequency (1–5):</span> <strong id="valFreq">5</strong></div>
+              <input type="range" id="paramFreq" min="1" max="5" value="5" style="width:100%;" oninput="document.getElementById('valFreq').innerText=this.value; calculateAuditScore()">
+            </div>
+            <div style="margin-bottom:0.6rem;">
+              <div style="display:flex; justify-content:space-between;"><span>Technical Feasibility (1–5):</span> <strong id="valFeas">4</strong></div>
+              <input type="range" id="paramFeas" min="1" max="5" value="4" style="width:100%;" oninput="document.getElementById('valFeas').innerText=this.value; calculateAuditScore()">
+            </div>
+            <div style="margin-bottom:0.6rem;">
+              <div style="display:flex; justify-content:space-between;"><span>Clinical / Operational Risk (1–5):</span> <strong id="valRisk">1</strong></div>
+              <input type="range" id="paramRisk" min="1" max="5" value="1" style="width:100%;" oninput="document.getElementById('valRisk').innerText=this.value; calculateAuditScore()">
+            </div>
+          </div>
+
+          <div style="background:rgba(14,165,233,0.08); border:1px solid var(--teal); border-radius:8px; padding:0.8rem; margin-top:0.5rem; text-align:center;">
+            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Calculated Priority Score</div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--teal);" id="auditPriorityScore">100.0</div>
+            <div style="font-size:0.8rem; font-weight:700; color:var(--emerald); margin-top:0.2rem;" id="auditRecommendation">
+              ✅ PRIME CANDIDATE: Starter ₹50,000 Pilot (Lead + No-Show Recovery)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <button class="action-btn" onclick="generateAuditReport()">📄 Generate 3-Page Executive Discovery Audit</button>
+        <button class="action-btn primary" onclick="document.getElementById('auditScorecardModal').style.display='none'">Done</button>
+      </div>
+
+      <div id="auditReportOutput" style="display:none; margin-top:1rem; background:var(--bg-dark); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.84rem; max-height:220px; overflow-y:auto; font-family:monospace; line-height:1.5;">
+      </div>
+    </div>
   </div>
 
   <script>
@@ -521,6 +804,193 @@
       matrixVisible = !matrixVisible;
       container.style.display = matrixVisible ? 'grid' : 'none';
       icon.innerText = matrixVisible ? '▼' : '▶';
+    }
+
+    function switchDashboardView(mode) {
+      document.getElementById('dailyViewContainer').style.display = mode === 'daily' ? 'block' : 'none';
+      document.getElementById('weeklyViewContainer').style.display = mode === 'weekly' ? 'block' : 'none';
+      document.getElementById('managementViewContainer').style.display = mode === 'management' ? 'block' : 'none';
+
+      document.getElementById('tabDailyBtn').style.borderColor = mode === 'daily' ? 'var(--teal)' : 'var(--border)';
+      document.getElementById('tabDailyBtn').style.background = mode === 'daily' ? 'rgba(14,165,233,0.12)' : 'var(--bg-card)';
+      document.getElementById('tabDailyBtn').style.color = mode === 'daily' ? 'var(--teal)' : 'var(--text-main)';
+
+      document.getElementById('tabWeeklyBtn').style.borderColor = mode === 'weekly' ? 'var(--teal)' : 'var(--border)';
+      document.getElementById('tabWeeklyBtn').style.background = mode === 'weekly' ? 'rgba(14,165,233,0.12)' : 'var(--bg-card)';
+      document.getElementById('tabWeeklyBtn').style.color = mode === 'weekly' ? 'var(--teal)' : 'var(--text-main)';
+
+      document.getElementById('tabMgmtBtn').style.borderColor = mode === 'management' ? 'var(--purple)' : 'var(--border)';
+      document.getElementById('tabMgmtBtn').style.background = mode === 'management' ? 'rgba(139,92,246,0.12)' : 'var(--bg-card)';
+      document.getElementById('tabMgmtBtn').style.color = mode === 'management' ? 'var(--purple)' : 'var(--text-main)';
+
+      if (mode === 'weekly') loadWeeklyView();
+      if (mode === 'management') loadManagementView();
+    }
+
+    async function loadWeeklyView() {
+      try {
+        const res = await fetch('/api/dashboard/weekly');
+        const data = await res.json();
+        const area = document.getElementById('weeklyMetricsArea');
+        area.innerHTML = `
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+            <div class="stat-card">
+              <span class="stat-label">Lead Conversion %</span>
+              <span class="stat-value" style="color:var(--emerald);">${data.lead_to_appointment_conversion_pct}%</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${data.confirmed_appointments} booked of ${data.total_leads} leads</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">No-Show Rate</span>
+              <span class="stat-value" style="color:var(--amber);">${data.no_show_rate_pct}%</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${data.total_no_shows} no-shows detected</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Recovery Rate %</span>
+              <span class="stat-value" style="color:var(--teal);">${data.no_show_recovery_rate_pct}%</span>
+              <span style="font-size:0.75rem; color:var(--text-muted);">${data.recovered_no_shows} rescheduled</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Avg Response Time</span>
+              <span class="stat-value" style="color:var(--blue);">${data.avg_first_response_time_minutes}m</span>
+              <span style="font-size:0.75rem; color:var(--emerald);">SLA Target: <${data.sla_target_minutes}m (Compliant)</span>
+            </div>
+          </div>
+          <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:0.6rem;">Department Distribution (Weekly Inbound)</h4>
+          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+            ${data.department_distribution.map(d => `
+              <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:6px; padding:0.5rem 0.8rem; font-size:0.82rem;">
+                <strong>${d.department}:</strong> ${d.count} inquiries
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } catch (e) {
+        console.error('Error loading weekly view:', e);
+      }
+    }
+
+    async function loadManagementView() {
+      try {
+        const res = await fetch('/api/dashboard/management');
+        const data = await res.json();
+        const area = document.getElementById('managementMetricsArea');
+        area.innerHTML = `
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+            <div class="stat-card">
+              <span class="stat-label">System Health</span>
+              <span class="stat-value" style="color:var(--emerald);">${data.executive_summary.overall_system_health}</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Lead SLA Compliance</span>
+              <span class="stat-value" style="color:var(--teal);">${data.executive_summary.sla_compliance_pct}%</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Operational Score</span>
+              <span class="stat-value" style="color:var(--purple);">${data.executive_summary.operational_efficiency_score}/100</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">System Uptime</span>
+              <span class="stat-value" style="color:var(--blue);">${data.workflow_health.uptime_pct}%</span>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+            <div>
+              <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:0.6rem;">Acquisition Channel Performance</h4>
+              <div style="font-size:0.82rem; line-height:1.8;">
+                ${data.lead_source_performance.map(s => `
+                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:0.3rem 0;">
+                    <span>${s.source}</span>
+                    <span><strong>${s.total_leads}</strong> leads (${s.conversion_pct}% booked)</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            <div>
+              <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:0.6rem;">Top System Exceptions</h4>
+              <div style="font-size:0.82rem; line-height:1.8;">
+                ${data.top_exceptions.map(e => `
+                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:0.3rem 0;">
+                    <span style="color:var(--rose); font-family:monospace;">${e.error_type}</span>
+                    <span>${e.occurrences}x (${e.severity})</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        console.error('Error loading management view:', e);
+      }
+    }
+
+    function openAuditScorecardModal() {
+      document.getElementById('auditScorecardModal').style.display = 'flex';
+      calculateAuditScore();
+    }
+    function closeAuditScorecardModal(e) {
+      if (e.target.id === 'auditScorecardModal') {
+        document.getElementById('auditScorecardModal').style.display = 'none';
+      }
+    }
+
+    function calculateAuditScore() {
+      const impact = Number(document.getElementById('paramImpact').value);
+      const freq = Number(document.getElementById('paramFreq').value);
+      const feas = Number(document.getElementById('paramFeas').value);
+      const risk = Number(document.getElementById('paramRisk').value);
+
+      const score = ((impact * freq * feas) / risk).toFixed(1);
+      document.getElementById('auditPriorityScore').innerText = score;
+
+      const rec = document.getElementById('auditRecommendation');
+      if (score >= 25) {
+        rec.style.color = 'var(--emerald)';
+        rec.innerText = '✅ PRIME CANDIDATE: Starter ₹50,000 Pilot (Lead + No-Show Recovery)';
+      } else if (score >= 15) {
+        rec.style.color = 'var(--teal)';
+        rec.innerText = '⚡ PHASE 2 EXPANSION: Growth ₹1,00,000 Scope (Discharge & Diagnostics)';
+      } else {
+        rec.style.color = 'var(--amber)';
+        rec.innerText = '⚠️ LOW AUTOMATION ROI: Keep manual until baseline processes stabilize';
+      }
+    }
+
+    function generateAuditReport() {
+      const output = document.getElementById('auditReportOutput');
+      const score = document.getElementById('auditPriorityScore').innerText;
+      output.style.display = 'block';
+      output.innerHTML = `
+=== EXECUTIVE DISCOVERY AUDIT REPORT (Blueprint Section AB & AC) ===
+Facility: DemoCare Multispeciality Hospital
+Date: ${new Date().toISOString().slice(0,10)}
+Auditor: Automation Architect (@imthatyogii)
+
+1. CURRENT STATE & PATIENT JOURNEY MAPPING:
+- Channels: Google Ads, Meta/Instagram, WhatsApp Direct, Phone IVR
+- Peak Leakage: Weekend lead response delay (avg 4.2h vs 5m SLA target)
+- Empty Doctor Slots: 18% no-show rate with zero automated recovery
+
+2. 11-DIMENSIONAL AUDIT SCORES:
+- Lead Response: ${document.getElementById('score1').value}/5
+- Lead Capture: ${document.getElementById('score2').value}/5
+- Conversion Visibility: ${document.getElementById('score3').value}/5
+- No-Show Recovery: ${document.getElementById('score4').value}/5
+- Follow-Up Tracking: ${document.getElementById('score5').value}/5
+- Diagnostic Alerts: ${document.getElementById('score6').value}/5
+- Discharge Admin: ${document.getElementById('score7').value}/5
+- Feedback & Service: ${document.getElementById('score8').value}/5
+- Executive Reporting: ${document.getElementById('score9').value}/5
+- API Readiness: ${document.getElementById('score10').value}/5
+- Security / ABDM: ${document.getElementById('score11').value}/5
+
+3. OPPORTUNITY PRIORITIZATION & SCOPE:
+- Priority Score: ${score}
+- Recommendation: ${document.getElementById('auditRecommendation').innerText}
+- Commercial Proposal: Starter ₹50,000 Pilot (14 Days Delivery)
+- Target KPI: 30% reduction in no-shows, 100% leads answered in <5 minutes.
+===================================================================
+      `;
     }
 
     async function load26ModulesStatus() {

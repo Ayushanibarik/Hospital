@@ -1,0 +1,79 @@
+{
+  "name": "HOSPITAL | 03 No-Show Recovery",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "HOSPITAL_NO_SHOW_TRIGGER"
+      },
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0,
+          "name": "No-Show Webhook Trigger (attendance_status=no_show)"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "json:ParseJSON",
+      "version": 1,
+      "parameters": {
+        "type": "string",
+        "json": "{{1.data}}"
+      },
+      "metadata": {
+        "designer": {
+          "x": 250,
+          "y": 0,
+          "name": "Verify Status Still No-Show"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "http:ActionMakeRequest",
+      "version": 3,
+      "parameters": {
+        "url": "http://localhost:3000/webhook/no-show-recovery",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "bodyType": "raw",
+        "data": "{\"appointment_id\":\"{{2.appointment_id}}\",\"patient_id\":\"{{2.patient_id}}\"}"
+      },
+      "metadata": {
+        "designer": {
+          "x": 500,
+          "y": 0,
+          "name": "Check Idempotency & Send Prompt 3 Reschedule"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "util:Router",
+      "version": 1,
+      "routes": [
+        {
+          "name": "Message Dispatched & Logged",
+          "filter": "{{3.status}} = 200"
+        },
+        {
+          "name": "Duplicate Blocked or Failed -> Exception Queue",
+          "filter": "{{3.status}} != 200"
+        }
+      ],
+      "metadata": {
+        "designer": {
+          "x": 750,
+          "y": 0,
+          "name": "Evaluate Outcome"
+        }
+      }
+    }
+  ]
+}

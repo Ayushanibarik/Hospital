@@ -1,0 +1,91 @@
+{
+  "name": "HOSPITAL | 03 No-Show Recovery",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "hospital-no-show",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "node-webhook-noshow",
+      "name": "No-Show Trigger Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT * FROM appointments WHERE appointment_id = $1 AND attendance_status = 'no_show';"
+      },
+      "id": "node-db-lookup",
+      "name": "Lookup Appointment & Verify No-Show",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.attendance_status}}",
+              "value2": "no_show"
+            }
+          ]
+        }
+      },
+      "id": "node-if-noshow",
+      "name": "Is Still No-Show?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/webhook/no-show-recovery",
+        "body": {
+          "appointment_id": "={{$json.appointment_id}}",
+          "patient_id": "={{$json.patient_id}}"
+        }
+      },
+      "id": "node-http-recovery",
+      "name": "Trigger Recovery & Prompt 3 Reschedule",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/exceptions",
+        "body": {
+          "workflow_name": "HOSPITAL | 03 No-Show",
+          "record_id": "={{$json.appointment_id}}",
+          "error_type": "NO_SHOW_STATUS_INVALID",
+          "severity": "low"
+        }
+      },
+      "id": "node-exception-log",
+      "name": "Log to Exception Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 400]
+    }
+  ],
+  "connections": {
+    "No-Show Trigger Webhook": {
+      "main": [[{ "node": "Lookup Appointment & Verify No-Show", "type": "main", "index": 0 }]]
+    },
+    "Lookup Appointment & Verify No-Show": {
+      "main": [[{ "node": "Is Still No-Show?", "type": "main", "index": 0 }]]
+    },
+    "Is Still No-Show?": {
+      "main": [
+        [{ "node": "Trigger Recovery & Prompt 3 Reschedule", "type": "main", "index": 0 }],
+        [{ "node": "Log to Exception Queue", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

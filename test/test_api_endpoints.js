@@ -21,6 +21,8 @@ async function testHttpEndpoints() {
     { url: 'http://localhost:3099/health', method: 'GET' },
     { url: 'http://localhost:3099/api/modules/status', method: 'GET' },
     { url: 'http://localhost:3099/api/reports/daily', method: 'GET' },
+    { url: 'http://localhost:3099/api/dashboard/weekly', method: 'GET' },
+    { url: 'http://localhost:3099/api/dashboard/management', method: 'GET' },
     { url: 'http://localhost:3099/api/dashboard/department-performance', method: 'GET' },
     { url: 'http://localhost:3099/api/system/maintenance-audit', method: 'GET' },
     { url: 'http://localhost:3099/api/ai/operations-assistant', method: 'POST', body: JSON.stringify({ query: 'How many leads processed?' }) },

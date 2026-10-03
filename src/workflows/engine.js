@@ -165,12 +165,14 @@ export async function handleLeadIntake(payload) {
   await dispatchWhatsApp({ toPhone: payload.phone, messageText: messageData.message });
 
   return {
+    success: true,
     status: 'SUCCESS',
     correlation_id: correlationId,
     patient_id: patientId,
     lead_id: leadId,
     appointment_id: appointmentId,
     department: assignedDepartment,
+    ai_qualification: qualification,
     doctor: slot.doctor_name,
     slot: slot.slot_start,
     message_sent: messageData.message
