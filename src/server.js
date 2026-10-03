@@ -28,6 +28,9 @@ import { callClaude } from './ai/claude.js';
 import { initWhatsAppQR, getWhatsAppStatus } from './whatsapp/qr_bridge.js';
 import { handleInboundPatientMessage } from './workflows/inbound_reply.js';
 import { startBackgroundScheduler, runAppointmentReminders } from './workflows/scheduler.js';
+import { appCache } from './utils/cache.js';
+import { requestLogger, logger } from './utils/logger.js';
+import { trackError } from './utils/error_tracker.js';
 
 dotenv.config();
 
@@ -36,6 +39,9 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Structured Request Logging (Pino ELK/CloudWatch compatible)
+app.use(requestLogger);
 
 // Hardened HTTP Security Headers
 app.use(helmet({
@@ -74,7 +80,15 @@ app.use('/webhook/', webhookLimiter);
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
-app.use(express.static(path.resolve(__dirname, '../public'), { extensions: ['html'] }));
+
+// Edge CDN Caching for Static Frontend Assets (1 day cache)
+app.use(express.static(path.resolve(__dirname, '../public'), {
+  extensions: ['html'],
+  maxAge: '1d',
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+  }
+}));
 
 // Production Health Check & Readiness Probe (Docker / K8s standard)
 app.get('/health', (req, res) => {
@@ -296,7 +310,11 @@ app.post('/api/campaigns/reactivation', async (req, res) => {
 // Module 18: Staff Operations & Doctor Availability Management
 app.get('/api/doctors', (req, res) => {
   try {
+    const cached = appCache.get('all_doctors');
+    if (cached) return res.json(cached);
+
     const docs = db.prepare(`SELECT * FROM doctors ORDER BY department, name`).all();
+    appCache.set('all_doctors', docs, 120); // 2 minute cache
     res.json(docs);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -308,6 +326,7 @@ app.patch('/api/doctors/:id/availability', async (req, res) => {
     const { id } = req.params;
     const { is_available } = req.body;
     const result = await handleDoctorAvailability({ doctor_id: id, is_available });
+    appCache.del('all_doctors'); // Invalidate cache on roster update
     res.json({ success: true, ...result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -621,10 +640,15 @@ app.use('/api/*', (req, res) => {
 
 // Centralized Error Handling Middleware (Never leak stack traces in production)
 app.use((err, req, res, next) => {
-  console.error('Unhandled Server Error:', err);
+  const errorId = trackError(err, {
+    url: req.originalUrl || req.url,
+    method: req.method,
+    correlationId: req.correlationId
+  });
   const isProd = process.env.NODE_ENV === 'production';
   res.status(err.status || 500).json({
     success: false,
+    error_id: errorId,
     error: isProd ? 'Internal server error occurred. Please contact IT support.' : err.message
   });
 });

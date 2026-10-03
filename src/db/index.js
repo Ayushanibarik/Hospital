@@ -9,6 +9,13 @@ const __dirname = path.dirname(__filename);
 const DB_PATH = path.resolve(__dirname, '../../hospital.db');
 export const db = new DatabaseSync(DB_PATH);
 
+// High-Concurrency Production Tuning (WAL mode & busy timeout)
+try {
+  db.exec('PRAGMA journal_mode = WAL;');
+  db.exec('PRAGMA synchronous = NORMAL;');
+  db.exec('PRAGMA busy_timeout = 5000;');
+} catch (e) {}
+
 // Initialize schema
 export function initDB() {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
