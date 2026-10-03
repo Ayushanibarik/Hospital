@@ -9,3 +9,4 @@ node_modules/
 # Internal Developer & Agency Reference (Private to developer; excluded from client repository)
 internal_reference/
 graphify-out/
+backups/

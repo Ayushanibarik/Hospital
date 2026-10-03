@@ -69,6 +69,47 @@ export async function initWhatsAppQR() {
  * Send real WhatsApp message if QR is connected, otherwise logs safely
  */
 export async function dispatchWhatsApp({ toPhone, messageText }) {
+  // 1. Enterprise Tier: Official Meta WhatsApp Cloud API (Graph API v20.0)
+  if (process.env.WHATSAPP_API_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) {
+    try {
+      let digits = (toPhone || '').replace(/\D/g, '');
+      if (digits.length === 10) digits = `91${digits}`;
+
+      const metaUrl = `https://graph.facebook.com/v20.0/${process.env.WHATSAPP_PHONE_NUMBER_ID}/messages`;
+      const response = await fetch(metaUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.WHATSAPP_API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          recipient_type: 'individual',
+          to: digits,
+          type: 'text',
+          text: { preview_url: false, body: messageText }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`[Meta Cloud WhatsApp] Message dispatched successfully to +${digits}`);
+        return {
+          dispatched: true,
+          mode: 'META_CLOUD_API',
+          messageId: data.messages?.[0]?.id,
+          recipient: digits
+        };
+      } else {
+        const errText = await response.text();
+        console.warn(`[Meta Cloud WhatsApp] Dispatch failed (${response.status}): ${errText}`);
+      }
+    } catch (err) {
+      console.error(`[Meta Cloud WhatsApp] Error: ${err.message}`);
+    }
+  }
+
+  // 2. Free Tier: WhatsApp Web QR Bridge (Baileys)
   if (!isConnected || !sock) {
     return {
       dispatched: false,
