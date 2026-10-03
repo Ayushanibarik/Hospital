@@ -4,10 +4,13 @@ import { MASTER_SYSTEM_PROMPT, PROMPTS } from './prompts.js';
 dotenv.config();
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const AI_PROVIDER = process.env.AI_PROVIDER || 'AUTO';
+const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
 
 /**
- * Call Claude API or fallback to rule-based execution engine
+ * Universal AI Caller supporting 100% Free Tiers (Gemini Free, Ollama Local, and Fallback)
  */
 export async function callClaude(promptType, variables) {
   const promptConfig = PROMPTS[promptType];
@@ -17,6 +20,66 @@ export async function callClaude(promptType, variables) {
 
   const promptText = promptConfig.build(variables);
 
+  // 1. Google Gemini 1.5 Flash (100% Free Tier on Google AI Studio)
+  if ((AI_PROVIDER === 'GEMINI' || (!ANTHROPIC_API_KEY && GEMINI_API_KEY)) && GEMINI_API_KEY) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: MASTER_SYSTEM_PROMPT }]
+          },
+          contents: [
+            { role: 'user', parts: [{ text: promptText }] }
+          ],
+          generationConfig: {
+            response_mime_type: 'application/json',
+            temperature: 0.1
+          }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+        const clean = rawText.replace(/```json\s*|\s*```/g, '').trim();
+        return JSON.parse(clean);
+      } else {
+        const errText = await response.text();
+        console.warn(`⚠️ Gemini API error (${response.status}): ${errText}. Using fallback.`);
+      }
+    } catch (err) {
+      console.warn(`⚠️ Gemini call error: ${err.message}. Using fallback.`);
+    }
+  }
+
+  // 2. Ollama Local LLM (100% Free, Offline, Infinite Tokens)
+  if (AI_PROVIDER === 'OLLAMA') {
+    try {
+      const response = await fetch(`${OLLAMA_HOST}/api/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: OLLAMA_MODEL,
+          system: MASTER_SYSTEM_PROMPT,
+          prompt: promptText,
+          format: 'json',
+          stream: false
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return JSON.parse(data.response);
+      }
+    } catch (err) {
+      console.warn(`⚠️ Ollama not reachable at ${OLLAMA_HOST}: ${err.message}. Using fallback.`);
+    }
+  }
+
+  // 3. Anthropic Claude API (If key configured)
   if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.startsWith('sk-ant')) {
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -27,32 +90,25 @@ export async function callClaude(promptType, variables) {
           'anthropic-version': '2023-06-01'
         },
         body: JSON.stringify({
-          model: MODEL,
+          model: process.env.ANTHROPIC_MODEL || 'claude-3-5-sonnet-20241022',
           max_tokens: 1000,
           system: MASTER_SYSTEM_PROMPT,
           messages: [{ role: 'user', content: promptText }]
         })
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.warn(`⚠️ Claude API error (${response.status}): ${errorText}. Falling back to rule-based engine.`);
-        return runFallbackEngine(promptType, variables);
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.content?.[0]?.text || '{}';
+        const cleanJson = content.replace(/```json\s*|\s*```/g, '').trim();
+        return JSON.parse(cleanJson);
       }
-
-      const data = await response.json();
-      const content = data.content?.[0]?.text || '{}';
-      
-      // Clean up markdown fences if returned
-      const cleanJson = content.replace(/```json\s*|\s*```/g, '').trim();
-      return JSON.parse(cleanJson);
     } catch (err) {
-      console.warn(`⚠️ Error calling Claude API: ${err.message}. Using rule-based fallback.`);
-      return runFallbackEngine(promptType, variables);
+      console.warn(`⚠️ Claude API error: ${err.message}. Using fallback.`);
     }
   }
 
-  // Fallback simulator for immediate offline / zero-key testing
+  // 4. Built-in Deterministic Simulation Engine (100% Free, 0 keys needed)
   return runFallbackEngine(promptType, variables);
 }
 
@@ -65,7 +121,6 @@ function runFallbackEngine(promptType, vars) {
       const text = (vars.enquiry_text || '').toLowerCase();
       const explicitDept = vars.department || '';
 
-      // Emergency keywords triggering human review
       const emergencyKeywords = ['emergency', 'chest pain', 'heart attack', 'severe bleeding', 'breathing', 'unconscious', 'dying', 'suicide'];
       const isEmergency = emergencyKeywords.some(kw => text.includes(kw));
 
@@ -77,8 +132,6 @@ function runFallbackEngine(promptType, vars) {
           department = 'Cardiology';
         } else if (text.includes('bone') || text.includes('fracture') || text.includes('joint') || text.includes('knee') || text.includes('ortho')) {
           department = 'Orthopedics';
-        } else if (text.includes('fever') || text.includes('cough') || text.includes('cold') || text.includes('weakness') || text.includes('general')) {
-          department = 'General Medicine';
         } else {
           department = 'General Medicine';
         }
