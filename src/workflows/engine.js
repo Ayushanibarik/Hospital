@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { db } from '../db/index.js';
 import { callClaude } from '../ai/claude.js';
+import { dispatchWhatsApp } from '../whatsapp/qr_bridge.js';
 
 /**
  * Generate Correlation ID adhering to Section F: HOSP-YYYYMMDD-XXXXXX
@@ -152,6 +153,9 @@ export async function handleLeadIntake(payload) {
     VALUES (?, ?, 'WhatsApp', 'APPT_CONFIRM_01', 'HOSPITAL | 01 Lead Intake', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
   `).run(msgId, patientId, timestamp, correlationId);
 
+  // Dispatch via live WhatsApp Web QR Bridge (or safe simulation)
+  await dispatchWhatsApp({ toPhone: payload.phone, messageText: messageData.message });
+
   return {
     status: 'SUCCESS',
     correlation_id: correlationId,
@@ -218,6 +222,8 @@ export async function handleNoShowRecovery(appointmentId) {
     VALUES (?, ?, 'WhatsApp', 'NOSHOW_RECOVERY_01', 'HOSPITAL | 03 No-Show Recovery', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
   `).run(msgId, appt.patient_id, timestamp, correlationId);
 
+  await dispatchWhatsApp({ toPhone: appt.phone, messageText: recoveryMsg.message });
+
   // 6. Create Follow-Up Task
   const followupId = `FOL-NOSHOW-${Date.now().toString().slice(-6)}`;
   db.prepare(`
@@ -270,6 +276,8 @@ export async function handleDischargeFollowup({ patient_id, category = 'post_dis
     INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
     VALUES (?, ?, 'WhatsApp', 'DISCHARGE_CHECKIN_01', 'HOSPITAL | Discharge Follow-Up', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
   `).run(msgId, patient_id, timestamp, correlationId);
+
+  await dispatchWhatsApp({ toPhone: patient.phone, messageText });
 
   return {
     status: 'DISCHARGE_FOLLOWUP_DISPATCHED',
@@ -368,6 +376,8 @@ export async function handleAppointmentReschedule({ appointment_id, new_slot_id 
     VALUES (?, ?, 'WhatsApp', 'APPT_RESCHEDULE_01', 'HOSPITAL | Appointment Reschedule', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
   `).run(msgId, appt.patient_id, timestamp, correlationId);
 
+  await dispatchWhatsApp({ toPhone: appt.phone, messageText });
+
   return {
     status: 'RESCHEDULED_SUCCESS',
     correlation_id: correlationId,
@@ -404,6 +414,8 @@ export async function handleDiagnosticReady({ patient_id, test_category }) {
     INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
     VALUES (?, ?, 'WhatsApp', 'DIAGNOSTIC_READY_01', 'HOSPITAL | Diagnostic Follow-Up', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
   `).run(msgId, patient_id, timestamp, correlationId);
+
+  await dispatchWhatsApp({ toPhone: patient.phone, messageText });
 
   return {
     status: 'DIAGNOSTIC_NOTIFICATION_SENT',

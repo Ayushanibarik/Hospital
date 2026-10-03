@@ -83,6 +83,9 @@
       </div>
       <div class="nav-links">
         <a href="/" class="nav-btn">← Public Intake Form</a>
+        <button class="nav-btn" id="waBridgeBtn" onclick="connectWhatsApp()" style="border-color: #25d366; color: #25d366;">
+          <span id="waStatusText">📲 Connect Live WhatsApp (Free QR)</span>
+        </button>
         <button class="nav-btn primary" onclick="generateAiSummary()">📊 Generate AI Daily Summary</button>
         <button class="nav-btn" onclick="resetDemo()">🔄 Reset Demo</button>
       </div>
@@ -495,9 +498,39 @@
       document.getElementById('aiModal').style.display = 'none';
     }
 
+    async function checkWhatsAppStatus() {
+      try {
+        const res = await fetch('/api/whatsapp/status');
+        const data = await res.json();
+        const text = document.getElementById('waStatusText');
+        const btn = document.getElementById('waBridgeBtn');
+        if (data.connected) {
+          text.innerText = '✅ Live WhatsApp Connected';
+          btn.style.background = 'rgba(37, 211, 102, 0.2)';
+        } else {
+          text.innerText = '📲 Connect Live WhatsApp (Free QR)';
+          btn.style.background = 'none';
+        }
+      } catch (e) {}
+    }
+
+    async function connectWhatsApp() {
+      try {
+        await fetch('/api/whatsapp/connect', { method: 'POST' });
+        alert('📲 WhatsApp Web QR Bridge Started!\n\nCheck the terminal running the server (node src/server.js) to view and scan the QR code using your phone:\nWhatsApp > Settings > Linked Devices > Link a Device.\n\nOnce scanned, real WhatsApp messages will be dispatched for ₹0!');
+        setTimeout(checkWhatsAppStatus, 2000);
+      } catch (err) {
+        alert('Error starting bridge: ' + err.message);
+      }
+    }
+
     // Initial load and periodic polling every 5s
     loadDashboard();
-    setInterval(loadDashboard, 5000);
+    checkWhatsAppStatus();
+    setInterval(() => {
+      loadDashboard();
+      checkWhatsAppStatus();
+    }, 5000);
   </script>
 </body>
 </html>

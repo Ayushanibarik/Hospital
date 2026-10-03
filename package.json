@@ -8,7 +8,10 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "seed": "node src/db/seed.js",
-    "test:workflows": "node test/test_workflows.js"
+    "test:workflows": "node test/test_workflows.js",
+    "n8n": "npx n8n",
+    "tunnel": "npx cloudflared tunnel --url http://localhost:3000",
+    "wa:connect": "node -e \"import('./src/whatsapp/qr_bridge.js').then(m => m.initWhatsAppQR())\""
   },
   "keywords": [
     "hospital-automation",
@@ -20,8 +23,11 @@
   "author": "The Sunday Club / Ayush",
   "license": "MIT",
   "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0-rc14",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pino": "^10.4.0",
+    "qrcode-terminal": "^0.12.0"
   }
 }

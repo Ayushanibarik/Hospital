@@ -15,6 +15,7 @@ import {
 } from './workflows/engine.js';
 import { executeMcpTool, MCP_TOOLS_SCHEMA } from './mcp/tools.js';
 import { callClaude } from './ai/claude.js';
+import { initWhatsAppQR, getWhatsAppStatus } from './whatsapp/qr_bridge.js';
 
 dotenv.config();
 
@@ -104,6 +105,22 @@ app.post('/webhook/diagnostic-ready', async (req, res) => {
     }
     const result = await handleDiagnosticReady({ patient_id, test_category });
     res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// -------------------------------------------------------------
+// WHATSAPP WEB QR BRIDGE (100% Free - Section W Option B)
+// -------------------------------------------------------------
+app.get('/api/whatsapp/status', (req, res) => {
+  res.json(getWhatsAppStatus());
+});
+
+app.post('/api/whatsapp/connect', async (req, res) => {
+  try {
+    initWhatsAppQR();
+    res.json({ success: true, message: 'WhatsApp QR Bridge started. Check terminal to scan QR code.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
