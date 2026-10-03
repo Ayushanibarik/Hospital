@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DemoCare Multispeciality Hospital — Patient Inbound Automation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">🏥</div>
+        <div>
+          <h1>DemoCare Multispeciality Hospital</h1>
+          <p>Revenue & Patient Lifecycle Automation Layer (Master Blueprint V3)</p>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="/" class="nav-btn primary">Patient Form</a>
+        <a href="/admin" class="nav-btn">Operations Dashboard ⚡</a>
+      </div>
+    </header>
+
+    <div class="grid-2">
+      <!-- Left: Inbound Lead Form -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title"><span>📝</span> Patient Inbound Consultation Form</h2>
+          <span class="badge badge-teal">Live Webhook</span>
+        </div>
+
+        <div class="demo-presets">
+          <label style="margin-bottom:0.2rem;">Quick Demo Fillers for Video Recording:</label>
+          <button type="button" class="preset-btn" onclick="fillPreset('normal')">
+            <span>✨ <strong>Rahul Sharma</strong> — Dermatology (Normal Flow)</span>
+            <span class="badge badge-teal">Auto-Book</span>
+          </button>
+          <button type="button" class="preset-btn" onclick="fillPreset('emergency')">
+            <span>🚨 <strong>Vikram Joshi</strong> — Severe Chest Pain (Emergency Test)</span>
+            <span class="badge badge-rose">AI Guardrail</span>
+          </button>
+        </div>
+
+        <form id="leadForm" onsubmit="submitLead(event)">
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" required placeholder="e.g. Rahul Sharma">
+          </div>
+
+          <div class="form-group">
+            <label for="phone">WhatsApp Phone Number</label>
+            <input type="text" id="phone" required placeholder="e.g. +91 99999 99999">
+          </div>
+
+          <div class="form-group">
+            <label for="department">Preferred Department</label>
+            <select id="department">
+              <option value="">Let AI Classify From Symptoms</option>
+              <option value="Dermatology">Dermatology (Skin, Hair, Acne)</option>
+              <option value="Cardiology">Cardiology (Heart, BP, ECG)</option>
+              <option value="Orthopedics">Orthopedics (Bones, Joints, Spine)</option>
+              <option value="General Medicine">General Medicine (Fever, General OPD)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="preferredDate">Preferred Date</label>
+            <input type="date" id="preferredDate" value="2026-10-04">
+          </div>
+
+          <div class="form-group">
+            <label for="enquiryText">Symptoms / Enquiry Description</label>
+            <textarea id="enquiryText" required placeholder="Please describe what you are experiencing..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="source">Acquisition Channel</label>
+            <select id="source">
+              <option value="Instagram">Instagram DM / Ad</option>
+              <option value="Google Ads">Google Search / Ads</option>
+              <option value="Website Form">Hospital Website</option>
+              <option value="WhatsApp Direct">WhatsApp Inbound</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span>⚡ Submit Enquiry to Automation Layer</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Right: Real-time Execution Inspector -->
+      <div class="card" id="resultCard">
+        <div class="card-header">
+          <h2 class="card-title"><span>🔍</span> Automation Execution Trace</h2>
+          <span class="badge badge-blue" id="statusBadge">Awaiting Submission</span>
+        </div>
+
+        <div id="emptyState" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
+          <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
+          <p>Submit the form on the left or click a demo preset to see the entire AI Qualification, Calendar Match, and WhatsApp messaging trigger live.</p>
+        </div>
+
+        <div id="responseDetails" style="display: none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
+            <span style="font-size:0.8rem; color:var(--text-muted);">Correlation ID:</span>
+            <span class="code-pill" id="traceCorrelation"></span>
+          </div>
+
+          <!-- Normal Success Flow -->
+          <div id="successFlow" style="display:none;">
+            <div style="background: rgba(0, 245, 212, 0.08); border: 1px solid rgba(0, 245, 212, 0.25); border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem;">
+              <h4 style="color: var(--teal); margin-bottom: 0.4rem; font-size: 0.95rem;">✅ Lead Qualified & Appointment Confirmed</h4>
+              <p style="font-size: 0.85rem; color: var(--text-main);" id="appointmentDetails"></p>
+            </div>
+
+            <label>📲 Simulated Patient WhatsApp Delivery:</label>
+            <div class="whatsapp-preview">
+              <div style="font-size: 0.72rem; color: #8696a0; margin-bottom: 0.4rem; font-weight: 600;">
+                DemoCare Hospital Verified Business Account
+              </div>
+              <div class="whatsapp-bubble" id="whatsappMessage"></div>
+              <div class="whatsapp-meta">
+                <span id="msgTimestamp">Just now</span>
+                <span style="color:#53bdeb;">✓✓</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emergency / Human Escalation Flow -->
+          <div id="escalationFlow" style="display:none;">
+            <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 8px; padding: 1.25rem;">
+              <h4 style="color: var(--rose); margin-bottom: 0.5rem; font-size: 1rem; display:flex; align-items:center; gap:0.5rem;">
+                <span>🚨</span> Human Review Required (AI Guardrail Active)
+              </h4>
+              <p style="font-size: 0.85rem; line-height: 1.5; color: #fecdd3;" id="escalationReason"></p>
+              <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 6px; font-size: 0.8rem;">
+                <strong>Guardrail Enforced:</strong> Section G & Master System Prompt — Clinical triage/emergencies are never processed autonomously. Record routed to ER / Triage Staff Exception Queue.
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <a href="/admin" class="nav-btn primary" style="flex:1; text-align:center;">
+              View in Operations Dashboard →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function fillPreset(type) {
+      if (type === 'normal') {
+        document.getElementById('fullName').value = 'Rahul Sharma';
+        document.getElementById('phone').value = '+91 99999 99999';
+        document.getElementById('department').value = 'Dermatology';
+        document.getElementById('enquiryText').value = 'I want to book a consultation for severe acne and skin rash.';
+        document.getElementById('source').value = 'Instagram';
+      } else if (type === 'emergency') {
+        document.getElementById('fullName').value = 'Vikram Joshi';
+        document.getElementById('phone').value = '+91 98888 88888';
+        document.getElementById('department').value = 'Cardiology';
+        document.getElementById('enquiryText').value = 'Experiencing severe crushing chest pain radiating to left arm and breathing difficulty since 20 mins!';
+        document.getElementById('source').value = 'WhatsApp Direct';
+      }
+    }
+
+    async function submitLead(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerText = '⚡ Processing via AI Automation Layer...';
+
+      const payload = {
+        full_name: document.getElementById('fullName').value,
+        phone: document.getElementById('phone').value,
+        department: document.getElementById('department').value,
+        preferred_date: document.getElementById('preferredDate').value,
+        enquiry_text: document.getElementById('enquiryText').value,
+        source: document.getElementById('source').value
+      };
+
+      try {
+        const res = await fetch('/webhook/lead-intake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        renderResult(data);
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '⚡ Submit Enquiry to Automation Layer';
+      }
+    }
+
+    function renderResult(data) {
+      document.getElementById('emptyState').style.display = 'none';
+      document.getElementById('responseDetails').style.display = 'block';
+      document.getElementById('traceCorrelation').innerText = data.correlation_id || 'N/A';
+
+      if (data.status === 'SUCCESS') {
+        document.getElementById('statusBadge').className = 'badge badge-teal';
+        document.getElementById('statusBadge').innerText = 'Processed & Booked';
+        document.getElementById('successFlow').style.display = 'block';
+        document.getElementById('escalationFlow').style.display = 'none';
+
+        document.getElementById('appointmentDetails').innerHTML = `
+          <strong>Department:</strong> ${data.department}<br>
+          <strong>Doctor:</strong> ${data.doctor}<br>
+          <strong>Confirmed Slot:</strong> ${data.slot}<br>
+          <strong>Appointment ID:</strong> <span class="code-pill">${data.appointment_id}</span>
+        `;
+        document.getElementById('whatsappMessage').innerText = data.message_sent;
+      } else if (data.status === 'ESCALATED_TO_HUMAN') {
+        document.getElementById('statusBadge').className = 'badge badge-rose';
+        document.getElementById('statusBadge').innerText = 'Guardrail Escalated';
+        document.getElementById('successFlow').style.display = 'none';
+        document.getElementById('escalationFlow').style.display = 'block';
+        document.getElementById('escalationReason').innerText = data.reason;
+      }
+    }
+  </script>
+</body>
+</html>

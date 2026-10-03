@@ -1,0 +1,80 @@
+{
+  "name": "HOSPITAL | 01 Lead Intake",
+  "nodes": [
+    {
+      "id": "1",
+      "name": "Hospital Inbound Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hospital-demo-lead",
+        "responseMode": "onReceived"
+      }
+    },
+    {
+      "id": "2",
+      "name": "Edit Fields / Normalize",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "full_name", "value": "={{$json.body.full_name}}" },
+            { "name": "phone", "value": "={{$json.body.phone}}" },
+            { "name": "department", "value": "={{$json.body.department}}" },
+            { "name": "enquiry_text", "value": "={{$json.body.enquiry_text}}" },
+            { "name": "preferred_date", "value": "={{$json.body.preferred_date}}" },
+            { "name": "source", "value": "={{$json.body.source}}" },
+            { "name": "correlation_id", "value": "={{$json.body.correlation_id || 'HOSP-' + $now.format('YYYYMMDD') + '-LEAD01'}}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "3",
+      "name": "Claude AI Qualification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/webhook/lead-intake",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json}}"
+      }
+    },
+    {
+      "id": "4",
+      "name": "Check Priority Review",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.status}}",
+              "operation": "equal",
+              "value2": "SUCCESS"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Hospital Inbound Webhook": {
+      "main": [[{ "node": "Edit Fields / Normalize", "type": "main", "index": 0 }]]
+    },
+    "Edit Fields / Normalize": {
+      "main": [[{ "node": "Claude AI Qualification", "type": "main", "index": 0 }]]
+    },
+    "Claude AI Qualification": {
+      "main": [[{ "node": "Check Priority Review", "type": "main", "index": 0 }]]
+    }
+  }
+}
