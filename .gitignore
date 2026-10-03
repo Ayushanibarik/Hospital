@@ -4,3 +4,7 @@ node_modules/
 *.log
 .DS_Store
 .wa_auth/
+
+# Internal Developer & Agency Reference (Private to developer; excluded from client repository)
+internal_reference/
+graphify-out/
