@@ -5,7 +5,6 @@ npm-debug.log
 .env
 internal_reference
 graphify-out
-test
 *.log
 .DS_Store
 .wa_auth

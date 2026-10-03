@@ -4,6 +4,9 @@
   "description": "Hospital Revenue & Patient Lifecycle Automation Layer - Master Blueprint V3",
   "main": "src/server.js",
   "type": "module",
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",

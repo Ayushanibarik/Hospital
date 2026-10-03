@@ -3,7 +3,7 @@
 # Multi-Stage, Minimalist & Hardened (Non-Root User)
 # =============================================================
 
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -25,7 +25,7 @@ RUN node src/db/seed.js && node test/test_workflows.js
 # -------------------------------------------------------------
 # Runtime Production Image
 # -------------------------------------------------------------
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 WORKDIR /app
 
