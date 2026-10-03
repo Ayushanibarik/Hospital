@@ -13,21 +13,36 @@ import {
   handleDischargeFollowup, 
   handlePatientFeedback,
   handleAppointmentReschedule,
+  handleAppointmentCancellation,
+  routeLeadToDepartment,
   handleDiagnosticReady,
   handlePreConsultationIntake,
   handleInsurancePreVerification,
   handleGenerateQueueToken,
   handleCallNextQueueToken,
+  handleOpdJourneyStageUpdate,
+  handleBillingCoordination,
+  handlePaymentReceived,
   handleAdmissionPreClearance,
+  handleAdmissionIntake,
+  handleDischargeClearance,
+  handleServiceRecoveryResolution,
   handleChronicRevisitCheck,
   handleInactiveReactivation,
-  handleDoctorAvailability
+  handleDoctorAvailability,
+  handleReferralIntake,
+  checkAndEscalateLeadSla,
+  generateAdminDailyReport,
+  getDepartmentPerformanceMetrics,
+  handleAiOperationsQuery,
+  runSystemMaintenanceAudit,
+  get26ModulesStatus
 } from './workflows/engine.js';
 import { executeMcpTool, MCP_TOOLS_SCHEMA } from './mcp/tools.js';
 import { callClaude } from './ai/claude.js';
 import { initWhatsAppQR, getWhatsAppStatus } from './whatsapp/qr_bridge.js';
 import { handleInboundPatientMessage } from './workflows/inbound_reply.js';
-import { startBackgroundScheduler, runAppointmentReminders } from './workflows/scheduler.js';
+import { startBackgroundScheduler, runAppointmentReminders, runAllBackgroundTasks } from './workflows/scheduler.js';
 import { appCache } from './utils/cache.js';
 import { requestLogger, logger } from './utils/logger.js';
 import { trackError } from './utils/error_tracker.js';
@@ -176,6 +191,29 @@ app.post('/api/appointments/:id/reschedule', async (req, res) => {
     const { id } = req.params;
     const { new_slot_id } = req.body;
     const result = await handleAppointmentReschedule({ appointment_id: id, new_slot_id });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 8: Appointment Cancellation
+app.post('/api/appointments/:id/cancel', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason } = req.body;
+    const result = await handleAppointmentCancellation({ appointment_id: id, reason });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 3: Department Routing & Queue Assignment
+app.post('/api/leads/route', async (req, res) => {
+  try {
+    const { lead_id, target_department, notes } = req.body;
+    const result = await routeLeadToDepartment({ lead_id, target_department, notes });
     res.json({ success: true, ...result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -513,6 +551,229 @@ app.get('/api/dashboard/chronic', (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Module 10: OPD Patient Journey Milestones
+app.post('/api/opd/journey/stage', async (req, res) => {
+  try {
+    const result = await handleOpdJourneyStageUpdate(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/dashboard/opd-journeys', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT j.*, p.full_name, p.phone
+      FROM opd_journeys j
+      JOIN patients p ON j.patient_id = p.patient_id
+      ORDER BY j.check_in_time DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 12: Billing & Payment Status Coordination
+app.post('/api/billing/create', async (req, res) => {
+  try {
+    const result = await handleBillingCoordination(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/billing/pay', async (req, res) => {
+  try {
+    const result = await handlePaymentReceived(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/dashboard/billing', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT b.*, p.full_name, p.phone
+      FROM billing_records b
+      JOIN patients p ON b.patient_id = p.patient_id
+      ORDER BY b.created_at DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 13: Inpatient Admission Administration
+app.post('/api/admissions/intake', async (req, res) => {
+  try {
+    const result = await handleAdmissionIntake(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/dashboard/ipd-admissions', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT a.*, p.full_name, p.phone, d.name as doctor_name
+      FROM ipd_admissions a
+      JOIN patients p ON a.patient_id = p.patient_id
+      LEFT JOIN doctors d ON a.doctor_id = d.doctor_id
+      ORDER BY a.admission_date DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 14: Discharge Administration & Clearance Tracking
+app.post('/api/discharge/clearance', async (req, res) => {
+  try {
+    const result = await handleDischargeClearance(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/dashboard/discharge-clearances', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT d.*, p.full_name, p.phone
+      FROM discharge_administrations d
+      JOIN patients p ON d.patient_id = p.patient_id
+      ORDER BY d.discharge_date DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 17: Service Recovery Resolution
+app.post('/api/service-recovery/resolve', async (req, res) => {
+  try {
+    const result = await handleServiceRecoveryResolution(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/dashboard/service-recovery', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT e.*, p.full_name, p.phone
+      FROM exceptions e
+      LEFT JOIN patients p ON e.record_id = p.patient_id
+      WHERE e.workflow_name LIKE '%SERVICE_RECOVERY%' OR e.error_type LIKE '%FEEDBACK%'
+      ORDER BY e.created_at DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 19: Clinic & Doctor Referral Engine
+app.post('/api/referrals/intake', async (req, res) => {
+  try {
+    const result = await handleReferralIntake(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/dashboard/referrals', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT r.*, p.full_name, p.phone
+      FROM referrals r
+      JOIN patients p ON r.patient_id = p.patient_id
+      ORDER BY r.created_at DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 20: Lead SLA Escalation Scanner
+app.post('/api/scheduler/run-lead-sla', async (req, res) => {
+  try {
+    const { threshold_minutes } = req.body || {};
+    const result = await checkAndEscalateLeadSla(threshold_minutes || 15);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 21: Admin Daily Executive Report
+app.get('/api/reports/daily', async (req, res) => {
+  try {
+    const result = await generateAdminDailyReport();
+    res.json(result.report);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/reports/daily/generate', async (req, res) => {
+  try {
+    const result = await generateAdminDailyReport();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 22: Department Performance Breakdown
+app.get('/api/dashboard/department-performance', async (req, res) => {
+  try {
+    const result = await getDepartmentPerformanceMetrics();
+    res.json(result.departments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 24: AI Operations Assistant (Administrative Ops Invariants)
+app.post('/api/ai/operations-assistant', async (req, res) => {
+  try {
+    const { query, role } = req.body;
+    if (!query) return res.status(400).json({ success: false, error: 'query parameter is required' });
+    const result = await handleAiOperationsQuery({ query, user_role: role });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 26: System Maintenance Audit & Self-Diagnostics
+app.get('/api/system/maintenance-audit', async (req, res) => {
+  try {
+    const result = await runSystemMaintenanceAudit();
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// MASTER STATUS: Master Blueprint 26-Modules Live Status
+app.get('/api/modules/status', (req, res) => {
+  res.json(get26ModulesStatus());
+});
+
 
 // -------------------------------------------------------------
 // OPERATIONAL DASHBOARD APIS (Section AA)

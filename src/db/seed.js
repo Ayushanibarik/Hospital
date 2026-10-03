@@ -18,6 +18,11 @@ export function seed() {
     DELETE FROM intake_forms;
     DELETE FROM insurance_preverifications;
     DELETE FROM queue_tokens;
+    DELETE FROM opd_journeys;
+    DELETE FROM billing_records;
+    DELETE FROM ipd_admissions;
+    DELETE FROM discharge_administrations;
+    DELETE FROM referrals;
     DELETE FROM admission_preclearances;
     DELETE FROM chronic_programs;
     DELETE FROM appointments;
@@ -133,7 +138,43 @@ export function seed() {
     VALUES ('CHR-001', 'DEMO-001', 'Hypertension & Lipid Management', '2026-07-01', 90, '2026-09-29', 'ACTIVE')
   `).run();
 
-  // 10. Sample Audit & Exceptions
+  // 10. Sample OPD Patient Journey (Module 10)
+  db.prepare(`
+    INSERT INTO opd_journeys (journey_id, patient_id, appointment_id, department, stage, token_number, notes)
+    VALUES ('JRN-001', 'DEMO-001', 'APPT-DEMO-002', 'Cardiology', 'TRIAGE_VITALS', 1, 'BP: 120/80, SpO2: 99%, Pulse: 72 bpm')
+  `).run();
+
+  // 11. Sample Billing Record (Module 12)
+  db.prepare(`
+    INSERT INTO billing_records (bill_id, patient_id, encounter_id, service_type, total_amount, insurance_covered, copay_amount, payment_status, idempotency_key, invoice_url)
+    VALUES ('BILL-001', 'DEMO-002', 'APPT-DEMO-002', 'Outpatient Consultation & Allergy Panel', 2500.0, 2000.0, 500.0, 'PENDING', 'IDEM-BILL-DEMO-002-01', 'https://democare.hospital/invoice/BILL-001')
+  `).run();
+
+  // 12. Sample Inpatient Admission (Module 13)
+  db.prepare(`
+    INSERT INTO ipd_admissions (admission_id, patient_id, department, room_number, bed_type, doctor_id, status, attendant_name, attendant_phone, advance_deposit)
+    VALUES ('ADM-001', 'DEMO-003', 'Orthopedics', 'Room 308 (Post-Op Wing)', 'PRIVATE', 'DOC-ORTH-01', 'ADMITTED', 'Sunil Varma', '+919999999994', 15000.0)
+  `).run();
+
+  // 13. Sample Discharge Administration (Module 14)
+  db.prepare(`
+    INSERT INTO discharge_administrations (discharge_id, patient_id, admission_id, clinical_clearance, pharmacy_clearance, billing_clearance, status, summary_ready, cleared_by_doctor)
+    VALUES ('DISC-001', 'DEMO-003', 'ADM-001', 1, 1, 1, 'CLEARED_FOR_DISCHARGE', 1, 'Dr. Amit Patel')
+  `).run();
+
+  // 14. Sample Clinic Referral (Module 19)
+  db.prepare(`
+    INSERT INTO referrals (referral_id, patient_id, referring_doctor, referring_facility, department, clinical_notes, status, acknowledged)
+    VALUES ('REF-001', 'DEMO-001', 'Dr. Ramesh Joshi, MD', 'Apex City Clinic', 'Cardiology', 'Referred for specialist evaluation of borderline dyslipidemia and cardiac echo', 'RECEIVED', 0)
+  `).run();
+
+  // 15. Sample Overdue Lead for SLA Escalation (Module 20)
+  db.prepare(`
+    INSERT INTO leads (lead_id, patient_id, source, campaign, enquiry_text, department, priority, status, created_at)
+    VALUES ('LEAD-SLA-TEST', 'DEMO-001', 'Meta Ads', 'Heart-Health-Camp', 'Inquiring for comprehensive full-body executive checkup', 'Cardiology', 'normal', 'new', datetime('now', '-45 minutes'))
+  `).run();
+
+  // 16. Sample Audit & Exceptions
   db.prepare(`
     INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, record_id, correlation_id)
     VALUES ('EVT-INIT-001', 'SYSTEM_INIT', 'v3.0', 'SYSTEM', 'SEEDED_DEMOCARE_ENVIRONMENT', 'DemoCare', 'HOSP-20261003-INIT001')
@@ -143,7 +184,7 @@ export function seed() {
   console.log(`   - ${doctors.length} Doctors across 4 Departments`);
   console.log(`   - ${slots.length} Demo Calendar Slots`);
   console.log(`   - 3 Test Patients (DEMO-001, DEMO-002, DEMO-003)`);
-  console.log(`   - Initialized Modules: Intake Forms, TPA Insurance, OPD Queue, Chronic Care`);
+  console.log(`   - Initialized 26 Master Modules: Billing, Admissions, Discharges, Referrals, SLA Leads`);
 }
 
 // Run directly if invoked from CLI

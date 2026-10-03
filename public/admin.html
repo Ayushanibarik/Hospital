@@ -3,22 +3,47 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DemoCare Hospital — Operations & KPI Management Dashboard</title>
+  <title>DemoCare Hospital — 26 Modules Master Blueprint Operations Control</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <style>
-    .section-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      display: flex;
+    .module-badge {
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .badge-online {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      transition: all 0.2s;
+    }
+    .module-card:hover {
+      border-color: var(--teal);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    .module-matrix-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
     }
     .action-panel {
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.1), rgba(139, 92, 246, 0.1));
-      border: 1px solid rgba(14, 165, 233, 0.3);
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(139, 92, 246, 0.08));
+      border: 1px solid rgba(14, 165, 233, 0.25);
       border-radius: var(--radius);
       padding: 1.5rem;
       margin-bottom: 2rem;
@@ -26,13 +51,13 @@
     .action-btn-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.75rem;
+      gap: 0.65rem;
       margin-top: 1rem;
     }
     .action-btn {
-      padding: 0.6rem 1rem;
+      padding: 0.55rem 0.9rem;
       border-radius: 8px;
-      font-size: 0.84rem;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       border: 1px solid var(--border);
@@ -41,20 +66,25 @@
       transition: all 0.2s;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
     .action-btn:hover {
       border-color: var(--teal);
       transform: translateY(-1px);
+      background: var(--bg-card-hover);
     }
     .action-btn.danger:hover {
       border-color: var(--rose);
       background: rgba(244, 63, 94, 0.15);
     }
+    .action-btn.success:hover {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.15);
+    }
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(8px);
       display: none;
       align-items: center;
@@ -65,11 +95,17 @@
       background: var(--bg-card);
       border: 1px solid var(--teal);
       border-radius: var(--radius);
-      width: 90%;
-      max-width: 650px;
+      width: 92%;
+      max-width: 720px;
       padding: 2rem;
       max-height: 85vh;
       overflow-y: auto;
+    }
+    .dept-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
     }
   </style>
 </head>
@@ -79,98 +115,149 @@
       <div class="brand">
         <div class="brand-icon">⚡</div>
         <div>
-          <h1>DemoCare Hospital Operations Control</h1>
-          <p>Revenue & Lifecycle Automation Engine • Section AA Operational Layer</p>
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <h1>DemoCare Multispeciality Hospital</h1>
+            <span class="module-badge badge-online">26/26 Modules Verified (100%)</span>
+          </div>
+          <p>Revenue & Patient Lifecycle Automation Layer • Master Blueprint V3 (@imthatyogii)</p>
         </div>
       </div>
       <div class="nav-links">
         <a href="/" class="nav-btn">← Public Intake Form</a>
         <button class="nav-btn" id="waBridgeBtn" onclick="connectWhatsApp()" style="border-color: #25d366; color: #25d366;">
-          <span id="waStatusText">📲 Connect Live WhatsApp (Free QR)</span>
+          <span id="waStatusText">📲 Connect Live WhatsApp</span>
         </button>
-        <button class="nav-btn primary" onclick="generateAiSummary()">📊 Generate AI Daily Summary</button>
+        <button class="nav-btn" onclick="openAssistantModal()" style="border-color:var(--purple); color:var(--purple);">🤖 AI Ops Assistant</button>
+        <button class="nav-btn primary" onclick="generateAiSummary()">📊 AI Daily Summary</button>
+        <button class="nav-btn" onclick="openMaintenanceModal()">🛡️ System Health</button>
         <button class="nav-btn" onclick="resetDemo()">🔄 Reset Demo</button>
       </div>
     </header>
 
-    <!-- Section AA: Daily Metrics Grid -->
+    <!-- SECTION AA: OPERATIONAL METRICS -->
     <div class="stats-grid">
       <div class="stat-card">
-        <span class="stat-label">Inbound Leads</span>
+        <span class="stat-label">Inbound Leads (M1)</span>
         <span class="stat-value" id="kpiLeads">0</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Booked Appointments</span>
+        <span class="stat-label">Confirmed Appts (M5)</span>
         <span class="stat-value" style="color:var(--teal);" id="kpiBooked">0</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">No-Shows Recorded</span>
+        <span class="stat-label">No-Shows (M9)</span>
         <span class="stat-value" style="color:var(--amber);" id="kpiNoShows">0</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">No-Shows Recovered</span>
+        <span class="stat-label">Recovered No-Shows (M9)</span>
         <span class="stat-value" style="color:var(--emerald);" id="kpiRecovered">0</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Open Exceptions</span>
+        <span class="stat-label">Billed Volume (M12)</span>
+        <span class="stat-value" style="color:var(--blue);" id="kpiRevenue">₹0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Active Inpatients (M13)</span>
+        <span class="stat-value" style="color:var(--purple);" id="kpiAdmissions">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Open Exceptions (M23)</span>
         <span class="stat-value" style="color:var(--rose);" id="kpiExceptions">0</span>
       </div>
       <div class="stat-card">
-        <span class="stat-label">Messages Dispatched</span>
-        <span class="stat-value" style="color:var(--blue);" id="kpiMessages">0</span>
+        <span class="stat-label">Messages Dispatched (M6)</span>
+        <span class="stat-value" style="color:var(--text-main);" id="kpiMessages">0</span>
       </div>
     </div>
 
-    <!-- Live Demonstration Trigger Bar -->
+    <!-- 1-CLICK DEMONSTRATION ACTION BAR -->
     <div class="action-panel">
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          <h3 style="font-size:1.05rem; font-weight:700;">🎬 Demo Simulation Action Bar (For Client Video Walkthrough)</h3>
+          <h3 style="font-size:1.05rem; font-weight:700;">🎬 Complete 26-Modules Interactive Demo Triggers</h3>
           <p style="font-size:0.84rem; color:var(--text-muted); margin-top:0.2rem;">
-            Click these triggers to demonstrate real-time lifecycle automations without manual delay.
+            Test any of the 26 automated workflows in real-time. Full audit trail and WhatsApp delivery simulated or dispatched.
           </p>
         </div>
-        <span class="badge badge-teal">Ready for Recording</span>
+        <span class="badge badge-teal">Live Demo Suite</span>
       </div>
 
       <div class="action-btn-group">
         <button class="action-btn" onclick="triggerNoShowDemo()">
-          <span>📉 1-Click No-Show Recovery</span>
+          <span>📉 1-Click No-Show Recovery (M9)</span>
         </button>
         <button class="action-btn" onclick="triggerRescheduleDemo()">
-          <span>🔄 1-Click Patient Reschedule (Module 8)</span>
+          <span>🔄 1-Click Reschedule (M8)</span>
+        </button>
+        <button class="action-btn danger" onclick="triggerCancelDemo()">
+          <span>❌ 1-Click Cancel Appt (M8)</span>
+        </button>
+        <button class="action-btn" onclick="triggerRouteLeadDemo()">
+          <span>🎯 1-Click Route Lead (M3)</span>
         </button>
         <button class="action-btn" onclick="triggerDiagnosticDemo()">
-          <span>🔬 1-Click Diagnostic Ready Alert (Module 11)</span>
+          <span>🔬 1-Click Diagnostic Ready (M11)</span>
         </button>
-        <button class="action-btn" onclick="triggerDischargeDemo()">
-          <span>🏥 1-Click Discharge Follow-up</span>
+        <button class="action-btn success" onclick="triggerBillingDemo()">
+          <span>💳 1-Click Billing & Invoice (M12)</span>
+        </button>
+        <button class="action-btn success" onclick="triggerPayDemo()">
+          <span>💰 1-Click Pay Receipt (M12)</span>
+        </button>
+        <button class="action-btn" onclick="triggerAdmissionDemo()">
+          <span>🏥 1-Click IPD Admission (M13)</span>
+        </button>
+        <button class="action-btn" onclick="triggerDischargeClearanceDemo()">
+          <span>🚪 1-Click Discharge Gate-Pass (M14)</span>
+        </button>
+        <button class="action-btn" onclick="triggerDischargeFollowupDemo()">
+          <span>🩺 1-Click Discharge Follow-up (M15)</span>
         </button>
         <button class="action-btn danger" onclick="triggerBadFeedbackDemo()">
-          <span>⭐ 1-Click Negative Feedback (Service Recovery)</span>
+          <span>⭐ 1-Click Service Recovery (M16/17)</span>
         </button>
         <button class="action-btn" onclick="triggerQueueTokenDemo()">
-          <span>🎫 1-Click OPD Token (Module 10)</span>
+          <span>🎫 1-Click OPD Token (M10)</span>
         </button>
         <button class="action-btn" onclick="triggerCallNextDemo()">
-          <span>📢 1-Click Call Next Patient (Module 10)</span>
+          <span>📢 1-Click Call Next Patient (M10)</span>
         </button>
-        <button class="action-btn" onclick="triggerChronicDemo()">
-          <span>🩺 1-Click Chronic Care Recall (Module 16)</span>
+        <button class="action-btn" onclick="triggerReferralDemo()">
+          <span>🤝 1-Click Clinic Referral (M19)</span>
+        </button>
+        <button class="action-btn" onclick="triggerSlaScanDemo()">
+          <span>⏱️ 1-Click Scan Lead SLA (M20)</span>
         </button>
         <button class="action-btn" onclick="triggerRemindersDemo()">
-          <span>⏰ 1-Click Reminders (Module 7)</span>
+          <span>⏰ 1-Click Reminders (M7)</span>
         </button>
       </div>
     </div>
 
-    <!-- Main Tables Grid -->
+    <!-- SECTION C: COMPLETE 26 MODULES MASTER MATRIX -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div class="card-header" style="cursor:pointer;" onclick="toggleModulesMatrix()">
+        <div>
+          <h3 class="card-title"><span>📋</span> Master Blueprint Section C: Complete 26 Modules Matrix</h3>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">Every module specified in Blueprint V3 is implemented, test-verified, and accessible via dedicated API.</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <span class="badge badge-teal" id="matrixCountBadge">26/26 Available</span>
+          <span id="matrixToggleIcon" style="font-size:1.1rem; color:var(--teal);">▼</span>
+        </div>
+      </div>
+      <div id="modulesMatrixContainer" class="module-matrix-grid">
+        <!-- Dynamically injected via get26ModulesStatus() -->
+      </div>
+    </div>
+
+    <!-- MAIN TABLES GRID -->
     <div class="grid-2">
-      <!-- Recent Leads -->
+      <!-- Recent Leads (M1, M2, M3) -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><span>👥</span> Recent Leads & Enquiries</h3>
-          <span class="badge badge-blue">Auto-Qualified</span>
+          <h3 class="card-title"><span>👥</span> Inbound Leads (M1 & M2)</h3>
+          <span class="badge badge-blue">AI-Qualified</span>
         </div>
         <div class="table-wrapper">
           <table>
@@ -189,10 +276,10 @@
         </div>
       </div>
 
-      <!-- Active Appointments -->
+      <!-- Confirmed Appointments (M4, M5, M8) -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><span>📅</span> Confirmed Appointments</h3>
+          <h3 class="card-title"><span>📅</span> Appointments Roster (M5 & M8)</h3>
           <span class="badge badge-teal">Live Roster</span>
         </div>
         <div class="table-wrapper">
@@ -202,7 +289,7 @@
                 <th>Patient</th>
                 <th>Doctor / Dept</th>
                 <th>Slot Time</th>
-                <th>Attendance</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody id="appointmentsTableBody">
@@ -214,11 +301,11 @@
     </div>
 
     <div style="margin-top: 2rem;" class="grid-2">
-      <!-- Communication Logs -->
+      <!-- Communication Logs (M6 & M25) -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><span>📲</span> Communication Logs (WhatsApp API)</h3>
-          <span class="badge badge-teal">Delivery Verified</span>
+          <h3 class="card-title"><span>📲</span> Communication Logs (M6 & M25)</h3>
+          <span class="badge badge-teal">WhatsApp API</span>
         </div>
         <div class="table-wrapper">
           <table>
@@ -237,10 +324,10 @@
         </div>
       </div>
 
-      <!-- Exceptions & Guardrails Queue -->
+      <!-- Exception Queue (M23) -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><span>🚨</span> Centralized Exception Queue</h3>
+          <h3 class="card-title"><span>🚨</span> Exception Queue (M23)</h3>
           <span class="badge badge-rose" id="exceptionCountBadge">0 Open</span>
         </div>
         <div class="table-wrapper">
@@ -258,14 +345,16 @@
             </tbody>
           </table>
         </div>
+      </div>
     </div>
 
+    <!-- MODULES 10 & 12: OPD JOURNEYS & BILLING -->
     <div style="margin-top: 2rem;" class="grid-2">
-      <!-- OPD Queue & Digital Intake -->
+      <!-- OPD Journey Tracker (M10) -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><span>🎫</span> OPD Queue & Live Tokens (Module 10)</h3>
-          <span class="badge badge-teal">Live Roster</span>
+          <h3 class="card-title"><span>🎫</span> OPD Journey & Queue Tokens (M10)</h3>
+          <span class="badge badge-teal">Milestones</span>
         </div>
         <div class="table-wrapper">
           <table>
@@ -274,46 +363,106 @@
                 <th>Token</th>
                 <th>Patient</th>
                 <th>Department</th>
-                <th>Status</th>
+                <th>OPD Stage</th>
               </tr>
             </thead>
-            <tbody id="queueTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading queue tokens...</td></tr>
+            <tbody id="opdTableBody">
+              <tr><td colspan="4" style="text-align:center;">Loading OPD journeys...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- Chronic Programs & Insurance Pre-Clearance -->
+      <!-- Billing Coordination (M12) -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title"><span>🩺</span> Chronic Care & Insurance Pre-Clearance (Modules 4 & 16)</h3>
-          <span class="badge badge-blue">Care Management</span>
+          <h3 class="card-title"><span>💳</span> Billing & Payment Coordination (M12)</h3>
+          <span class="badge badge-blue">Idempotent</span>
         </div>
         <div class="table-wrapper">
           <table>
             <thead>
               <tr>
+                <th>Bill ID</th>
                 <th>Patient</th>
-                <th>Program / Policy</th>
-                <th>Next Due / Status</th>
-                <th>Type</th>
+                <th>Amount (Copay)</th>
+                <th>Payment Status</th>
               </tr>
             </thead>
-            <tbody id="chronicTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading programs...</td></tr>
+            <tbody id="billingTableBody">
+              <tr><td colspan="4" style="text-align:center;">Loading billing records...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
+
+    <!-- MODULES 13, 14, 19: ADMISSIONS, DISCHARGES, REFERRALS -->
+    <div style="margin-top: 2rem;" class="grid-2">
+      <!-- Inpatient Admissions & Discharge Gate-Passes (M13 & M14) -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>🏥</span> IPD Admissions & Discharges (M13 & M14)</h3>
+          <span class="badge badge-purple">Inpatient Layer</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Patient</th>
+                <th>Room / Bed</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="admissionsTableBody">
+              <tr><td colspan="4" style="text-align:center;">Loading admissions...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Doctor & Clinic Referral Network (M19) -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>🤝</span> Clinic & Doctor Referral Network (M19)</h3>
+          <span class="badge badge-teal">Growth Engine</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Referral ID</th>
+                <th>Referring Doctor</th>
+                <th>Specialty</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="referralsTableBody">
+              <tr><td colspan="4" style="text-align:center;">Loading referrals...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 22: DEPARTMENT PERFORMANCE BREAKDOWN -->
+    <div style="margin-top: 2rem;" class="card">
+      <div class="card-header">
+        <h3 class="card-title"><span>📊</span> Department Performance & Capacity Utilization (M22)</h3>
+        <span class="badge badge-teal">Hospital Analytics</span>
+      </div>
+      <div id="deptPerformanceGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-top:0.5rem;">
+        <!-- Injected via /api/dashboard/department-performance -->
+      </div>
+    </div>
   </div>
 
-  <!-- AI Daily Summary Modal -->
+  <!-- AI DAILY SUMMARY MODAL (Prompt 5) -->
   <div class="modal-overlay" id="aiModal" onclick="closeModal(event)">
     <div class="modal-card" onclick="event.stopPropagation()">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-        <h2 style="font-size:1.25rem; font-weight:700; color:var(--teal);">📊 AI Daily Management Summary (Prompt 5)</h2>
+        <h2 style="font-size:1.25rem; font-weight:700; color:var(--teal);">📊 AI Daily Management Summary (Prompt 5 & M21)</h2>
         <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('aiModal').style.display='none'">×</button>
       </div>
       <div id="aiSummaryContent">
@@ -322,17 +471,121 @@
     </div>
   </div>
 
+  <!-- AI OPERATIONS ASSISTANT MODAL (Module 24) -->
+  <div class="modal-overlay" id="assistantModal" onclick="closeAssistantModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+        <div>
+          <h2 style="font-size:1.25rem; font-weight:700; color:var(--purple);">🤖 AI Operations Assistant (Module 24)</h2>
+          <p style="font-size:0.8rem; color:var(--text-muted);">Master System Prompt Guardrails Active: Strictly administrative operations, zero clinical diagnoses.</p>
+        </div>
+        <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('assistantModal').style.display='none'">×</button>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+        <button class="action-btn" onclick="setAssistantPrompt('What is our no-show recovery status today?')">💡 No-Show Status</button>
+        <button class="action-btn" onclick="setAssistantPrompt('List unhandled SLA leads')">💡 Unhandled SLA Leads</button>
+        <button class="action-btn" onclick="setAssistantPrompt('Summarize OPD waiting queue')">💡 OPD Queue Wait</button>
+        <button class="action-btn danger" onclick="setAssistantPrompt('Can you diagnose my chest pain and prescribe medicine?')">⚠️ Test Medical Guardrail</button>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
+        <input type="text" id="assistantInput" placeholder="Ask any operational or administrative hospital question..." style="flex:1; padding:0.75rem 1rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-dark); color:var(--text-main); font-size:0.9rem;" onkeydown="if(event.key==='Enter') sendAssistantQuery()">
+        <button class="action-btn primary" onclick="sendAssistantQuery()" style="background:var(--purple); color:#fff; border-color:var(--purple);">Send</button>
+      </div>
+
+      <div id="assistantResponseArea" style="background:var(--bg-dark); border:1px solid var(--border); border-radius:8px; padding:1.2rem; min-height:120px; font-size:0.92rem; line-height:1.6;">
+        <span style="color:var(--text-muted);">Ask a question or select a suggested prompt above to test the operational AI assistant...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM MAINTENANCE AUDIT MODAL (Module 26) -->
+  <div class="modal-overlay" id="maintenanceModal" onclick="closeMaintenanceModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
+        <h2 style="font-size:1.25rem; font-weight:700; color:var(--emerald);">🛡️ System Maintenance & Self-Diagnostics (M26)</h2>
+        <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('maintenanceModal').style.display='none'">×</button>
+      </div>
+      <div id="maintenanceContent">
+        <p style="text-align:center; padding:2rem;">Running diagnostic scans...</p>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let matrixVisible = true;
+    function toggleModulesMatrix() {
+      const container = document.getElementById('modulesMatrixContainer');
+      const icon = document.getElementById('matrixToggleIcon');
+      matrixVisible = !matrixVisible;
+      container.style.display = matrixVisible ? 'grid' : 'none';
+      icon.innerText = matrixVisible ? '▼' : '▶';
+    }
+
+    async function load26ModulesStatus() {
+      try {
+        const res = await fetch('/api/modules/status');
+        const data = await res.json();
+        const container = document.getElementById('modulesMatrixContainer');
+        if (!container) return;
+
+        container.innerHTML = data.modules.map(m => `
+          <div class="module-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
+              <span style="font-size:0.75rem; font-weight:800; color:var(--teal); font-family:monospace;">#${m.id < 10 ? '0' + m.id : m.id}</span>
+              <span class="module-badge badge-online">● ${m.status}</span>
+            </div>
+            <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:0.2rem;">${m.name}</h4>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.6rem;">${m.category}</div>
+            <p style="font-size:0.78rem; color:var(--text-main); line-height:1.4; margin-bottom:0.8rem;">${m.description}</p>
+            <div style="font-size:0.72rem; color:var(--blue); font-family:monospace; background:rgba(14,165,233,0.08); padding:0.3rem 0.5rem; border-radius:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              ${m.route}
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Error loading module status:', e);
+      }
+    }
+
+    async function loadDepartmentPerformance() {
+      try {
+        const res = await fetch('/api/dashboard/department-performance');
+        const list = await res.json();
+        const grid = document.getElementById('deptPerformanceGrid');
+        if (!grid) return;
+
+        grid.innerHTML = list.map(d => `
+          <div class="dept-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+              <h4 style="font-size:1rem; font-weight:700; color:var(--teal);">${d.department}</h4>
+              <span class="badge badge-teal">${d.active_doctors} Doctors Active</span>
+            </div>
+            <div style="font-size:0.84rem; line-height:1.7;">
+              <div style="display:flex; justify-content:space-between;"><span>Inbound Leads:</span> <strong>${d.leads}</strong></div>
+              <div style="display:flex; justify-content:space-between;"><span>Confirmed Bookings:</span> <strong>${d.appointments}</strong></div>
+              <div style="display:flex; justify-content:space-between;"><span>Conversion Rate:</span> <strong style="color:var(--emerald);">${d.conversion_rate_pct}%</strong></div>
+              <div style="display:flex; justify-content:space-between;"><span>No-Show Rate:</span> <strong style="color:${d.no_show_rate_pct > 0 ? 'var(--amber)' : 'var(--text-muted)'};">${d.no_show_rate_pct}%</strong></div>
+              <div style="display:flex; justify-content:space-between;"><span>Slot Capacity Utilization:</span> <strong style="color:var(--blue);">${d.capacity_utilization_pct}%</strong></div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {}
+    }
+
     async function loadDashboard() {
       try {
-        const [metrics, leads, appts, comms, exceptions, queue, chronic] = await Promise.all([
+        const [metrics, leads, appts, comms, exceptions, opd, bills, admissions, referrals] = await Promise.all([
           fetch('/api/dashboard/metrics').then(r => r.json()),
           fetch('/api/dashboard/leads').then(r => r.json()),
           fetch('/api/dashboard/appointments').then(r => r.json()),
           fetch('/api/dashboard/communications').then(r => r.json()),
           fetch('/api/dashboard/exceptions').then(r => r.json()),
-          fetch('/api/queue/tokens').then(r => r.json()).catch(() => []),
-          fetch('/api/chronic/programs').then(r => r.json()).catch(() => [])
+          fetch('/api/dashboard/opd-journeys').then(r => r.json()).catch(() => []),
+          fetch('/api/dashboard/billing').then(r => r.json()).catch(() => []),
+          fetch('/api/dashboard/ipd-admissions').then(r => r.json()).catch(() => []),
+          fetch('/api/dashboard/referrals').then(r => r.json()).catch(() => [])
         ]);
 
         // KPIs
@@ -343,46 +596,45 @@
         document.getElementById('kpiExceptions').innerText = metrics.open_exceptions || 0;
         document.getElementById('kpiMessages').innerText = metrics.messages_delivered || 0;
 
+        const totalRev = bills.reduce((acc, b) => acc + (b.total_amount || 0), 0);
+        document.getElementById('kpiRevenue').innerText = `₹${totalRev.toLocaleString('en-IN')}`;
+        document.getElementById('kpiAdmissions').innerText = admissions.filter(a => a.status === 'ADMITTED').length;
+
         // Leads
         const leadsBody = document.getElementById('leadsTableBody');
-        if (leads.length === 0) {
-          leadsBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No leads captured yet.</td></tr>';
-        } else {
-          leadsBody.innerHTML = leads.map(l => `
+        leadsBody.innerHTML = leads.length === 0 
+          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No leads captured yet.</td></tr>'
+          : leads.map(l => `
             <tr>
               <td><strong>${l.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${l.phone}</span></td>
               <td>${l.department}</td>
               <td><span class="code-pill">${l.source}</span></td>
-              <td><span class="badge ${l.status === 'booked' ? 'badge-teal' : 'badge-amber'}">${l.status}</span></td>
+              <td><span class="badge ${l.status === 'booked' ? 'badge-teal' : l.status === 'sla_breached' ? 'badge-rose' : 'badge-amber'}">${l.status}</span></td>
             </tr>
           `).join('');
-        }
 
         // Appointments
         const apptsBody = document.getElementById('appointmentsTableBody');
-        if (appts.length === 0) {
-          apptsBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No appointments found.</td></tr>';
-        } else {
-          apptsBody.innerHTML = appts.map(a => `
+        apptsBody.innerHTML = appts.length === 0
+          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No appointments found.</td></tr>'
+          : appts.map(a => `
             <tr>
               <td><strong>${a.full_name}</strong></td>
               <td>${a.doctor_name}<br><span style="font-size:0.75rem; color:var(--text-muted);">${a.department}</span></td>
               <td><span class="code-pill">${a.slot_start.slice(5, 16)}</span></td>
               <td>
-                <span class="badge ${a.attendance_status === 'no_show' ? 'badge-rose' : 'badge-teal'}">
-                  ${a.attendance_status}
+                <span class="badge ${a.status === 'CANCELLED' ? 'badge-rose' : a.attendance_status === 'no_show' ? 'badge-amber' : 'badge-teal'}">
+                  ${a.status === 'CANCELLED' ? 'CANCELLED' : a.attendance_status}
                 </span>
               </td>
             </tr>
           `).join('');
-        }
 
         // Communications
         const commBody = document.getElementById('commTableBody');
-        if (comms.length === 0) {
-          commBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No messages logged yet.</td></tr>';
-        } else {
-          commBody.innerHTML = comms.map(c => `
+        commBody.innerHTML = comms.length === 0
+          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No messages logged yet.</td></tr>'
+          : comms.map(c => `
             <tr>
               <td><strong>${c.full_name}</strong></td>
               <td><span class="code-pill">${c.template_name}</span></td>
@@ -390,15 +642,14 @@
               <td><span class="badge badge-teal">${c.delivery_status}</span></td>
             </tr>
           `).join('');
-        }
 
         // Exceptions
         const excBody = document.getElementById('exceptionsTableBody');
-        document.getElementById('exceptionCountBadge').innerText = `${exceptions.filter(e => e.status === 'OPEN').length} Open`;
-        if (exceptions.length === 0) {
-          excBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No open exceptions.</td></tr>';
-        } else {
-          excBody.innerHTML = exceptions.map(e => `
+        const openExc = exceptions.filter(e => e.status === 'OPEN');
+        document.getElementById('exceptionCountBadge').innerText = `${openExc.length} Open`;
+        excBody.innerHTML = exceptions.length === 0
+          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No exceptions.</td></tr>'
+          : exceptions.map(e => `
             <tr>
               <td><span class="badge ${e.severity === 'high' ? 'badge-rose' : 'badge-amber'}">${e.severity}</span></td>
               <td><strong>${e.error_type}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${e.resolution_note || ''}</span></td>
@@ -411,197 +662,281 @@
               </td>
             </tr>
           `).join('');
-        }
 
-        // OPD Queue
-        const queueBody = document.getElementById('queueTableBody');
-        if (queueBody) {
-          if (queue.length === 0) {
-            queueBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No active OPD tokens today.</td></tr>';
-          } else {
-            queueBody.innerHTML = queue.map(q => `
+        // OPD Journeys
+        const opdBody = document.getElementById('opdTableBody');
+        if (opdBody) {
+          opdBody.innerHTML = opd.length === 0
+            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No OPD journeys active.</td></tr>'
+            : opd.map(j => `
               <tr>
-                <td><strong style="color:var(--teal); font-size:1.1rem;">#${q.token_number}</strong></td>
-                <td><strong>${q.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${q.phone}</span></td>
-                <td>${q.department}</td>
-                <td><span class="badge ${q.status === 'CALLED' ? 'badge-teal' : q.status === 'WAITING' ? 'badge-amber' : 'badge-blue'}">${q.status}</span></td>
+                <td><strong style="color:var(--teal);">#${j.token_number || 1}</strong></td>
+                <td><strong>${j.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${j.phone}</span></td>
+                <td>${j.department}</td>
+                <td><span class="badge badge-teal">${j.stage}</span></td>
               </tr>
             `).join('');
-          }
         }
 
-        // Chronic Care
-        const chronicBody = document.getElementById('chronicTableBody');
-        if (chronicBody) {
-          if (chronic.length === 0) {
-            chronicBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No registered chronic programs.</td></tr>';
-          } else {
-            chronicBody.innerHTML = chronic.map(c => `
+        // Billing Records
+        const billingBody = document.getElementById('billingTableBody');
+        if (billingBody) {
+          billingBody.innerHTML = bills.length === 0
+            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No billing records.</td></tr>'
+            : bills.map(b => `
               <tr>
-                <td><strong>${c.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${c.phone}</span></td>
-                <td>${c.condition_name}</td>
-                <td><span class="code-pill">${c.next_due_date}</span></td>
-                <td><span class="badge ${c.status === 'ACTIVE' ? 'badge-amber' : 'badge-teal'}">${c.status}</span></td>
+                <td><span class="code-pill">${b.bill_id}</span></td>
+                <td><strong>${b.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${b.service_type}</span></td>
+                <td>₹${b.total_amount} <small>(Copay: ₹${b.copay_amount})</small></td>
+                <td><span class="badge ${b.payment_status === 'PAID' ? 'badge-teal' : 'badge-amber'}">${b.payment_status}</span></td>
               </tr>
             `).join('');
-          }
+        }
+
+        // Inpatient Admissions
+        const admBody = document.getElementById('admissionsTableBody');
+        if (admBody) {
+          admBody.innerHTML = admissions.length === 0
+            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No inpatient records.</td></tr>'
+            : admissions.map(a => `
+              <tr>
+                <td><span class="code-pill">${a.admission_id}</span></td>
+                <td><strong>${a.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${a.phone}</span></td>
+                <td>${a.room_number} (${a.bed_type})</td>
+                <td><span class="badge ${a.status === 'ADMITTED' ? 'badge-teal' : 'badge-blue'}">${a.status}</span></td>
+              </tr>
+            `).join('');
+        }
+
+        // Referrals
+        const refBody = document.getElementById('referralsTableBody');
+        if (refBody) {
+          refBody.innerHTML = referrals.length === 0
+            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No referrals received.</td></tr>'
+            : referrals.map(r => `
+              <tr>
+                <td><span class="code-pill">${r.referral_id}</span></td>
+                <td><strong>${r.referring_doctor}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${r.referring_facility}</span></td>
+                <td>${r.department}</td>
+                <td><span class="badge badge-teal">${r.status}</span></td>
+              </tr>
+            `).join('');
         }
 
       } catch (err) {
-        console.error('Failed to load dashboard:', err);
+        console.error('Dashboard load error:', err);
       }
     }
 
+    // Interactive Demo Handlers
     async function triggerNoShowDemo() {
-      try {
-        const res = await fetch('/webhook/no-show-recovery', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ appointment_id: 'APPT-DEMO-002' })
-        });
-        const data = await res.json();
-        alert(`⚡ No-Show Recovery Result:\nStatus: ${data.status}\nMessage Sent to WhatsApp: "${data.message_sent || data.message}"`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      const res = await fetch('/webhook/no-show-recovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ appointment_id: 'APPT-DEMO-002' })
+      });
+      const data = await res.json();
+      alert(`[Module 9: No-Show Recovery]\n\nStatus: ${data.status}\nMessage sent to patient:\n\n"${data.message_sent || data.message}"`);
+      loadDashboard();
     }
 
     async function triggerRescheduleDemo() {
-      try {
-        const res = await fetch('/api/appointments/APPT-DEMO-002/reschedule', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({})
-        });
-        const data = await res.json();
-        alert(`🔄 Appointment Rescheduled Successfully:\nAppointment: ${data.appointment_id}\nDoctor: ${data.doctor}\nNew Slot: ${data.new_slot}\nMessage Dispatched: "${data.message}"`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      const res = await fetch('/api/appointments/APPT-DEMO-002/reschedule', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      const data = await res.json();
+      alert(`[Module 8: Reschedule]\n\nStatus: ${data.status}\nNew Slot: ${data.new_slot}\nMessage:\n"${data.message}"`);
+      loadDashboard();
+    }
+
+    async function triggerCancelDemo() {
+      const res = await fetch('/api/appointments/APPT-DEMO-002/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'Client requested cancellation' })
+      });
+      const data = await res.json();
+      alert(`[Module 8: Cancellation]\n\nStatus: ${data.status}\nSlot freed: ${data.slot_freed}\nWhatsApp sent to patient.`);
+      loadDashboard();
+    }
+
+    async function triggerRouteLeadDemo() {
+      const res = await fetch('/api/leads/route', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_id: 'LEAD-SLA-TEST', target_department: 'Orthopedics' })
+      });
+      const data = await res.json();
+      alert(`[Module 3: Department Routing]\n\nLead LEAD-SLA-TEST successfully routed to: ${data.target_department}`);
+      loadDashboard();
     }
 
     async function triggerDiagnosticDemo() {
-      try {
-        const res = await fetch('/webhook/diagnostic-ready', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            patient_id: 'DEMO-001',
-            test_category: 'Cardiology Lipid & ECG Report'
-          })
-        });
-        const data = await res.json();
-        alert(`🔬 Diagnostic Report Ready Alert Sent:\nPatient: ${data.patient_name}\nDiagnostic ID: ${data.diagnostic_id}\nMessage Dispatched: "${data.message}"`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      const res = await fetch('/webhook/diagnostic-ready', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient_id: 'DEMO-001', test_category: 'Cardiac ECG & Holter Panel' })
+      });
+      const data = await res.json();
+      alert(`[Module 11: Diagnostic Follow-Up]\n\nStatus: ${data.status}\nNon-clinical alert sent:\n\n"${data.message}"`);
+      loadDashboard();
     }
 
-    async function triggerDischargeDemo() {
-      try {
-        const res = await fetch('/webhook/discharge-followup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ patient_id: 'DEMO-003' })
-        });
-        const data = await res.json();
-        alert(`🏥 Post-Discharge Follow-up Dispatched:\nPatient: ${data.patient_name}\nTask Created: ${data.task_id}\nMessage: "${data.message}"`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+    async function triggerBillingDemo() {
+      const res = await fetch('/api/billing/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: 'DEMO-001',
+          encounter_id: 'ENC-DEMO-01',
+          service_type: 'Comprehensive Outpatient Consultation & ECG',
+          total_amount: 3200,
+          insurance_covered: 2500,
+          copay_amount: 700
+        })
+      });
+      const data = await res.json();
+      alert(`[Module 12: Billing & Copay Coordination]\n\nBill ID: ${data.bill_id}\nTotal: ₹${data.total_amount} (Copay: ₹${data.copay_amount})\nInvoice Link: ${data.invoice_url}\nWhatsApp billing message dispatched.`);
+      loadDashboard();
+    }
+
+    async function triggerPayDemo() {
+      const res = await fetch('/api/billing/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bill_id: 'BILL-001', payment_method: 'UPI', amount_paid: 500 })
+      });
+      const data = await res.json();
+      alert(`[Module 12: Payment Receipt]\n\nStatus: ${data.status}\nBill ${data.bill_id} marked as PAID. Digital receipt sent to patient.`);
+      loadDashboard();
+    }
+
+    async function triggerAdmissionDemo() {
+      const res = await fetch('/api/admissions/intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: 'DEMO-001',
+          department: 'Cardiology',
+          room_number: 'Cath Wing Room 104',
+          bed_type: 'PRIVATE',
+          doctor_id: 'DOC-CARD-01',
+          attendant_name: 'Suresh Sharma',
+          advance_deposit: 20000
+        })
+      });
+      const data = await res.json();
+      alert(`[Module 13: IPD Admission]\n\nAdmission ID: ${data.admission_id}\nRoom: ${data.room_number}\nAttendant pass generated and sent to patient.`);
+      loadDashboard();
+    }
+
+    async function triggerDischargeClearanceDemo() {
+      const res = await fetch('/api/discharge/clearance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient_id: 'DEMO-003', admission_id: 'ADM-001', doctor_name: 'Dr. Amit Patel' })
+      });
+      const data = await res.json();
+      alert(`[Module 14: Discharge Administration]\n\nStatus: ${data.status}\nDigital discharge gate-pass and summary pickup alert dispatched.`);
+      loadDashboard();
+    }
+
+    async function triggerDischargeFollowupDemo() {
+      const res = await fetch('/webhook/discharge-followup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient_id: 'DEMO-003' })
+      });
+      const data = await res.json();
+      alert(`[Module 15: Post-Discharge Follow-Up]\n\nDay-2 recovery check-in dispatched:\n"${data.message}"`);
+      loadDashboard();
     }
 
     async function triggerBadFeedbackDemo() {
-      try {
-        const res = await fetch('/api/feedback', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            patient_id: 'DEMO-003',
-            rating: 1,
-            comment: 'Discharge pharmacy billing was delayed by 3 hours. Staff was uncooperative.'
-          })
-        });
-        const data = await res.json();
-        alert(`🚨 Dissatisfied Feedback Escalated:\nRating: ${data.rating}/5\nService Recovery Triggered: ${data.service_recovery_escalation}\nCheck Exception Queue below!`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      const res = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: 'DEMO-003',
+          rating: 1,
+          comment: 'Wait times at pharmacy counter exceeded 45 minutes.'
+        })
+      });
+      const data = await res.json();
+      alert(`[Modules 16 & 17: Feedback & Service Recovery]\n\nRating 1/5 received. Escalated to Service Recovery Queue!`);
+      loadDashboard();
     }
 
     async function triggerQueueTokenDemo() {
-      try {
-        const res = await fetch('/api/queue/token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            patient_id: 'DEMO-001',
-            department: 'Cardiology'
-          })
-        });
-        const data = await res.json();
-        alert(`🎫 Live OPD Token Generated:\nToken: #${data.token_number} (${data.department})\nPatients Ahead: ${data.patients_ahead}\nEstimated Wait: ${data.estimated_wait_minutes} mins\nWhatsApp Sent: "${data.message}"`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      const res = await fetch('/api/queue/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient_id: 'DEMO-001', department: 'Cardiology' })
+      });
+      const data = await res.json();
+      alert(`[Module 10: OPD Queue Token]\n\nToken Generated: #${data.token_number} (${data.department})\nEstimated wait: ~${data.estimated_wait_minutes} mins`);
+      loadDashboard();
     }
 
     async function triggerCallNextDemo() {
-      try {
-        const res = await fetch('/api/queue/call-next', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ department: 'Cardiology' })
-        });
-        const data = await res.json();
-        if (data.status === 'QUEUE_EMPTY') {
-          alert(`📢 OPD Queue empty in Cardiology.`);
-        } else {
-          alert(`📢 Token #${data.token_number} Called to Consultation Room:\nPatient: ${data.patient_name}\nWhatsApp Alert: "${data.message}"`);
-        }
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      const res = await fetch('/api/queue/call-next', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ department: 'Cardiology' })
+      });
+      const data = await res.json();
+      alert(`[Module 10: Call Next Patient]\n\nStatus: ${data.status}\n${data.message}`);
+      loadDashboard();
     }
 
-    async function triggerChronicDemo() {
-      try {
-        const res = await fetch('/api/chronic/check-ins', { method: 'POST' });
-        const data = await res.json();
-        alert(`🩺 Chronic Care Routine Recall Executed:\nRecalled Patients: ${data.recalled_count}\nWhatsApp reminders dispatched to quarterly patients.`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+    async function triggerReferralDemo() {
+      const res = await fetch('/api/referrals/intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          referring_doctor: 'Dr. Anand Joshi, MD',
+          referring_facility: 'City Family Clinic',
+          patient_name: 'Pooja Hegde',
+          phone: '+919999999996',
+          department: 'Cardiology',
+          clinical_notes: 'Suspected murmur on physical exam, referral for echocardiogram'
+        })
+      });
+      const data = await res.json();
+      alert(`[Module 19: Referral Engine]\n\nReferral ID: ${data.referral_id}\nReferring Doctor acknowledged.\nHigh-priority lead created for patient Pooja Hegde.`);
+      loadDashboard();
+    }
+
+    async function triggerSlaScanDemo() {
+      const res = await fetch('/api/scheduler/run-lead-sla', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ threshold_minutes: 15 })
+      });
+      const data = await res.json();
+      alert(`[Module 20: Lead SLA Escalation]\n\nScan Completed.\nEscalated ${data.escalated_count} unhandled lead(s) to High-Severity Exception Queue.`);
+      loadDashboard();
     }
 
     async function triggerRemindersDemo() {
-      try {
-        const res = await fetch('/api/scheduler/run-reminders', { method: 'POST' });
-        const data = await res.json();
-        alert(`⏰ Background Reminders Executed:\nT-24h Reminders: ${data.reminders_24h_sent}\nT-3h Reminders: ${data.reminders_3h_sent}`);
-        loadDashboard();
-      } catch (err) {
-        alert('Error: ' + err.message);
-      }
+      const res = await fetch('/api/scheduler/run-reminders', { method: 'POST' });
+      const data = await res.json();
+      alert(`[Module 7: Appointment Reminders]\n\n24h Reminders sent: ${data.reminders_24h_sent}\n3h Reminders sent: ${data.reminders_3h_sent}`);
+      loadDashboard();
     }
 
     async function resolveException(id) {
       await fetch(`/api/dashboard/exceptions/${id}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: 'Handled and resolved by duty manager.' })
+        body: JSON.stringify({ note: 'Handled and resolved by duty ops manager.' })
       });
       loadDashboard();
     }
 
+    // Modal Handlers
     async function generateAiSummary() {
       document.getElementById('aiModal').style.display = 'flex';
       const content = document.getElementById('aiSummaryContent');
@@ -610,27 +945,23 @@
       try {
         const res = await fetch('/api/dashboard/ai-summary');
         const data = await res.json();
-        
         content.innerHTML = `
           <div style="background:rgba(0,245,212,0.08); border:1px solid var(--teal); border-radius:8px; padding:1.2rem; margin-bottom:1.2rem;">
             <h3 style="color:var(--teal); font-size:1.05rem; margin-bottom:0.4rem;">Executive Headline</h3>
             <p style="font-size:0.95rem; font-weight:600;">${data.headline}</p>
           </div>
-
           <div style="margin-bottom:1.2rem;">
             <h4 style="color:var(--emerald); font-size:0.9rem; text-transform:uppercase; margin-bottom:0.4rem;">Operational Wins:</h4>
             <ul style="padding-left:1.2rem; font-size:0.88rem; line-height:1.6;">
               ${(data.wins || []).map(w => `<li>${w}</li>`).join('')}
             </ul>
           </div>
-
           <div style="margin-bottom:1.2rem;">
             <h4 style="color:var(--rose); font-size:0.9rem; text-transform:uppercase; margin-bottom:0.4rem;">Exceptions & Attention Required:</h4>
             <ul style="padding-left:1.2rem; font-size:0.88rem; line-height:1.6;">
               ${(data.exceptions || []).map(e => `<li>${e}</li>`).join('')}
             </ul>
           </div>
-
           <div>
             <h4 style="color:var(--amber); font-size:0.9rem; text-transform:uppercase; margin-bottom:0.4rem;">Recommended Management Actions:</h4>
             <ul style="padding-left:1.2rem; font-size:0.88rem; line-height:1.6;">
@@ -643,11 +974,91 @@
       }
     }
 
-    async function resetDemo() {
-      if (confirm('Reset DemoCare environment back to clean initial state?')) {
-        await fetch('/api/demo/reset', { method: 'POST' });
-        loadDashboard();
+    function openAssistantModal() {
+      document.getElementById('assistantModal').style.display = 'flex';
+    }
+
+    function closeAssistantModal(e) {
+      document.getElementById('assistantModal').style.display = 'none';
+    }
+
+    function setAssistantPrompt(text) {
+      document.getElementById('assistantInput').value = text;
+      sendAssistantQuery();
+    }
+
+    async function sendAssistantQuery() {
+      const input = document.getElementById('assistantInput');
+      const area = document.getElementById('assistantResponseArea');
+      const query = input.value.trim();
+      if (!query) return;
+
+      area.innerHTML = '<span style="color:var(--purple);">Assistant analyzing operations context...</span>';
+
+      try {
+        const res = await fetch('/api/ai/operations-assistant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        const data = await res.json();
+        if (data.status === 'GUARDRAIL_BLOCKED') {
+          area.innerHTML = `
+            <div style="color:var(--rose); font-weight:700; margin-bottom:0.4rem;">⚠️ CLINICAL GUARDRAIL ENFORCED (Section G)</div>
+            <div style="color:var(--text-main); font-size:0.9rem;">${data.response}</div>
+          `;
+        } else {
+          area.innerHTML = `
+            <div style="color:var(--teal); font-weight:700; margin-bottom:0.4rem;">🤖 Administrative Response:</div>
+            <div style="color:var(--text-main); font-size:0.9rem;">${data.response}</div>
+          `;
+        }
+      } catch (err) {
+        area.innerHTML = `<span style="color:var(--rose);">Error querying assistant: ${err.message}</span>`;
       }
+    }
+
+    async function openMaintenanceModal() {
+      document.getElementById('maintenanceModal').style.display = 'flex';
+      const content = document.getElementById('maintenanceContent');
+      content.innerHTML = '<p style="text-align:center; padding:2rem;">Scanning database and operational telemetry...</p>';
+
+      try {
+        const res = await fetch('/api/system/maintenance-audit');
+        const data = await res.json();
+        content.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.1); border:1px solid var(--emerald); padding:1rem; border-radius:8px; margin-bottom:1rem;">
+            <div>
+              <h3 style="color:var(--emerald); font-size:1.1rem;">System Health: ${data.system_health}</h3>
+              <p style="font-size:0.8rem; color:var(--text-muted);">Database: ${data.database.mode} | Integrity: ${data.database.integrity}</p>
+            </div>
+            <span class="badge badge-teal">Verified</span>
+          </div>
+
+          <h4 style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem;">Table Record Telemetry:</h4>
+          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.5rem; font-size:0.84rem; margin-bottom:1.2rem;">
+            <div>Patients: <strong>${data.table_counts.patients}</strong></div>
+            <div>Leads: <strong>${data.table_counts.leads}</strong></div>
+            <div>Appointments: <strong>${data.table_counts.appointments}</strong></div>
+            <div>Communications: <strong>${data.table_counts.communications}</strong></div>
+            <div>Billing Records: <strong>${data.table_counts.billing_records}</strong></div>
+            <div>Admissions: <strong>${data.table_counts.admissions}</strong></div>
+            <div>Discharges: <strong>${data.table_counts.discharges}</strong></div>
+            <div>Referrals: <strong>${data.table_counts.referrals}</strong></div>
+          </div>
+
+          <h4 style="font-size:0.9rem; color:var(--amber); text-transform:uppercase; margin-bottom:0.5rem;">Maintenance Recommendations:</h4>
+          <ul style="padding-left:1.2rem; font-size:0.86rem; line-height:1.6;">
+            ${(data.recommendations || []).map(r => `<li>${r}</li>`).join('')}
+          </ul>
+        `;
+      } catch (err) {
+        content.innerHTML = `<p style="color:var(--rose);">Error running maintenance audit: ${err.message}</p>`;
+      }
+    }
+
+    function closeMaintenanceModal(e) {
+      document.getElementById('maintenanceModal').style.display = 'none';
     }
 
     function closeModal(e) {
@@ -664,7 +1075,7 @@
           text.innerText = '✅ Live WhatsApp Connected';
           btn.style.background = 'rgba(37, 211, 102, 0.2)';
         } else {
-          text.innerText = '📲 Connect Live WhatsApp (Free QR)';
+          text.innerText = '📲 Connect Live WhatsApp';
           btn.style.background = 'none';
         }
       } catch (e) {}
@@ -680,9 +1091,22 @@
       }
     }
 
-    // Initial load and periodic polling every 5s
+    async function resetDemo() {
+      if (confirm('Reset DemoCare environment back to clean initial state?')) {
+        await fetch('/api/demo/reset', { method: 'POST' });
+        loadDashboard();
+        load26ModulesStatus();
+        loadDepartmentPerformance();
+      }
+    }
+
+    // Initial Load
     loadDashboard();
+    load26ModulesStatus();
+    loadDepartmentPerformance();
     checkWhatsAppStatus();
+
+    // Periodic Refresh every 5 seconds
     setInterval(() => {
       loadDashboard();
       checkWhatsAppStatus();

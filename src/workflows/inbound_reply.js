@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { generateCorrelationId, handleAppointmentReschedule, handlePatientFeedback } from './engine.js';
+import { generateCorrelationId, handleAppointmentReschedule, handleAppointmentCancellation, handlePatientFeedback } from './engine.js';
 import { dispatchWhatsApp } from '../whatsapp/qr_bridge.js';
 
 /**
@@ -45,13 +45,44 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     };
   }
 
+  // Check last outbound message to understand patient context
+  const lastOutbound = db.prepare(`
+    SELECT * FROM communication_logs
+    WHERE patient_id = ?
+    ORDER BY sent_at DESC LIMIT 1
+  `).get(patient.patient_id);
+
+  const isAwaitingRating = lastOutbound?.template_name?.includes('DISCHARGE') || lastOutbound?.template_name?.includes('FEEDBACK');
+
+  // If last message asked for feedback rating (1-5)
+  if (isAwaitingRating && /^[1-5]$/.test(text)) {
+    const rating = parseInt(text, 10);
+    const feedbackResult = handlePatientFeedback({
+      patient_id: patient.patient_id,
+      rating,
+      comment: `Direct WhatsApp rating reply: ${rating}/5`
+    });
+
+    const replyMsg = rating >= 4
+      ? `Thank you for the wonderful ${rating}-star feedback, ${patient.full_name}! We are delighted to care for you. If you have 30 seconds, please share your experience on Google: https://democare.hospital/review`
+      : `Thank you for your feedback, ${patient.full_name}. We regret your experience did not meet expectations. Our Patient Relations Manager has been notified and will reach out to you shortly.`;
+
+    await dispatchWhatsApp({ toPhone: patient.phone, messageText: replyMsg });
+
+    return {
+      status: 'FEEDBACK_PROCESSED',
+      rating,
+      service_recovery: feedbackResult.service_recovery_escalation
+    };
+  }
+
   // 2. Check for Confirmation Reply ('1', 'YES', 'CONFIRM')
   if (lower === '1' || lower === 'yes' || lower === 'confirm' || lower.includes('confirmed')) {
-    // Find active upcoming appointment
+    // Find active or upcoming appointment
     const activeAppt = db.prepare(`
       SELECT * FROM appointments 
-      WHERE patient_id = ? AND status IN ('CONFIRMED', 'RESCHEDULED') AND attendance_status = 'scheduled'
-      ORDER BY slot_start ASC LIMIT 1
+      WHERE patient_id = ? AND status IN ('CONFIRMED', 'RESCHEDULED')
+      ORDER BY slot_start DESC LIMIT 1
     `).get(patient.patient_id);
 
     if (activeAppt) {
@@ -89,7 +120,31 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     }
   }
 
-  // 4. Check for Numeric Feedback Rating (1 to 5)
+  // 4. Check for Cancellation Request ('CANCEL', 'CANCEL APPOINTMENT')
+  if (lower === 'cancel' || lower.includes('cancel my appointment') || lower.includes('cancel appointment')) {
+    const activeAppt = db.prepare(`
+      SELECT * FROM appointments 
+      WHERE patient_id = ? AND status != 'CANCELLED'
+      ORDER BY slot_start DESC LIMIT 1
+    `).get(patient.patient_id);
+
+    if (activeAppt) {
+      const cancelResult = await handleAppointmentCancellation({ appointment_id: activeAppt.appointment_id, reason: 'Patient WhatsApp Inbound Request' });
+      return {
+        status: 'CANCELLATION_PROCESSED',
+        ...cancelResult
+      };
+    } else {
+      const noApptMsg = `Hello ${patient.full_name}, you do not have any active appointments to cancel at DemoCare Hospital. To book a consultation, visit https://democare.hospital/book or call +91 22 5550 1234.`;
+      await dispatchWhatsApp({ toPhone: patient.phone, messageText: noApptMsg });
+      return {
+        status: 'NO_ACTIVE_APPOINTMENT',
+        message: noApptMsg
+      };
+    }
+  }
+
+  // 5. Check for Standalone Numeric Feedback Rating (1 to 5)
   if (/^[1-5]$/.test(text)) {
     const rating = parseInt(text, 10);
     const feedbackResult = handlePatientFeedback({

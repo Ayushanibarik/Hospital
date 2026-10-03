@@ -8,7 +8,9 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "seed": "node src/db/seed.js",
+    "test": "node test/test_workflows.js && node test/test_api_endpoints.js",
     "test:workflows": "node test/test_workflows.js",
+    "test:api": "node test/test_api_endpoints.js",
     "n8n": "npx n8n",
     "tunnel": "npx cloudflared tunnel --url http://localhost:3000",
     "wa:connect": "node -e \"import('./src/whatsapp/qr_bridge.js').then(m => m.initWhatsAppQR())\""

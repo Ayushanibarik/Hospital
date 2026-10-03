@@ -1,5 +1,5 @@
 import { db } from '../db/index.js';
-import { generateCorrelationId } from './engine.js';
+import { generateCorrelationId, checkAndEscalateLeadSla } from './engine.js';
 import { dispatchWhatsApp } from '../whatsapp/qr_bridge.js';
 
 /**
@@ -77,15 +77,28 @@ export async function runAppointmentReminders() {
 }
 
 /**
+ * Execute automated background tasks (reminders + Lead SLA escalation)
+ */
+export async function runAllBackgroundTasks() {
+  const reminderRes = await runAppointmentReminders();
+  const slaRes = await checkAndEscalateLeadSla(15);
+  return {
+    ...reminderRes,
+    lead_sla_escalated: slaRes.escalated_count
+  };
+}
+
+/**
  * Start the recurring background scheduler (runs every 60 seconds)
  */
 export function startBackgroundScheduler(intervalMs = 60000) {
   console.log(`⏱️ Starting Hospital Background Scheduler (Interval: ${intervalMs / 1000}s)...`);
-  runAppointmentReminders().catch(err => console.error('[Scheduler Error]:', err.message));
+  runAllBackgroundTasks().catch(err => console.error('[Scheduler Error]:', err.message));
   
   const timer = setInterval(() => {
-    runAppointmentReminders().catch(err => console.error('[Scheduler Error]:', err.message));
+    runAllBackgroundTasks().catch(err => console.error('[Scheduler Error]:', err.message));
   }, intervalMs);
 
   return timer;
 }
+

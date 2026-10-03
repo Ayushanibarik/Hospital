@@ -192,3 +192,81 @@ CREATE TABLE IF NOT EXISTS chronic_programs (
     FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
 );
 
+-- Module 10: Complete OPD Patient Journey Milestones
+CREATE TABLE IF NOT EXISTS opd_journeys (
+    journey_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    appointment_id TEXT,
+    department TEXT NOT NULL,
+    stage TEXT DEFAULT 'CHECKED_IN', -- CHECKED_IN, TRIAGE_VITALS, WAITING_DOCTOR, IN_CONSULTATION, LAB_PHARMACY, COMPLETED
+    token_number INTEGER,
+    check_in_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 12: Billing & Payment Status Coordination (Idempotent)
+CREATE TABLE IF NOT EXISTS billing_records (
+    bill_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    encounter_id TEXT,
+    service_type TEXT NOT NULL,
+    total_amount REAL NOT NULL,
+    insurance_covered REAL DEFAULT 0.0,
+    copay_amount REAL DEFAULT 0.0,
+    payment_status TEXT DEFAULT 'PENDING', -- PENDING, PARTIALLY_PAID, PAID, INSURANCE_CLAIMED
+    payment_method TEXT,
+    idempotency_key TEXT UNIQUE,
+    invoice_url TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    paid_at DATETIME,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 13: IPD Inpatient Admission Administration
+CREATE TABLE IF NOT EXISTS ipd_admissions (
+    admission_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    department TEXT NOT NULL,
+    room_number TEXT NOT NULL,
+    bed_type TEXT DEFAULT 'SEMI_PRIVATE', -- GENERAL, SEMI_PRIVATE, PRIVATE, ICU
+    doctor_id TEXT NOT NULL,
+    admission_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status TEXT DEFAULT 'ADMITTED', -- ADMITTED, PLANNED, DISCHARGED
+    attendant_name TEXT,
+    attendant_phone TEXT,
+    advance_deposit REAL DEFAULT 0.0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 14: Discharge Administration & Clearance Tracking
+CREATE TABLE IF NOT EXISTS discharge_administrations (
+    discharge_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    admission_id TEXT,
+    clinical_clearance INTEGER DEFAULT 0,
+    pharmacy_clearance INTEGER DEFAULT 0,
+    billing_clearance INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'INITIATED', -- INITIATED, CLEARANCE_IN_PROGRESS, CLEARED_FOR_DISCHARGE, DISCHARGED
+    summary_ready INTEGER DEFAULT 0,
+    cleared_by_doctor TEXT,
+    discharge_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 19: Doctor-to-Doctor & Clinic Referral Engine
+CREATE TABLE IF NOT EXISTS referrals (
+    referral_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    referring_doctor TEXT NOT NULL,
+    referring_facility TEXT NOT NULL,
+    department TEXT NOT NULL,
+    clinical_notes TEXT,
+    status TEXT DEFAULT 'RECEIVED', -- RECEIVED, CONTACTED, APPOINTMENT_BOOKED, CONSULTED
+    acknowledged INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
