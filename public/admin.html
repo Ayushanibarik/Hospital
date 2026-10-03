@@ -3,753 +3,841 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DemoCare Hospital — Staff & Operations Portal</title>
+  <title>DemoCare Hospital — Hospital Management Dashboard</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
-  <style>
-    body {
-      background: #f1f5f9;
-    }
-    .badge-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.25rem 0.65rem;
-      border-radius: 9999px;
-      font-size: 0.74rem;
-      font-weight: 700;
-    }
-    .status-confirmed {
-      background: #ecfdf5;
-      color: #047857;
-      border: 1px solid #a7f3d0;
-    }
-    .status-waiting {
-      background: #fffbeb;
-      color: #b45309;
-      border: 1px solid #fde68a;
-    }
-    .status-in-consult {
-      background: #eff6ff;
-      color: #1d4ed8;
-      border: 1px solid #bfdbfe;
-    }
-    .status-emergency {
-      background: #fef2f2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
-    }
-    .staff-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: #f8fafc;
-      padding: 0.4rem 0.85rem;
-      border-radius: 9999px;
-      border: 1px solid var(--border);
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--slate-700);
-    }
-    .clock-pill {
-      font-family: monospace;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--primary);
-      background: var(--primary-light);
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-    }
-    .search-filter-bar {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      margin-bottom: 1.25rem;
-      flex-wrap: wrap;
-    }
-    .search-input {
-      flex: 1;
-      min-width: 240px;
-    }
-  </style>
 </head>
 <body>
 
-  <!-- Hospital Staff Navigation Header -->
-  <header class="admin-header">
-    <div class="admin-header-inner">
-      <div style="display:flex; align-items:center; gap:1rem;">
-        <div class="brand-symbol">🏥</div>
-        <div>
-          <div style="display:flex; align-items:center; gap:0.6rem;">
-            <h1 style="font-size:1.25rem; font-weight:800; color:var(--slate-900);">DemoCare Hospital</h1>
-            <span class="badge badge-success">Staff Portal • Live</span>
-          </div>
-          <p style="font-size:0.8rem; color:var(--slate-500); margin-top:0.1rem;">
-            Front Desk, OPD Queue & Inpatient Management System
-          </p>
+  <!-- Mockup Outer Browser Window Container -->
+  <div class="window-container">
+    <div class="browser-mockup">
+
+      <!-- Top Browser Navigation Bar -->
+      <div class="browser-header-bar">
+        <div class="window-dots">
+          <div class="dot dot-red"></div>
+          <div class="dot dot-yellow"></div>
+          <div class="dot dot-green"></div>
+        </div>
+
+        <div class="browser-controls">
+          <span>‹</span>
+          <span>›</span>
+          <span style="margin-left: 6px;">⟳</span>
+        </div>
+
+        <div class="browser-url-pill">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span>evergreenhospital.com</span>
+        </div>
+
+        <div class="browser-right-actions">
+          <span>⤓</span>
+          <span>⋮</span>
         </div>
       </div>
 
-      <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-        <span class="clock-pill" id="digitalClock">12:00:00 PM</span>
-        <div class="staff-badge">
-          <span>👩‍💼</span>
-          <span>Logged in: <strong>Reception Desk (Sister Meena)</strong></span>
-        </div>
-        <button onclick="refreshDashboardData()" class="btn btn-outline btn-sm">
-          <span>🔄 Refresh Data</span>
-        </button>
-        <a href="/" class="btn btn-primary btn-sm">
-          <span>🌐 Patient Booking Site</span>
-        </a>
-      </div>
-    </div>
-  </header>
+      <!-- Main App Layout (Sidebar + Canvas) -->
+      <div class="app-layout">
 
-  <!-- Operations Overview Metric Cards -->
-  <div class="container" style="max-width:1440px; padding-top:1.5rem;">
-    <div class="admin-stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon-wrap" style="background:#e0f2fe; color:#0284c7;">📅</div>
-        <div>
-          <div class="stat-val" id="metricAppts">18</div>
-          <div class="stat-name">Today's Appointments</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrap" style="background:#fef3c7; color:#d97706;">⏳</div>
-        <div>
-          <div class="stat-val" id="metricQueue">5</div>
-          <div class="stat-name">Waiting in OPD Lounge</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrap" style="background:#ccfbf1; color:#0f766e;">🛏️</div>
-        <div>
-          <div class="stat-val" id="metricBeds">18 / 24</div>
-          <div class="stat-name">Inpatient Bed Occupancy</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrap" style="background:#ede9fe; color:#7c3aed;">🚪</div>
-        <div>
-          <div class="stat-val" id="metricDischarges">2</div>
-          <div class="stat-name">Discharge Clearances Pending</div>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon-wrap" style="background:#fee2e2; color:#dc2626;">🚨</div>
-        <div>
-          <div class="stat-val" id="metricUrgent">1</div>
-          <div class="stat-name">Emergency Triage Alert</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation Tabs -->
-    <div class="tabs-nav">
-      <button class="tab-btn active" onclick="switchTab('frontDeskTab', this)">
-        <span>📋</span> Front Desk & Appointments
-      </button>
-      <button class="tab-btn" onclick="switchTab('queueTab', this)">
-        <span>📢</span> OPD Token Calling
-      </button>
-      <button class="tab-btn" onclick="switchTab('ipdTab', this)">
-        <span>🛏️</span> Inpatient (IPD) & Discharges
-      </button>
-      <button class="tab-btn" onclick="switchTab('triageTab', this)">
-        <span>🚨</span> Urgent Triage Desk
-      </button>
-      <button class="tab-btn" onclick="switchTab('reportsTab', this)">
-        <span>📊</span> Daily Operations Report
-      </button>
-    </div>
-
-    <!-- ====================================================================
-         TAB 1: FRONT DESK & APPOINTMENTS
-         ==================================================================== -->
-    <div id="frontDeskTab" class="tab-content active">
-      <div class="card" style="margin-bottom:2rem;">
-        <div class="card-header">
-          <div>
-            <h3 class="card-title">Patient Appointments Schedule</h3>
-            <p class="card-subtitle">Manage today's patient arrivals, check-ins, and doctor schedules.</p>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="openWalkinModal()">
-            <span>➕ New Walk-In Patient</span>
-          </button>
-        </div>
-
-        <div class="search-filter-bar">
-          <input type="text" id="patientSearchInput" onkeyup="filterAppointments()" placeholder="🔍 Search patient by name, mobile, or appointment ID..." class="form-control search-input">
-          <select id="departmentFilter" onchange="filterAppointments()" class="form-control" style="width:220px;">
-            <option value="">All Departments</option>
-            <option value="Dermatology">Dermatology</option>
-            <option value="Cardiology">Cardiology</option>
-            <option value="Orthopedics">Orthopedics</option>
-            <option value="General Medicine">General Medicine</option>
-          </select>
-          <button class="btn btn-outline btn-sm" onclick="sendAllReminders()">
-            <span>📲 Send WhatsApp Reminders (All)</span>
-          </button>
-        </div>
-
-        <div class="table-responsive">
-          <table class="data-table" id="appointmentsTable">
-            <thead>
-              <tr>
-                <th>Token #</th>
-                <th>Patient Details</th>
-                <th>Department & Doctor</th>
-                <th>Time Slot</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="appointmentsTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====================================================================
-         TAB 2: OPD LIVE QUEUE & TOKEN CALLING
-         ==================================================================== -->
-    <div id="queueTab" class="tab-content">
-      <div class="calling-banner">
-        <div>
-          <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; opacity:0.9;">
-            Active Doctor Consultation Room Display
-          </div>
-          <div class="calling-token-display">
-            <span class="token-huge" id="currentCallingToken">Token #04</span>
-            <span style="font-size:1.4rem; font-weight:700;">→ Room 204 (Dr. Priya Sharma)</span>
-          </div>
-          <div style="font-size:0.92rem; opacity:0.95; margin-top:0.3rem;">
-            Patient: <strong id="currentCallingPatient">Rahul Sharma</strong> • Dermatology Consultation
-          </div>
-        </div>
-
-        <div style="display:flex; gap:0.75rem;">
-          <button class="btn btn-teal btn-lg" onclick="callNextToken()" style="background:#ffffff; color:#0f766e; font-weight:800;">
-            📢 Call Next Patient
-          </button>
-          <button class="btn btn-outline btn-lg" onclick="markConsultationComplete()" style="background:rgba(255,255,255,0.2); border-color:#ffffff; color:#ffffff;">
-            ✅ Mark Consultation Complete
-          </button>
-        </div>
-      </div>
-
-      <div class="hero-grid">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Waiting Patients in OPD Lounge</h3>
-            <span class="badge badge-warning" id="waitingCountBadge">4 in queue</span>
-          </div>
-          <div class="table-responsive">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Token</th>
-                  <th>Patient</th>
-                  <th>Department</th>
-                  <th>Est. Wait</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="queueListBody">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Doctor Consultation Rooms Status</h3>
-            <span class="badge badge-primary">OPD Wings</span>
-          </div>
-          <div style="display:flex; flex-direction:column; gap:1rem;">
-            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <strong style="color:var(--slate-900);">Room 204 — Dermatology</strong>
-                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Priya Sharma (Consulting)</div>
+        <!-- Left Navigation Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-brand">
+            <a href="/" class="brand-left">
+              <div class="brand-badge-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M2 12h20"></path>
+                </svg>
               </div>
-              <span class="badge-status status-in-consult">In Consultation</span>
-            </div>
-            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <strong style="color:var(--slate-900);">Room 108 — Cardiology</strong>
-                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Rajesh Patel (Available)</div>
+              <span class="brand-title">Evergreen Hospital</span>
+            </a>
+            <button class="brand-collapse-btn" title="Collapse Sidebar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+          </div>
+
+          <ul class="sidebar-nav">
+            <li>
+              <a href="#" class="sidebar-nav-item active" onclick="selectNav('Home', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                  </svg>
+                </span>
+                <span>Home</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Inbox', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </span>
+                <span>Inbox</span>
+              </a>
+            </li>
+
+            <div class="nav-section-label">APPLICATIONS</div>
+
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Doctor', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
+                    <circle cx="12" cy="18" r="3"></circle>
+                    <path d="M6 3h3M15 3h3"></path>
+                  </svg>
+                </span>
+                <span>Doctor</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Patient', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </span>
+                <span>Patient</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Departments', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                  </svg>
+                </span>
+                <span>Departments</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Schedule', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </span>
+                <span>Schedule</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Appointment', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                  </svg>
+                </span>
+                <span>Appointment</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Report', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                    <polyline points="10 9 9 9 8 9"></polyline>
+                  </svg>
+                </span>
+                <span>Report</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Human Resources', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="5" r="3"></circle>
+                    <circle cx="5" cy="19" r="3"></circle>
+                    <circle cx="19" cy="19" r="3"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <path d="M12 12l-7 4M12 12l7 4"></path>
+                  </svg>
+                </span>
+                <span>Human Resources</span>
+              </a>
+            </li>
+
+            <div class="nav-section-label">OTHERS</div>
+
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Payment', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                  </svg>
+                </span>
+                <span>Payment</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Widgets', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                  </svg>
+                </span>
+                <span>Widgets</span>
+              </a>
+            </li>
+
+            <div class="nav-section-label">SUPPORT</div>
+
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Settings', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                </span>
+                <span>Settings</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Security', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                  </svg>
+                </span>
+                <span>Security</span>
+              </a>
+            </li>
+            <li>
+              <a href="#" class="sidebar-nav-item" onclick="selectNav('Help', this)">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </span>
+                <span>Help</span>
+              </a>
+            </li>
+            <li>
+              <a href="/" class="sidebar-nav-item logout">
+                <span class="nav-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                  </svg>
+                </span>
+                <span>Log Out</span>
+              </a>
+            </li>
+          </ul>
+        </aside>
+
+        <!-- Main Dashboard Canvas -->
+        <main class="main-canvas">
+
+          <!-- Topbar -->
+          <div class="dashboard-topbar">
+            <h2 class="page-heading">Dashboard</h2>
+
+            <div class="topbar-actions">
+              <div class="search-box-wrap">
+                <span class="search-box-icon">🔍</span>
+                <input type="text" id="dashboardSearch" class="search-box-input" placeholder="Search" onkeyup="filterPatientTable(this.value)">
+                <span class="search-box-kbd">⌘ F</span>
               </div>
-              <span class="badge-status status-confirmed">Ready for Next</span>
             </div>
-            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <strong style="color:var(--slate-900);">Room 302 — Orthopedics</strong>
-                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Anita Desai (Consulting)</div>
+          </div>
+
+          <!-- Dashboard Content Body -->
+          <div class="dashboard-body">
+
+            <!-- 1. Top Metrics Row (4 Cards) -->
+            <div class="metrics-row">
+
+              <!-- Card 1: Total Beds -->
+              <div class="metric-card">
+                <div class="metric-header">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"></path>
+                  </svg>
+                  <span>Total Beds</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-value-huge" id="valTotalBeds">60</span>
+                  <span class="pill-badge pill-green">Available</span>
+                </div>
+                <div class="metric-footer-stats">
+                  <div><strong>12</strong> Executive Room</div>
+                  <div><strong>30</strong> Premium Room</div>
+                  <div><strong>18</strong> Basic Room</div>
+                </div>
               </div>
-              <span class="badge-status status-in-consult">In Consultation</span>
-            </div>
-            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
-              <div>
-                <strong style="color:var(--slate-900);">Room 101 — General Medicine</strong>
-                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Vikram Mehta (Available)</div>
+
+              <!-- Card 2: Doctors -->
+              <div class="metric-card">
+                <div class="metric-header">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
+                    <circle cx="12" cy="18" r="3"></circle>
+                    <path d="M6 3h3M15 3h3"></path>
+                  </svg>
+                  <span>Doctors</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-value-huge" id="valDoctorsAvailable">46</span>
+                  <span class="pill-badge pill-green">Available</span>
+                  <span style="font-size:1.4rem; font-weight:800; color:var(--text-title); margin-left:8px;" id="valDoctorsLeave">4</span>
+                  <span class="pill-badge pill-grey">Leave</span>
+                </div>
+                <div class="metric-caption">
+                  Shows the current number of available doctors.
+                </div>
               </div>
-              <span class="badge-status status-confirmed">Ready for Next</span>
+
+              <!-- Card 3: Patients -->
+              <div class="metric-card">
+                <div class="metric-header">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  <span>Patients</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-value-huge" id="valTotalPatients">212</span>
+                  <span class="pill-badge pill-green">↗ 12%</span>
+                </div>
+                <div class="metric-caption">
+                  Displays live updates of patient numbers.
+                </div>
+              </div>
+
+              <!-- Card 4: Discharged / OPD Visits -->
+              <div class="metric-card">
+                <div class="metric-header">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <polyline points="9 15 11 17 15 13"></polyline>
+                  </svg>
+                  <span>Discharged</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-value-huge" id="valTotalDischarged">50</span>
+                  <span class="pill-badge pill-green">Discharged</span>
+                </div>
+                <div class="metric-caption">
+                  Ensures post-care recovery & automated follow-up.
+                </div>
+              </div>
+
             </div>
+
+            <!-- 2. Analytics Row (Report Donut + Patients Overview Wave Chart) -->
+            <div class="analytics-row">
+
+              <!-- Left Card: Report (Donut Gauge) -->
+              <div class="chart-card">
+                <div class="chart-header">
+                  <h3 class="chart-title">Report</h3>
+                  <button class="btn-add-report" onclick="openAddReportModal()">
+                    <span style="font-weight:700;">+</span> Add Report
+                  </button>
+                </div>
+
+                <div class="donut-wrap">
+                  <svg class="donut-svg" viewBox="0 0 160 160">
+                    <!-- Base Track -->
+                    <circle cx="80" cy="80" r="62" fill="none" stroke="#f1f5f9" stroke-width="16" />
+                    <!-- Arc 1: Urgent (Coral / Rose) 35% -> stroke-dasharray ~ 136, 253 -->
+                    <circle cx="80" cy="80" r="62" fill="none" stroke="#fb7185" stroke-width="16" 
+                            stroke-dasharray="136 253" stroke-dashoffset="0" stroke-linecap="round" />
+                    <!-- Arc 2: Moderate (Lime Green) 25% -> stroke-dasharray ~ 97, 292 -->
+                    <circle cx="80" cy="80" r="62" fill="none" stroke="#bef264" stroke-width="16" 
+                            stroke-dasharray="97 292" stroke-dashoffset="-140" stroke-linecap="round" />
+                    <!-- Arc 3: Low (Teal / Cyan) 15% -> stroke-dasharray ~ 58, 331 -->
+                    <circle cx="80" cy="80" r="62" fill="none" stroke="#2dd4bf" stroke-width="16" 
+                            stroke-dasharray="58 331" stroke-dashoffset="-240" stroke-linecap="round" />
+                  </svg>
+
+                  <div class="donut-center-text">
+                    <div class="donut-center-sub">Total Done</div>
+                    <div class="donut-center-val" id="valTotalDone">75%</div>
+                  </div>
+                </div>
+
+                <div class="donut-legend">
+                  <div class="donut-legend-item">
+                    <div class="legend-header">
+                      <span class="dot-circle" style="background:#fb7185;"></span>
+                      <span style="color:#fb7185;">Urgent</span>
+                    </div>
+                    <span class="legend-caption">35% done</span>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="legend-header">
+                      <span class="dot-circle" style="background:#84cc16;"></span>
+                      <span style="color:#65a30d;">Moderate</span>
+                    </div>
+                    <span class="legend-caption">25% done</span>
+                  </div>
+                  <div class="donut-legend-item">
+                    <div class="legend-header">
+                      <span class="dot-circle" style="background:#2dd4bf;"></span>
+                      <span style="color:#0d9488;">Low</span>
+                    </div>
+                    <span class="legend-caption">15% done</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Card: Patients Overview (Wave Chart + Floating Card) -->
+              <div class="chart-card">
+                <div class="chart-header">
+                  <h3 class="chart-title">Patients Overview</h3>
+                </div>
+
+                <div class="wave-chart-container">
+
+                  <!-- Floating Stat Card (Exact Replica) -->
+                  <div class="floating-stat-box">
+                    <div class="floating-stat-header">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                      </svg>
+                      <span>Patients</span>
+                    </div>
+                    <div class="floating-stat-val">
+                      <span class="floating-number">50</span>
+                      <span class="pill-badge pill-green">Discharged</span>
+                    </div>
+                    <div class="floating-sub-grid">
+                      <div><strong>10</strong> Executive Room</div>
+                      <div><strong>16</strong> Appointment</div>
+                      <div><strong>20</strong> Premium Room</div>
+                      <div><strong>4</strong> Emergency Room</div>
+                    </div>
+                  </div>
+
+                  <!-- Smooth SVG Dual-Wave Area Chart -->
+                  <svg width="100%" height="180" viewBox="0 0 700 180" preserveAspectRatio="none" style="overflow:visible;">
+                    <defs>
+                      <linearGradient id="waveGradientTeal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.22" />
+                        <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    <!-- Horizontal Grid lines & Y-Axis values -->
+                    <text x="0" y="32" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">60</text>
+                    <line x1="25" y1="28" x2="700" y2="28" stroke="#f1f5f9" stroke-width="1" />
+
+                    <text x="0" y="85" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">40</text>
+                    <line x1="25" y1="81" x2="700" y2="81" stroke="#f1f5f9" stroke-width="1" />
+
+                    <text x="0" y="138" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">20</text>
+                    <line x1="25" y1="134" x2="700" y2="134" stroke="#f1f5f9" stroke-width="1" />
+
+                    <!-- Primary Solid Curve: Discharge Area & Line -->
+                    <path d="M 30,95 Q 120,68 220,80 T 420,86 T 600,68 T 700,90 L 700,165 L 30,165 Z" fill="url(#waveGradientTeal)" />
+                    <path d="M 30,95 Q 120,68 220,80 T 420,86 T 600,68 T 700,90" fill="none" stroke="#0d9488" stroke-width="2.5" />
+                    <!-- Dot on peak -->
+                    <circle cx="600" cy="68" r="4.5" fill="#0d9488" stroke="#ffffff" stroke-width="2" />
+
+                    <!-- Secondary Dashed Curve: New Patients -->
+                    <path d="M 30,115 Q 120,95 220,105 T 420,110 T 600,98 T 700,118" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4" />
+                  </svg>
+
+                  <!-- X-Axis Labels -->
+                  <div style="display:flex; justify-content:space-between; margin-left:30px; margin-top:6px; font-size:0.75rem; color:#94a3b8;">
+                    <span>01-07</span>
+                    <span>08-12</span>
+                    <span>13-17</span>
+                    <span>18-21</span>
+                  </div>
+
+                </div>
+
+                <div class="chart-legend-bottom">
+                  <div class="legend-line-item">
+                    <span style="display:inline-block; width:22px; height:3px; background:#0d9488; border-radius:2px;"></span>
+                    <span>Discharge</span>
+                  </div>
+                  <div class="legend-line-item">
+                    <span style="display:inline-block; width:22px; height:0px; border-bottom:2px dashed #94a3b8;"></span>
+                    <span>New</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- 3. Bottom Table: Patients Detail Information -->
+            <div class="table-card">
+              <div class="table-top-header">
+                <h3 class="table-title">Patients Detail Information</h3>
+
+                <div class="time-pill-switch">
+                  <button class="time-pill-btn active" id="btnToday" onclick="setTimeFilter('Today')">Today</button>
+                  <button class="time-pill-btn" id="btnLastWeek" onclick="setTimeFilter('Last Week')">Last Week</button>
+                </div>
+              </div>
+
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">
+                      <input type="checkbox" class="custom-checkbox" onchange="toggleSelectAll(this)">
+                    </th>
+                    <th>Name</th>
+                    <th>ID Number</th>
+                    <th>Admission Date</th>
+                    <th>Diagnose</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="patientsTableBody">
+                  <!-- Dynamically Rendered -->
+                </tbody>
+              </table>
+
+            </div>
+
           </div>
-        </div>
+
+        </main>
       </div>
+
     </div>
-
-    <!-- ====================================================================
-         TAB 3: INPATIENT (IPD) & DISCHARGE CLEARANCE
-         ==================================================================== -->
-    <div id="ipdTab" class="tab-content">
-      <div class="card" style="margin-bottom:2rem;">
-        <div class="card-header">
-          <div>
-            <h3 class="card-title">Inpatient Admissions & Discharge Clearance Desk</h3>
-            <p class="card-subtitle">Manage bed allocations, nursing clearances, and digital gate-pass issuance.</p>
-          </div>
-          <button class="btn btn-outline btn-sm" onclick="refreshDashboardData()">🔄 Refresh Bed Roster</button>
-        </div>
-
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Bed / Room</th>
-                <th>Patient Name</th>
-                <th>Attending Doctor</th>
-                <th>Admission Date</th>
-                <th>Discharge Checklist</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="ipdTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====================================================================
-         TAB 4: URGENT TRIAGE & EMERGENCY CALLBACK DESK
-         ==================================================================== -->
-    <div id="triageTab" class="tab-content">
-      <div class="card" style="margin-bottom:2rem; border-left:4px solid var(--rose);">
-        <div class="card-header">
-          <div>
-            <h3 class="card-title" style="color:#b91c1c;">🚨 Urgent Clinical Triage Inquiries</h3>
-            <p class="card-subtitle">Patients who reported acute symptoms requiring urgent nurse telephone callback or ER admission.</p>
-          </div>
-          <span class="badge badge-danger">High Clinical Priority</span>
-        </div>
-
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Time Logged</th>
-                <th>Patient Name</th>
-                <th>Contact Number</th>
-                <th>Symptoms Reported</th>
-                <th>Triage Advisory</th>
-                <th>Staff Action</th>
-              </tr>
-            </thead>
-            <tbody id="triageTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ====================================================================
-         TAB 5: DAILY OPERATIONS REPORT & FEEDBACK
-         ==================================================================== -->
-    <div id="reportsTab" class="tab-content">
-      <div class="hero-grid">
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Executive Operations Daily Briefing</h3>
-            <span class="badge badge-primary">Today's Summary</span>
-          </div>
-          <div id="dailyBriefingContent" style="font-size:0.9rem; line-height:1.7; color:var(--slate-800);">
-            Loading operations briefing...
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Recent Patient Satisfaction Reviews</h3>
-            <span class="badge badge-success">4.9 / 5.0 Average</span>
-          </div>
-          <div id="feedbackList" style="display:flex; flex-direction:column; gap:1rem;">
-            <!-- Dynamically populated -->
-          </div>
-        </div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- Modal: New Walk-in Patient -->
-  <div class="modal-overlay" id="walkinModal">
+  <!-- Modal: + Add Report / New Walk-in Patient -->
+  <div class="modal-overlay" id="addReportModal">
     <div class="modal-container">
       <div class="modal-header">
-        <h4 class="modal-title">Register Walk-in Patient (Front Desk)</h4>
-        <button class="modal-close" onclick="closeWalkinModal()">&times;</button>
+        <h4 class="modal-title">New Patient Intake & Consultation Booking</h4>
+        <button class="modal-close" onclick="closeAddReportModal()">&times;</button>
       </div>
-      <form onsubmit="handleWalkinSubmit(event)">
+      <form onsubmit="handleAddPatientSubmit(event)">
         <div class="modal-body">
           <div class="form-group">
             <label class="form-label">Patient Full Name</label>
-            <input type="text" id="walkinName" class="form-control" placeholder="e.g. Ramesh Kulkarni" required>
+            <input type="text" id="intakeName" class="form-control" placeholder="e.g. Sabrina Carpanter" required>
           </div>
-          <div class="form-group">
-            <label class="form-label">Mobile Number (WhatsApp)</label>
-            <input type="tel" id="walkinPhone" class="form-control" placeholder="e.g. +91 98200 12345" required>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Age & Gender</label>
+              <input type="text" id="intakeAgeGender" class="form-control" placeholder="e.g. 39 y.o., Female" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">WhatsApp Contact Number</label>
+              <input type="tel" id="intakePhone" class="form-control" placeholder="e.g. +91 99999 99999" required>
+            </div>
           </div>
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Department</label>
-              <select id="walkinDept" class="form-control" required>
-                <option value="General Medicine">General Medicine</option>
+              <select id="intakeDept" class="form-control" required>
                 <option value="Dermatology">Dermatology</option>
                 <option value="Cardiology">Cardiology</option>
                 <option value="Orthopedics">Orthopedics</option>
+                <option value="General Medicine">General Medicine</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Doctor</label>
-              <select id="walkinDoctor" class="form-control">
-                <option value="Dr. Vikram Mehta">Dr. Vikram Mehta</option>
-                <option value="Dr. Priya Sharma">Dr. Priya Sharma</option>
-                <option value="Dr. Rajesh Patel">Dr. Rajesh Patel</option>
-                <option value="Dr. Anita Desai">Dr. Anita Desai</option>
+              <label class="form-label">Clinical Priority</label>
+              <select id="intakeStatus" class="form-control">
+                <option value="Urgent">Urgent</option>
+                <option value="In Consult">In Consult</option>
+                <option value="Observation">Observation</option>
+                <option value="Discharged">Discharged</option>
               </select>
             </div>
           </div>
           <div class="form-group">
-            <label class="form-label">Chief Complaint / Symptoms</label>
-            <input type="text" id="walkinSymptoms" class="form-control" placeholder="e.g. Routine consultation, viral fever, skin rash" required>
+            <label class="form-label">Clinical Diagnosis / Reason for Visit</label>
+            <input type="text" id="intakeDiagnose" class="form-control" placeholder="e.g. Bruised Rib, Fracture checkup, Hypertension" required>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline" onclick="closeWalkinModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="walkinSubmitBtn">Register & Generate Token</button>
+          <button type="button" class="btn btn-outline" onclick="closeAddReportModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save & Dispatch WhatsApp Pass</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Modal: Patient Details & WhatsApp Action -->
+  <div class="modal-overlay" id="patientDetailModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalPatientTitle">Patient Record</h4>
+        <button class="modal-close" onclick="closePatientModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalPatientBody">
+        <!-- Injected dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closePatientModal()">Close</button>
+        <button type="button" class="btn btn-primary" id="modalActionBtn">Send WhatsApp Reminder</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Live Clock
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('digitalClock').innerText = now.toLocaleTimeString();
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Tab Navigation
-    function switchTab(tabId, btn) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      btn.classList.add('active');
-    }
-
-    // Modal helpers
-    function openWalkinModal() {
-      document.getElementById('walkinModal').style.display = 'flex';
-    }
-    function closeWalkinModal() {
-      document.getElementById('walkinModal').style.display = 'none';
-    }
-
-    // Mock Sample Data State (Synchronized with Backend API)
-    let appointmentsData = [
-      { id: 'APPT-101', name: 'Rahul Sharma', phone: '+91 99999 99999', dept: 'Dermatology', doctor: 'Dr. Priya Sharma', time: '10:30 AM', status: 'In Consultation', token: 'T-04' },
-      { id: 'APPT-102', name: 'Sunita Mehra', phone: '+91 98222 33444', dept: 'Cardiology', doctor: 'Dr. Rajesh Patel', time: '11:00 AM', status: 'Waiting', token: 'T-05' },
-      { id: 'APPT-103', name: 'Amitabh Sen', phone: '+91 98333 44555', dept: 'Orthopedics', doctor: 'Dr. Anita Desai', time: '11:30 AM', status: 'Checked In', token: 'T-06' },
-      { id: 'APPT-104', name: 'Pooja Verma', phone: '+91 98444 55666', dept: 'General Medicine', doctor: 'Dr. Vikram Mehta', time: '12:00 PM', status: 'Confirmed', token: 'T-07' },
-      { id: 'APPT-105', name: 'Kavita Nair', phone: '+91 98555 66777', dept: 'Dermatology', doctor: 'Dr. Priya Sharma', time: '02:00 PM', status: 'Confirmed', token: 'T-08' }
+    // State Store matching Evergreen Hospital Reference
+    const todayPatients = [
+      {
+        id: 'BR263585643',
+        name: 'Sabrina Carpanter',
+        meta: '39 y.o., Female',
+        date: '6 Jan 2024',
+        diagnose: 'Bruised Rib',
+        status: 'Urgent',
+        statusClass: 'pill-red',
+        phone: '+91 98201 12345',
+        dept: 'Orthopedics'
+      },
+      {
+        id: 'PAT-092591',
+        name: 'Rahul Sharma',
+        meta: '34 y.o., Male',
+        date: '7 Jan 2024',
+        diagnose: 'Skin Rash & Allergy',
+        status: 'Discharged',
+        statusClass: 'pill-green',
+        phone: '+91 99999 99999',
+        dept: 'Dermatology'
+      },
+      {
+        id: 'PAT-081442',
+        name: 'Sunita Mehra',
+        meta: '52 y.o., Female',
+        date: '7 Jan 2024',
+        diagnose: 'Hypertension Review',
+        status: 'In Consult',
+        statusClass: 'pill-blue',
+        phone: '+91 98222 33444',
+        dept: 'Cardiology'
+      },
+      {
+        id: 'PAT-077321',
+        name: 'Amitabh Sen',
+        meta: '45 y.o., Male',
+        date: '8 Jan 2024',
+        diagnose: 'Knee Ligament Sprain',
+        status: 'Observation',
+        statusClass: 'pill-yellow',
+        phone: '+91 98333 44555',
+        dept: 'Orthopedics'
+      },
+      {
+        id: 'PAT-065112',
+        name: 'Vikram Joshi',
+        meta: '58 y.o., Male',
+        date: '8 Jan 2024',
+        diagnose: 'Cardiac Discomfort',
+        status: 'Urgent',
+        statusClass: 'pill-red',
+        phone: '+91 98888 88888',
+        dept: 'Cardiology'
+      },
+      {
+        id: 'PAT-054993',
+        name: 'Pooja Verma',
+        meta: '29 y.o., Female',
+        date: '8 Jan 2024',
+        diagnose: 'Acute Viral Fever',
+        status: 'Recovered',
+        statusClass: 'pill-green',
+        phone: '+91 98444 55666',
+        dept: 'General Medicine'
+      }
     ];
 
-    let queueData = [
-      { token: 'T-05', name: 'Sunita Mehra', dept: 'Cardiology', wait: '8 mins' },
-      { token: 'T-06', name: 'Amitabh Sen', dept: 'Orthopedics', wait: '20 mins' },
-      { token: 'T-07', name: 'Pooja Verma', dept: 'General Medicine', wait: '35 mins' }
+    const lastWeekPatients = [
+      {
+        id: 'BR263441920',
+        name: 'Meena Saxena',
+        meta: '42 y.o., Female',
+        date: '28 Dec 2023',
+        diagnose: 'Migraine & Vertigo',
+        status: 'Discharged',
+        statusClass: 'pill-green',
+        phone: '+91 98111 22334',
+        dept: 'General Medicine'
+      },
+      {
+        id: 'BR263441819',
+        name: 'Rajesh Khanna',
+        meta: '61 y.o., Male',
+        date: '29 Dec 2023',
+        diagnose: 'Type 2 Diabetes Screening',
+        status: 'Recovered',
+        statusClass: 'pill-green',
+        phone: '+91 98111 55667',
+        dept: 'General Medicine'
+      },
+      {
+        id: 'BR263441712',
+        name: 'Arjun Deshmukh',
+        meta: '26 y.o., Male',
+        date: '30 Dec 2023',
+        diagnose: 'Ankle Fracture Post-Op',
+        status: 'Observation',
+        statusClass: 'pill-yellow',
+        phone: '+91 98111 88990',
+        dept: 'Orthopedics'
+      }
     ];
 
-    let ipdData = [
-      { bed: 'Bed 201-A (Deluxe)', name: 'Deepak Merchant', doctor: 'Dr. Anita Desai (Orthopedics)', date: '2026-10-01', clinical: true, pharmacy: true, billing: true, status: 'Ready for Gate Pass' },
-      { bed: 'Bed 104-B (ICU-2)', name: 'Harish Varma', doctor: 'Dr. Rajesh Patel (Cardiology)', date: '2026-10-02', clinical: true, pharmacy: false, billing: false, status: 'Under Observation' },
-      { bed: 'Bed 305-C (General)', name: 'Sunil Rao', doctor: 'Dr. Vikram Mehta (Gen Med)', date: '2026-10-03', clinical: true, pharmacy: true, billing: false, status: 'Billing Clearance' }
-    ];
+    let currentPatients = [...todayPatients];
 
-    let triageAlerts = [
-      { time: '10:14 AM', name: 'Vikram Joshi', phone: '+91 98888 88888', symptoms: 'Severe crushing chest pain radiating to left arm & cold sweats', advisory: 'Acute Cardiac Care Recommended. ER Team Alerted.' }
-    ];
-
-    function renderAppointments() {
-      const tbody = document.getElementById('appointmentsTableBody');
+    function renderTable(list) {
+      const tbody = document.getElementById('patientsTableBody');
       tbody.innerHTML = '';
-      appointmentsData.forEach((item, index) => {
-        const tr = document.createElement('tr');
-        
-        let badgeClass = 'status-confirmed';
-        if (item.status === 'Waiting') badgeClass = 'status-waiting';
-        if (item.status === 'In Consultation') badgeClass = 'status-in-consult';
-        if (item.status === 'Completed') badgeClass = 'status-confirmed';
 
-        tr.innerHTML = `
-          <td><strong>${item.token}</strong></td>
-          <td>
-            <strong>${item.name}</strong><br>
-            <span style="font-size:0.8rem; color:var(--slate-500);">${item.phone}</span>
-          </td>
-          <td>
-            <strong>${item.dept}</strong><br>
-            <span style="font-size:0.8rem; color:var(--slate-600);">${item.doctor}</span>
-          </td>
-          <td>${item.time}</td>
-          <td><span class="badge-status ${badgeClass}">${item.status}</span></td>
-          <td>
-            <div style="display:flex; gap:0.4rem;">
-              <button class="btn btn-outline btn-sm" onclick="checkInPatient(${index})">Check-In</button>
-              <button class="btn btn-outline btn-sm" onclick="sendWhatsAppReminder('${item.name}', '${item.phone}')">📲 Reminder</button>
-            </div>
-          </td>
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center; padding: 2rem; color: #94a3b8;">
+              No matching patient records found.
+            </td>
+          </tr>
         `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderQueue() {
-      const tbody = document.getElementById('queueListBody');
-      tbody.innerHTML = '';
-      queueData.forEach((q, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><strong>${q.token}</strong></td>
-          <td>${q.name}</td>
-          <td>${q.dept}</td>
-          <td>${q.wait}</td>
-          <td>
-            <button class="btn btn-primary btn-sm" onclick="callSpecificToken(${idx})">Call Patient</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      document.getElementById('waitingCountBadge').innerText = `${queueData.length} in queue`;
-      document.getElementById('metricQueue').innerText = queueData.length;
-    }
-
-    function renderIpd() {
-      const tbody = document.getElementById('ipdTableBody');
-      tbody.innerHTML = '';
-      ipdData.forEach((ipd, idx) => {
-        const tr = document.createElement('tr');
-        const isReady = ipd.clinical && ipd.pharmacy && ipd.billing;
-        tr.innerHTML = `
-          <td><strong>${ipd.bed}</strong></td>
-          <td>${ipd.name}</td>
-          <td>${ipd.doctor}</td>
-          <td>${ipd.date}</td>
-          <td>
-            <div style="font-size:0.8rem;">
-              ${ipd.clinical ? '✅ Medical Summary' : '⏳ Medical Summary'}<br>
-              ${ipd.pharmacy ? '✅ Pharmacy Clearance' : '⏳ Pharmacy Clearance'}<br>
-              ${ipd.billing ? '✅ TPA / Billing Settled' : '🟡 Final Billing Pending'}
-            </div>
-          </td>
-          <td>
-            ${isReady 
-              ? `<button class="btn btn-teal btn-sm" onclick="issueGatePass(${idx})">🚪 Issue Gate Pass</button>`
-              : `<button class="btn btn-outline btn-sm" onclick="finalizeBilling(${idx})">💳 Clear Billing</button>`
-            }
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function renderTriage() {
-      const tbody = document.getElementById('triageTableBody');
-      tbody.innerHTML = '';
-      triageAlerts.forEach((item, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${item.time}</td>
-          <td><strong>${item.name}</strong></td>
-          <td><a href="tel:${item.phone}" style="color:var(--primary); font-weight:700;">${item.phone}</a></td>
-          <td style="color:#b91c1c; font-weight:600;">${item.symptoms}</td>
-          <td><span class="badge-status status-emergency">${item.advisory}</span></td>
-          <td>
-            <div style="display:flex; gap:0.4rem;">
-              <button class="btn btn-danger btn-sm" onclick="acknowledgeAlert(${idx})">Acknowledge</button>
-              <button class="btn btn-outline btn-sm" onclick="callPatientMobile('${item.phone}')">📞 Call</button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-      document.getElementById('metricUrgent').innerText = triageAlerts.length;
-    }
-
-    function renderDailyReport() {
-      document.getElementById('dailyBriefingContent').innerHTML = `
-        <div style="background:var(--slate-50); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:1rem;">
-          <h4 style="font-size:0.95rem; font-weight:700; color:var(--slate-900); margin-bottom:0.4rem;">🏥 Hospital Operational Highlights</h4>
-          <p>• Total Outpatient Consultations Scheduled: <strong>24 Patients</strong> across 4 Departments.</p>
-          <p>• Average Waiting Time at OPD Lounge: <strong>14 Minutes</strong> (Within 20-min hospital benchmark).</p>
-          <p>• Inpatient Bed Occupancy: <strong>75%</strong> (18 Occupied, 6 Available for emergency admission).</p>
-          <p>• Cashless Insurance Pre-Auth Clearances: <strong>100% On-Time</strong> with zero TPA rejections today.</p>
-        </div>
-      `;
-
-      document.getElementById('feedbackList').innerHTML = `
-        <div style="padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md);">
-          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
-            <strong>Ananya Sen (Dermatology)</strong>
-            <span style="color:#eab308;">★★★★★</span>
-          </div>
-          <div style="font-size:0.84rem; color:var(--slate-600);">"Dr. Priya Sharma was extremely attentive. The WhatsApp token pass saved so much time at the counter!"</div>
-        </div>
-        <div style="padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md);">
-          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
-            <strong>Rajendra K. (Cardiology)</strong>
-            <span style="color:#eab308;">★★★★★</span>
-          </div>
-          <div style="font-size:0.84rem; color:var(--slate-600);">"Quick ECG and timely consultation with Dr. Patel. Very courteous nursing staff."</div>
-        </div>
-      `;
-    }
-
-    // Action Handlers
-    function checkInPatient(index) {
-      appointmentsData[index].status = 'Checked In';
-      renderAppointments();
-      alert(`Patient ${appointmentsData[index].name} marked as Checked In.`);
-    }
-
-    function sendWhatsAppReminder(name, phone) {
-      alert(`WhatsApp appointment reminder & directions sent to ${name} (${phone}).`);
-    }
-
-    function sendAllReminders() {
-      alert('WhatsApp reminders dispatched to all confirmed patients scheduled for today.');
-    }
-
-    function callNextToken() {
-      if (queueData.length === 0) {
-        alert('All waiting patients have been called!');
         return;
       }
-      const next = queueData.shift();
-      document.getElementById('currentCallingToken').innerText = `Token #${next.token}`;
-      document.getElementById('currentCallingPatient').innerText = next.name;
-      renderQueue();
-    }
 
-    function callSpecificToken(idx) {
-      const selected = queueData.splice(idx, 1)[0];
-      document.getElementById('currentCallingToken').innerText = `Token #${selected.token}`;
-      document.getElementById('currentCallingPatient').innerText = selected.name;
-      renderQueue();
-    }
+      list.forEach((p, idx) => {
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.onclick = (e) => {
+          if (e.target.type !== 'checkbox') openPatientModal(p);
+        };
 
-    function markConsultationComplete() {
-      alert('Consultation marked complete. Room is ready for next patient.');
-      callNextToken();
-    }
-
-    function issueGatePass(idx) {
-      const patient = ipdData[idx];
-      alert(`Discharge Gate Pass issued for ${patient.name} (${patient.bed}). Discharge summary & medication guidance dispatched to WhatsApp.`);
-      ipdData.splice(idx, 1);
-      renderIpd();
-    }
-
-    function finalizeBilling(idx) {
-      ipdData[idx].billing = true;
-      ipdData[idx].status = 'Ready for Gate Pass';
-      renderIpd();
-      alert(`Billing cleared for ${ipdData[idx].name}.`);
-    }
-
-    function acknowledgeAlert(idx) {
-      alert(`Alert acknowledged for ${triageAlerts[idx].name}. On-duty ER doctor notified.`);
-      triageAlerts.splice(idx, 1);
-      renderTriage();
-    }
-
-    function callPatientMobile(phone) {
-      window.location.href = `tel:${phone}`;
-    }
-
-    function filterAppointments() {
-      const search = document.getElementById('patientSearchInput').value.toLowerCase();
-      const dept = document.getElementById('departmentFilter').value;
-      const rows = document.querySelectorAll('#appointmentsTableBody tr');
-
-      rows.forEach(row => {
-        const text = row.innerText.toLowerCase();
-        const matchesSearch = text.includes(search);
-        const matchesDept = !dept || text.includes(dept.toLowerCase());
-        row.style.display = matchesSearch && matchesDept ? '' : 'none';
+        tr.innerHTML = `
+          <td><input type="checkbox" class="custom-checkbox" onclick="event.stopPropagation()"></td>
+          <td>
+            <div class="patient-name-cell">${p.name}</div>
+            <div class="patient-sub-cell">${p.meta}</div>
+          </td>
+          <td style="font-family:monospace; font-weight:600; color:#475569;">${p.id}</td>
+          <td style="color:#64748b;">${p.date}</td>
+          <td style="font-weight:600; color:#334155;">${p.diagnose}</td>
+          <td><span class="pill-badge ${p.statusClass}">${p.status}</span></td>
+        `;
+        tbody.appendChild(tr);
       });
     }
 
-    async function handleWalkinSubmit(e) {
+    function setTimeFilter(type) {
+      document.getElementById('btnToday').classList.toggle('active', type === 'Today');
+      document.getElementById('btnLastWeek').classList.toggle('active', type === 'Last Week');
+      currentPatients = type === 'Today' ? [...todayPatients] : [...lastWeekPatients];
+      renderTable(currentPatients);
+    }
+
+    function filterPatientTable(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        renderTable(currentPatients);
+        return;
+      }
+      const filtered = currentPatients.filter(p => 
+        p.name.toLowerCase().includes(q) ||
+        p.id.toLowerCase().includes(q) ||
+        p.diagnose.toLowerCase().includes(q) ||
+        p.status.toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    }
+
+    function toggleSelectAll(master) {
+      const checkboxes = document.querySelectorAll('.custom-checkbox');
+      checkboxes.forEach(cb => cb.checked = master.checked);
+    }
+
+    function selectNav(name, el) {
+      document.querySelectorAll('.sidebar-nav-item').forEach(item => item.classList.remove('active'));
+      el.classList.add('active');
+      if (name === 'Doctor') {
+        filterPatientTable('Consult');
+      } else if (name === 'Appointment') {
+        setTimeFilter('Today');
+      } else if (name === 'Report') {
+        window.scrollTo({ top: 180, behavior: 'smooth' });
+      } else {
+        renderTable(currentPatients);
+      }
+    }
+
+    // Modal Handlers
+    function openAddReportModal() {
+      document.getElementById('addReportModal').style.display = 'flex';
+    }
+    function closeAddReportModal() {
+      document.getElementById('addReportModal').style.display = 'none';
+    }
+
+    function handleAddPatientSubmit(e) {
       e.preventDefault();
-      const name = document.getElementById('walkinName').value;
-      const phone = document.getElementById('walkinPhone').value;
-      const dept = document.getElementById('walkinDept').value;
-      const doc = document.getElementById('walkinDoctor').value;
-      const symp = document.getElementById('walkinSymptoms').value;
+      const name = document.getElementById('intakeName').value.trim();
+      const meta = document.getElementById('intakeAgeGender').value.trim();
+      const phone = document.getElementById('intakePhone').value.trim();
+      const dept = document.getElementById('intakeDept').value;
+      const status = document.getElementById('intakeStatus').value;
+      const diagnose = document.getElementById('intakeDiagnose').value.trim();
 
-      const newId = `APPT-${Math.floor(100 + Math.random() * 900)}`;
-      const newToken = `T-0${appointmentsData.length + 4}`;
+      let statusClass = 'pill-green';
+      if (status === 'Urgent') statusClass = 'pill-red';
+      if (status === 'In Consult') statusClass = 'pill-blue';
+      if (status === 'Observation') statusClass = 'pill-yellow';
 
-      appointmentsData.unshift({
-        id: newId,
-        name: name,
-        phone: phone,
-        dept: dept,
-        doctor: doc,
-        time: 'Just Now',
-        status: 'Waiting',
-        token: newToken
-      });
+      const newPatient = {
+        id: `BR${Math.floor(100000000 + Math.random() * 900000000)}`,
+        name,
+        meta,
+        date: 'Today',
+        diagnose,
+        status,
+        statusClass,
+        phone,
+        dept
+      };
 
-      queueData.push({
-        token: newToken,
-        name: name,
-        dept: dept,
-        wait: '5 mins'
-      });
+      todayPatients.unshift(newPatient);
+      currentPatients.unshift(newPatient);
+      renderTable(currentPatients);
+      closeAddReportModal();
 
-      closeWalkinModal();
-      renderAppointments();
-      renderQueue();
-
-      // Trigger backend intake webhook asynchronously
+      // Dispatch to backend lead intake webhook asynchronously
       try {
         fetch('/webhook/lead-intake', {
           method: 'POST',
@@ -759,36 +847,63 @@
             phone: phone,
             department: dept,
             preferred_date: new Date().toISOString().split('T')[0],
-            enquiry_text: symp,
-            source: 'Reception Walk-in Desk'
+            enquiry_text: diagnose,
+            source: 'Reception Dashboard Desk'
           })
         });
-      } catch (e) {}
+      } catch (err) {}
 
-      alert(`Walk-in patient ${name} registered successfully with Token ${newToken}. WhatsApp pass dispatched.`);
+      alert(`✅ Patient ${name} registered successfully. Record added to dashboard.`);
     }
 
-    async function refreshDashboardData() {
-      try {
-        const res = await fetch('/api/dashboard/management');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.metrics) {
-            document.getElementById('metricAppts').innerText = data.metrics.total_leads || 24;
-            document.getElementById('metricBeds').innerText = '18 / 24';
-          }
-        }
-      } catch (e) {}
-      renderAppointments();
-      renderQueue();
-      renderIpd();
-      renderTriage();
-      renderDailyReport();
+    function openPatientModal(p) {
+      document.getElementById('modalPatientTitle').innerText = `${p.name} (${p.id})`;
+      document.getElementById('modalPatientBody').innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid #f1f5f9;">
+          <div>
+            <div style="font-size:1.1rem; font-weight:700; color:#101828;">${p.name}</div>
+            <div style="font-size:0.84rem; color:#64748b;">${p.meta} • ${p.phone}</div>
+          </div>
+          <span class="pill-badge ${p.statusClass}">${p.status}</span>
+        </div>
+
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:1rem; font-size:0.88rem;">
+          <div style="margin-bottom:6px;"><strong>Clinical Diagnosis:</strong> ${p.diagnose}</div>
+          <div style="margin-bottom:6px;"><strong>Department:</strong> ${p.dept}</div>
+          <div><strong>Admission / Record Date:</strong> ${p.date}</div>
+        </div>
+
+        <div style="font-size:0.84rem; color:#475569; line-height:1.6;">
+          WhatsApp Status: <span style="color:#059669; font-weight:700;">✓ Connected</span><br>
+          Automated appointment reminder and pre-consultation guidelines dispatched to patient.
+        </div>
+      `;
+
+      const btn = document.getElementById('modalActionBtn');
+      btn.onclick = () => {
+        alert(`📲 WhatsApp follow-up pass sent to ${p.name} at ${p.phone}.`);
+        closePatientModal();
+      };
+
+      document.getElementById('patientDetailModal').style.display = 'flex';
     }
+
+    function closePatientModal() {
+      document.getElementById('patientDetailModal').style.display = 'none';
+    }
+
+    // Keyboard shortcut ⌘ F / Ctrl+F focus on search
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        const searchInput = document.getElementById('dashboardSearch');
+        if (searchInput) searchInput.focus();
+      }
+    });
 
     // Initial render
     document.addEventListener('DOMContentLoaded', () => {
-      refreshDashboardData();
+      renderTable(currentPatients);
     });
   </script>
 </body>
