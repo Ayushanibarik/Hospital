@@ -426,3 +426,299 @@ export async function handleDiagnosticReady({ patient_id, test_category }) {
   };
 }
 
+/**
+ * WORKFLOW: Module 3 - Pre-Consultation Intake Form
+ */
+export async function handlePreConsultationIntake({ appointment_id, patient_id, chief_complaint, symptoms_duration, current_meds, allergies }) {
+  const correlationId = generateCorrelationId();
+  const timestamp = new Date().toISOString();
+
+  let patient = null;
+  if (patient_id) {
+    patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
+  } else if (appointment_id) {
+    patient = db.prepare(`
+      SELECT p.* FROM patients p
+      JOIN appointments a ON p.patient_id = a.patient_id
+      WHERE a.appointment_id = ?
+    `).get(appointment_id);
+    patient_id = patient?.patient_id;
+  }
+
+  if (!patient) {
+    throw new Error('Valid patient_id or appointment_id required for pre-consultation intake');
+  }
+
+  const formId = `FORM-${Date.now().toString().slice(-6)}`;
+  db.prepare(`
+    INSERT INTO intake_forms (form_id, appointment_id, patient_id, chief_complaint, symptoms_duration, current_meds, allergies, submitted_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(formId, appointment_id || 'APPT-DIRECT', patient_id, chief_complaint || '', symptoms_duration || '', current_meds || 'None', allergies || 'None', timestamp);
+
+  db.prepare(`
+    INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, record_id, correlation_id)
+    VALUES (?, 'HOSPITAL | 03 Pre-Consultation Intake', 'v3.0', 'PATIENT', 'SUBMITTED_INTAKE_FORM', ?, ?)
+  `).run(`EVT-${Date.now()}`, formId, correlationId);
+
+  const messageText = `Hello ${patient.full_name}, thank you for submitting your pre-consultation intake details. Your information has been shared securely with your doctor for review before your appointment.`;
+  await dispatchWhatsApp({ toPhone: patient.phone, messageText });
+
+  return {
+    status: 'INTAKE_SUBMITTED',
+    correlation_id: correlationId,
+    form_id: formId,
+    patient_id,
+    message: messageText
+  };
+}
+
+/**
+ * WORKFLOW: Module 4 - Insurance Pre-Verification / TPA
+ */
+export async function handleInsurancePreVerification({ patient_id, policy_number, insurer_name, tpa_name, copay_estimate = 0 }) {
+  const correlationId = generateCorrelationId();
+  const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
+  if (!patient) throw new Error(`Patient ${patient_id} not found`);
+
+  const verificationId = `INS-${Date.now().toString().slice(-6)}`;
+  db.prepare(`
+    INSERT INTO insurance_preverifications (verification_id, patient_id, policy_number, insurer_name, tpa_name, status, copay_estimate)
+    VALUES (?, ?, ?, ?, ?, 'APPROVED', ?)
+  `).run(verificationId, patient_id, policy_number, insurer_name, tpa_name || 'In-House TPA Desk', copay_estimate);
+
+  db.prepare(`
+    INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, record_id, correlation_id)
+    VALUES (?, 'HOSPITAL | 04 Insurance Pre-Verification', 'v3.0', 'STAFF', 'INSURANCE_PRE_VERIFIED', ?, ?)
+  `).run(`EVT-${Date.now()}`, verificationId, correlationId);
+
+  const messageText = `Hello ${patient.full_name}, your insurance pre-verification for ${insurer_name} (Policy: ${policy_number}) has been pre-cleared by DemoCare TPA desk. Estimated Copay: ₹${copay_estimate}.`;
+  await dispatchWhatsApp({ toPhone: patient.phone, messageText });
+
+  return {
+    status: 'INSURANCE_PRE_VERIFIED',
+    correlation_id: correlationId,
+    verification_id: verificationId,
+    patient_id,
+    policy_number,
+    copay_estimate,
+    message: messageText
+  };
+}
+
+/**
+ * WORKFLOW: Module 10 - In-Hospital OPD Flow & Token Queue Management
+ */
+export async function handleGenerateQueueToken({ appointment_id, patient_id, department }) {
+  const correlationId = generateCorrelationId();
+  const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
+  if (!patient) throw new Error(`Patient ${patient_id} not found`);
+
+  // Calculate next token number for this department today
+  const lastToken = db.prepare(`
+    SELECT MAX(token_number) as max_token
+    FROM queue_tokens
+    WHERE department = ? AND date(created_at) = date('now')
+  `).get(department);
+
+  const tokenNumber = (lastToken?.max_token || 0) + 1;
+  const tokenId = `TKN-${Date.now().toString().slice(-6)}`;
+
+  db.prepare(`
+    INSERT INTO queue_tokens (token_id, appointment_id, patient_id, department, token_number, status)
+    VALUES (?, ?, ?, ?, ?, 'WAITING')
+  `).run(tokenId, appointment_id || null, patient_id, department, tokenNumber);
+
+  // Count patients waiting ahead
+  const ahead = db.prepare(`
+    SELECT COUNT(*) as count
+    FROM queue_tokens
+    WHERE department = ? AND status = 'WAITING' AND token_number < ?
+  `).get(department, tokenNumber).count;
+
+  const estimatedWaitMins = ahead * 10;
+  const messageText = `DemoCare OPD: Your live token for ${department} is #${tokenNumber}. Currently ${ahead} patient(s) ahead of you. Estimated wait: ~${estimatedWaitMins} minutes. Live token displays are active in the waiting lounge.`;
+
+  await dispatchWhatsApp({ toPhone: patient.phone, messageText });
+
+  return {
+    status: 'TOKEN_GENERATED',
+    correlation_id: correlationId,
+    token_id: tokenId,
+    token_number: tokenNumber,
+    department,
+    patients_ahead: ahead,
+    estimated_wait_minutes: estimatedWaitMins,
+    message: messageText
+  };
+}
+
+export async function handleCallNextQueueToken({ department }) {
+  const correlationId = generateCorrelationId();
+  const nextToken = db.prepare(`
+    SELECT q.*, p.full_name, p.phone
+    FROM queue_tokens q
+    JOIN patients p ON q.patient_id = p.patient_id
+    WHERE q.department = ? AND q.status = 'WAITING'
+    ORDER BY q.token_number ASC
+    LIMIT 1
+  `).get(department);
+
+  if (!nextToken) {
+    return { status: 'QUEUE_EMPTY', department, message: `No waiting patients in ${department}` };
+  }
+
+  db.prepare(`
+    UPDATE queue_tokens
+    SET status = 'CALLED', called_at = datetime('now')
+    WHERE token_id = ?
+  `).run(nextToken.token_id);
+
+  const messageText = `Token Alert #${nextToken.token_number}: ${nextToken.full_name}, please proceed to the ${department} consultation room immediately. Your physician is ready.`;
+  await dispatchWhatsApp({ toPhone: nextToken.phone, messageText });
+
+  return {
+    status: 'TOKEN_CALLED',
+    correlation_id: correlationId,
+    token_id: nextToken.token_id,
+    token_number: nextToken.token_number,
+    patient_name: nextToken.full_name,
+    message: messageText
+  };
+}
+
+/**
+ * WORKFLOW: Module 12 - Inpatient Admission Pre-Clearance
+ */
+export async function handleAdmissionPreClearance({ patient_id, department, room_preference = 'SEMI_PRIVATE', attendant_name, attendant_phone }) {
+  const correlationId = generateCorrelationId();
+  const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
+  if (!patient) throw new Error(`Patient ${patient_id} not found`);
+
+  const admissionId = `ADM-${Date.now().toString().slice(-6)}`;
+  db.prepare(`
+    INSERT INTO admission_preclearances (admission_id, patient_id, department, room_preference, attendant_name, attendant_phone, estimate_acknowledged, advance_deposit_status)
+    VALUES (?, ?, ?, ?, ?, ?, 1, 'RECEIVED')
+  `).run(admissionId, patient_id, department, room_preference, attendant_name || 'Family Attendant', attendant_phone || patient.phone);
+
+  const messageText = `DemoCare Admissions: Pre-clearance complete for ${patient.full_name} in ${department}. Room Type: ${room_preference}. Attendant: ${attendant_name || 'Accompanying family'}. Please present your Admission ID (${admissionId}) at Desk B.`;
+  await dispatchWhatsApp({ toPhone: patient.phone, messageText });
+
+  return {
+    status: 'ADMISSION_PRE_CLEARED',
+    correlation_id: correlationId,
+    admission_id: admissionId,
+    room_preference,
+    message: messageText
+  };
+}
+
+/**
+ * WORKFLOW: Module 16 - Chronic Disease Recall Check
+ */
+export async function handleChronicRevisitCheck() {
+  const correlationId = generateCorrelationId();
+  const timestamp = new Date().toISOString();
+
+  // Find active chronic care patients due for review
+  const duePrograms = db.prepare(`
+    SELECT c.*, p.full_name, p.phone
+    FROM chronic_programs c
+    JOIN patients p ON c.patient_id = p.patient_id
+    WHERE c.status = 'ACTIVE' AND c.next_due_date <= date('now')
+  `).all();
+
+  const dispatched = [];
+
+  for (const prog of duePrograms) {
+    const msgId = `MSG-CHR-${Date.now().toString().slice(-6)}`;
+    const messageText = `Hello ${prog.full_name}, your quarterly ${prog.condition_name} review at DemoCare Hospital is due this week. Routine checks help ensure optimal health management. Reply 1 to book your consultation slot, or call +91 22 5550 1234.`;
+
+    db.prepare(`
+      INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
+      VALUES (?, ?, 'WhatsApp', 'CHRONIC_REVISIT_01', 'HOSPITAL | Chronic Disease Recall', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
+    `).run(msgId, prog.patient_id, timestamp, correlationId);
+
+    db.prepare(`
+      UPDATE chronic_programs
+      SET status = 'RECALLED'
+      WHERE program_id = ?
+    `).run(prog.program_id);
+
+    await dispatchWhatsApp({ toPhone: prog.phone, messageText });
+
+    dispatched.push({
+      program_id: prog.program_id,
+      patient_name: prog.full_name,
+      condition: prog.condition_name
+    });
+  }
+
+  return {
+    status: 'CHRONIC_RECALL_EXECUTED',
+    correlation_id: correlationId,
+    recalled_count: dispatched.length,
+    recalled_patients: dispatched
+  };
+}
+
+/**
+ * WORKFLOW: Module 17 - Inactive Patient Reactivation Campaign
+ */
+export async function handleInactiveReactivation() {
+  const correlationId = generateCorrelationId();
+  const timestamp = new Date().toISOString();
+
+  // Identify patients with no appointment in the last 180 days
+  const eligible = db.prepare(`
+    SELECT p.* FROM patients p
+    WHERE p.patient_id NOT IN (
+      SELECT DISTINCT patient_id FROM appointments WHERE slot_start >= datetime('now', '-180 days')
+    )
+    LIMIT 10
+  `).all();
+
+  const contacted = [];
+  for (const pat of eligible) {
+    const msgId = `MSG-REACT-${Date.now().toString().slice(-6)}`;
+    const messageText = `Namaste ${pat.full_name}, it has been a while since your last health wellness check at DemoCare Hospital. Regular preventative screenings keep you healthy. Book a comprehensive health check this month: https://democare.hospital/checkup or reply 1 to schedule.`;
+
+    db.prepare(`
+      INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
+      VALUES (?, ?, 'WhatsApp', 'PATIENT_REACTIVATION_01', 'HOSPITAL | Inactive Reactivation', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
+    `).run(msgId, pat.patient_id, timestamp, correlationId);
+
+    await dispatchWhatsApp({ toPhone: pat.phone, messageText });
+    contacted.push({ patient_id: pat.patient_id, name: pat.full_name });
+  }
+
+  return {
+    status: 'REACTIVATION_DISPATCHED',
+    correlation_id: correlationId,
+    contacted_count: contacted.length,
+    patients: contacted
+  };
+}
+
+/**
+ * WORKFLOW: Module 18 - Staff Operations & Doctor Availability
+ */
+export async function handleDoctorAvailability({ doctor_id, is_available }) {
+  const doc = db.prepare(`SELECT * FROM doctors WHERE doctor_id = ?`).get(doctor_id);
+  if (!doc) throw new Error(`Doctor ${doctor_id} not found`);
+
+  db.prepare(`UPDATE doctors SET is_available = ? WHERE doctor_id = ?`).run(is_available ? 1 : 0, doctor_id);
+
+  // If unavailable, unbook/block upcoming slots
+  if (!is_available) {
+    db.prepare(`UPDATE available_slots SET is_booked = 1 WHERE doctor_id = ? AND slot_start >= datetime('now')`).run(doctor_id);
+  }
+
+  return {
+    status: 'AVAILABILITY_UPDATED',
+    doctor_id,
+    name: doc.name,
+    is_available: Boolean(is_available)
+  };
+}
+
+

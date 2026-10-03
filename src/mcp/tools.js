@@ -43,6 +43,17 @@ export const MCP_TOOLS_SCHEMA = [
         department_optional: { type: 'string', description: 'Filter by department (optional)' }
       }
     }
+  },
+  {
+    name: 'get_opd_queue_status',
+    description: 'Fetch live OPD queue token status and waiting patient counts for a department.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        department: { type: 'string', description: 'Department name (e.g. Cardiology, Dermatology, Orthopedics, General Medicine)' }
+      },
+      required: ['department']
+    }
   }
 ];
 
@@ -122,6 +133,29 @@ export async function executeMcpTool(toolName, args = {}) {
           messages_delivered: messagesSent,
           department_filter: department_optional || 'All'
         }
+      };
+    }
+
+    case 'get_opd_queue_status': {
+      const { department } = args;
+      if (!department) throw new Error('department is required for get_opd_queue_status');
+
+      const waitingCount = db.prepare(`
+        SELECT COUNT(*) as count FROM queue_tokens
+        WHERE department = ? AND status = 'WAITING' AND date(created_at) = date('now')
+      `).get(department).count;
+
+      const activeToken = db.prepare(`
+        SELECT token_number, called_at FROM queue_tokens
+        WHERE department = ? AND status = 'CALLED' AND date(created_at) = date('now')
+        ORDER BY called_at DESC LIMIT 1
+      `).get(department);
+
+      return {
+        department,
+        current_token_serving: activeToken?.token_number || 'None',
+        waiting_patients_count: waitingCount,
+        estimated_wait_time_minutes: waitingCount * 10
       };
     }
 

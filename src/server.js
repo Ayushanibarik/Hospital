@@ -11,11 +11,21 @@ import {
   handleDischargeFollowup, 
   handlePatientFeedback,
   handleAppointmentReschedule,
-  handleDiagnosticReady 
+  handleDiagnosticReady,
+  handlePreConsultationIntake,
+  handleInsurancePreVerification,
+  handleGenerateQueueToken,
+  handleCallNextQueueToken,
+  handleAdmissionPreClearance,
+  handleChronicRevisitCheck,
+  handleInactiveReactivation,
+  handleDoctorAvailability
 } from './workflows/engine.js';
 import { executeMcpTool, MCP_TOOLS_SCHEMA } from './mcp/tools.js';
 import { callClaude } from './ai/claude.js';
 import { initWhatsAppQR, getWhatsAppStatus } from './whatsapp/qr_bridge.js';
+import { handleInboundPatientMessage } from './workflows/inbound_reply.js';
+import { startBackgroundScheduler, runAppointmentReminders } from './workflows/scheduler.js';
 
 dotenv.config();
 
@@ -26,6 +36,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(express.json());
 app.use(express.static(path.resolve(__dirname, '../public'), { extensions: ['html'] }));
 
 // Explicit route for admin dashboard
@@ -114,6 +125,139 @@ app.post('/webhook/diagnostic-ready', async (req, res) => {
   }
 });
 
+// Module 3: Digital Pre-Consultation Intake Form
+app.post('/api/intake/pre-consultation', async (req, res) => {
+  try {
+    const result = await handlePreConsultationIntake(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 4: Insurance Pre-Verification / TPA
+app.post('/api/insurance/pre-verify', async (req, res) => {
+  try {
+    const result = await handleInsurancePreVerification(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 10: OPD Flow & Queue Token Management
+app.post('/api/queue/token', async (req, res) => {
+  try {
+    const { appointment_id, patient_id, department } = req.body;
+    if (!patient_id || !department) {
+      return res.status(400).json({ success: false, error: 'patient_id and department are required' });
+    }
+    const result = await handleGenerateQueueToken({ appointment_id, patient_id, department });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/queue/call-next', async (req, res) => {
+  try {
+    const { department } = req.body;
+    if (!department) return res.status(400).json({ success: false, error: 'department is required' });
+    const result = await handleCallNextQueueToken({ department });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/queue/tokens', (req, res) => {
+  try {
+    const { department } = req.query;
+    let query = `
+      SELECT q.*, p.full_name, p.phone
+      FROM queue_tokens q
+      JOIN patients p ON q.patient_id = p.patient_id
+      WHERE date(q.created_at) = date('now')
+    `;
+    const params = [];
+    if (department) {
+      query += ` AND q.department = ?`;
+      params.push(department);
+    }
+    query += ` ORDER BY q.token_number ASC`;
+    const tokens = db.prepare(query).all(...params);
+    res.json(tokens);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Module 12: Inpatient Admission Pre-Clearance
+app.post('/api/admission/pre-clearance', async (req, res) => {
+  try {
+    const result = await handleAdmissionPreClearance(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 16: Chronic Disease Management & Revisit Scheduling
+app.get('/api/chronic/programs', (req, res) => {
+  try {
+    const programs = db.prepare(`
+      SELECT c.*, p.full_name, p.phone
+      FROM chronic_programs c
+      JOIN patients p ON c.patient_id = p.patient_id
+      ORDER BY c.next_due_date ASC
+    `).all();
+    res.json(programs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/chronic/check-ins', async (req, res) => {
+  try {
+    const result = await handleChronicRevisitCheck();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 17: Inactive Patient Reactivation Campaign
+app.post('/api/campaigns/reactivation', async (req, res) => {
+  try {
+    const result = await handleInactiveReactivation();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 18: Staff Operations & Doctor Availability Management
+app.get('/api/doctors', (req, res) => {
+  try {
+    const docs = db.prepare(`SELECT * FROM doctors ORDER BY department, name`).all();
+    res.json(docs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch('/api/doctors/:id/availability', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { is_available } = req.body;
+    const result = await handleDoctorAvailability({ doctor_id: id, is_available });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+
 // -------------------------------------------------------------
 // WHATSAPP WEB QR BRIDGE (100% Free - Section W Option B)
 // -------------------------------------------------------------
@@ -127,6 +271,170 @@ app.post('/api/whatsapp/connect', async (req, res) => {
     res.json({ success: true, message: 'WhatsApp QR Bridge started. Check terminal to scan QR code.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Two-Way WhatsApp Inbound Webhook (Meta Cloud API / Test endpoint)
+app.get('/webhook/whatsapp', (req, res) => {
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
+  if (mode === 'subscribe' && token === (process.env.WHATSAPP_VERIFY_TOKEN || 'democare_verify_token')) {
+    return res.status(200).send(challenge);
+  }
+  res.sendStatus(403);
+});
+
+app.post('/webhook/whatsapp', async (req, res) => {
+  try {
+    let phone = req.body.fromPhone;
+    let text = req.body.messageBody;
+
+    if (req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0]) {
+      const msg = req.body.entry[0].changes[0].value.messages[0];
+      phone = msg.from;
+      text = msg.text?.body;
+    }
+
+    if (!phone || !text) {
+      return res.status(400).json({ error: 'Missing phone or message text' });
+    }
+
+    const result = await handleInboundPatientMessage({ fromPhone: phone, messageBody: text });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Staff Operations: Update Appointment Status
+app.patch('/api/appointments/:id/status', (req, res) => {
+  try {
+    const { id } = req.params;
+    const { attendance_status, status } = req.body;
+    
+    const updates = [];
+    const params = [];
+    if (attendance_status) { updates.push('attendance_status = ?'); params.push(attendance_status); }
+    if (status) { updates.push('status = ?'); params.push(status); }
+    
+    if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
+    
+    params.push(id);
+    db.prepare(`UPDATE appointments SET ${updates.join(', ')} WHERE appointment_id = ?`).run(...params);
+    res.json({ success: true, appointment_id: id, attendance_status, status });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Trigger Reminder Scheduler
+app.post('/api/scheduler/run-reminders', async (req, res) => {
+  try {
+    const result = await runAppointmentReminders();
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Audit Logs Endpoint
+app.get('/api/dashboard/audit-logs', (req, res) => {
+  try {
+    const logs = db.prepare(`SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 30`).all();
+    res.json(logs);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Follow-ups Endpoint
+app.get('/api/dashboard/follow-ups', (req, res) => {
+  try {
+    const tasks = db.prepare(`
+      SELECT f.*, p.full_name, p.phone
+      FROM follow_ups f
+      JOIN patients p ON f.patient_id = p.patient_id
+      ORDER BY f.approved_date ASC LIMIT 30
+    `).all();
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Diagnostics Endpoint
+app.get('/api/dashboard/diagnostics', (req, res) => {
+  try {
+    const tasks = db.prepare(`
+      SELECT d.*, p.full_name, p.phone
+      FROM diagnostic_tasks d
+      JOIN patients p ON d.patient_id = p.patient_id
+      ORDER BY d.ordered_at DESC LIMIT 30
+    `).all();
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Intake Forms Endpoint
+app.get('/api/dashboard/intake-forms', (req, res) => {
+  try {
+    const forms = db.prepare(`
+      SELECT f.*, p.full_name, p.phone
+      FROM intake_forms f
+      JOIN patients p ON f.patient_id = p.patient_id
+      ORDER BY f.submitted_at DESC LIMIT 30
+    `).all();
+    res.json(forms);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Insurance Pre-Verifications Endpoint
+app.get('/api/dashboard/insurance', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT i.*, p.full_name, p.phone
+      FROM insurance_preverifications i
+      JOIN patients p ON i.patient_id = p.patient_id
+      ORDER BY i.created_at DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Inpatient Pre-Clearance Endpoint
+app.get('/api/dashboard/admissions', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT a.*, p.full_name, p.phone
+      FROM admission_preclearances a
+      JOIN patients p ON a.patient_id = p.patient_id
+      ORDER BY a.created_at DESC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Chronic Care Tracking Endpoint
+app.get('/api/dashboard/chronic', (req, res) => {
+  try {
+    const list = db.prepare(`
+      SELECT c.*, p.full_name, p.phone
+      FROM chronic_programs c
+      JOIN patients p ON c.patient_id = p.patient_id
+      ORDER BY c.next_due_date ASC LIMIT 30
+    `).all();
+    res.json(list);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
@@ -255,4 +563,7 @@ app.listen(PORT, () => {
   console.log(`   - Public Demo Patient Form: http://localhost:${PORT}/`);
   console.log(`   - Operations & KPI Dashboard: http://localhost:${PORT}/admin`);
   console.log(`   - Webhook Lead Intake: http://localhost:${PORT}/webhook/lead-intake\n`);
+
+  // Start background 24h & 3h appointment reminder scheduler
+  startBackgroundScheduler(60000);
 });

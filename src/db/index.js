@@ -14,6 +14,14 @@ export function initDB() {
   const schemaPath = path.resolve(__dirname, 'schema.sql');
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
   db.exec(schemaSql);
+
+  // Safe migration for existing SQLite databases
+  try {
+    db.exec(`ALTER TABLE doctors ADD COLUMN is_available INTEGER DEFAULT 1;`);
+  } catch (e) {
+    // Column already exists
+  }
+
   return db;
 }
 

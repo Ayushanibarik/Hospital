@@ -112,7 +112,8 @@ CREATE TABLE IF NOT EXISTS doctors (
     doctor_id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     department TEXT NOT NULL,
-    room_number TEXT NOT NULL
+    room_number TEXT NOT NULL,
+    is_available INTEGER DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS available_slots (
@@ -124,3 +125,70 @@ CREATE TABLE IF NOT EXISTS available_slots (
     is_booked INTEGER DEFAULT 0,
     FOREIGN KEY(doctor_id) REFERENCES doctors(doctor_id)
 );
+
+-- Module 3: Digital Pre-Consultation Intake Forms
+CREATE TABLE IF NOT EXISTS intake_forms (
+    form_id TEXT PRIMARY KEY,
+    appointment_id TEXT NOT NULL,
+    patient_id TEXT NOT NULL,
+    chief_complaint TEXT,
+    symptoms_duration TEXT,
+    current_meds TEXT,
+    allergies TEXT,
+    submitted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(appointment_id) REFERENCES appointments(appointment_id),
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 4: Insurance Pre-Verification / TPA
+CREATE TABLE IF NOT EXISTS insurance_preverifications (
+    verification_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    policy_number TEXT NOT NULL,
+    insurer_name TEXT NOT NULL,
+    tpa_name TEXT,
+    status TEXT DEFAULT 'PENDING', -- PENDING, APPROVED, QUERY_RAISED, REJECTED
+    copay_estimate REAL DEFAULT 0.0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 10: In-Hospital OPD Flow & Token Queue
+CREATE TABLE IF NOT EXISTS queue_tokens (
+    token_id TEXT PRIMARY KEY,
+    appointment_id TEXT,
+    patient_id TEXT NOT NULL,
+    department TEXT NOT NULL,
+    token_number INTEGER NOT NULL,
+    status TEXT DEFAULT 'WAITING', -- WAITING, CALLED, IN_CONSULTATION, COMPLETED, SKIPPED
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    called_at DATETIME,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 12: Inpatient Admission Pre-Clearance
+CREATE TABLE IF NOT EXISTS admission_preclearances (
+    admission_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    department TEXT NOT NULL,
+    room_preference TEXT DEFAULT 'SEMI_PRIVATE', -- GENERAL, SEMI_PRIVATE, PRIVATE, SUITE
+    attendant_name TEXT,
+    attendant_phone TEXT,
+    estimate_acknowledged INTEGER DEFAULT 1,
+    advance_deposit_status TEXT DEFAULT 'PENDING', -- PENDING, RECEIVED, WAIVED
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+
+-- Module 16: Chronic Disease Management & Revisit Scheduling
+CREATE TABLE IF NOT EXISTS chronic_programs (
+    program_id TEXT PRIMARY KEY,
+    patient_id TEXT NOT NULL,
+    condition_name TEXT NOT NULL, -- Hypertension, Diabetes Type 2, CAD, Dyslipidemia
+    last_visit_date DATE NOT NULL,
+    revisit_interval_days INTEGER DEFAULT 90,
+    next_due_date DATE NOT NULL,
+    status TEXT DEFAULT 'ACTIVE', -- ACTIVE, RECALLED, COMPLETED
+    FOREIGN KEY(patient_id) REFERENCES patients(patient_id)
+);
+

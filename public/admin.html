@@ -147,6 +147,18 @@
         <button class="action-btn danger" onclick="triggerBadFeedbackDemo()">
           <span>⭐ 1-Click Negative Feedback (Service Recovery)</span>
         </button>
+        <button class="action-btn" onclick="triggerQueueTokenDemo()">
+          <span>🎫 1-Click OPD Token (Module 10)</span>
+        </button>
+        <button class="action-btn" onclick="triggerCallNextDemo()">
+          <span>📢 1-Click Call Next Patient (Module 10)</span>
+        </button>
+        <button class="action-btn" onclick="triggerChronicDemo()">
+          <span>🩺 1-Click Chronic Care Recall (Module 16)</span>
+        </button>
+        <button class="action-btn" onclick="triggerRemindersDemo()">
+          <span>⏰ 1-Click Reminders (Module 7)</span>
+        </button>
       </div>
     </div>
 
@@ -244,6 +256,53 @@
             </tbody>
           </table>
         </div>
+    </div>
+
+    <div style="margin-top: 2rem;" class="grid-2">
+      <!-- OPD Queue & Digital Intake -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>🎫</span> OPD Queue & Live Tokens (Module 10)</h3>
+          <span class="badge badge-teal">Live Roster</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Token</th>
+                <th>Patient</th>
+                <th>Department</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="queueTableBody">
+              <tr><td colspan="4" style="text-align:center;">Loading queue tokens...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Chronic Programs & Insurance Pre-Clearance -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>🩺</span> Chronic Care & Insurance Pre-Clearance (Modules 4 & 16)</h3>
+          <span class="badge badge-blue">Care Management</span>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Program / Policy</th>
+                <th>Next Due / Status</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="chronicTableBody">
+              <tr><td colspan="4" style="text-align:center;">Loading programs...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -264,12 +323,14 @@
   <script>
     async function loadDashboard() {
       try {
-        const [metrics, leads, appts, comms, exceptions] = await Promise.all([
+        const [metrics, leads, appts, comms, exceptions, queue, chronic] = await Promise.all([
           fetch('/api/dashboard/metrics').then(r => r.json()),
           fetch('/api/dashboard/leads').then(r => r.json()),
           fetch('/api/dashboard/appointments').then(r => r.json()),
           fetch('/api/dashboard/communications').then(r => r.json()),
-          fetch('/api/dashboard/exceptions').then(r => r.json())
+          fetch('/api/dashboard/exceptions').then(r => r.json()),
+          fetch('/api/queue/tokens').then(r => r.json()).catch(() => []),
+          fetch('/api/chronic/programs').then(r => r.json()).catch(() => [])
         ]);
 
         // KPIs
@@ -348,6 +409,40 @@
               </td>
             </tr>
           `).join('');
+        }
+
+        // OPD Queue
+        const queueBody = document.getElementById('queueTableBody');
+        if (queueBody) {
+          if (queue.length === 0) {
+            queueBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No active OPD tokens today.</td></tr>';
+          } else {
+            queueBody.innerHTML = queue.map(q => `
+              <tr>
+                <td><strong style="color:var(--teal); font-size:1.1rem;">#${q.token_number}</strong></td>
+                <td><strong>${q.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${q.phone}</span></td>
+                <td>${q.department}</td>
+                <td><span class="badge ${q.status === 'CALLED' ? 'badge-teal' : q.status === 'WAITING' ? 'badge-amber' : 'badge-blue'}">${q.status}</span></td>
+              </tr>
+            `).join('');
+          }
+        }
+
+        // Chronic Care
+        const chronicBody = document.getElementById('chronicTableBody');
+        if (chronicBody) {
+          if (chronic.length === 0) {
+            chronicBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No registered chronic programs.</td></tr>';
+          } else {
+            chronicBody.innerHTML = chronic.map(c => `
+              <tr>
+                <td><strong>${c.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${c.phone}</span></td>
+                <td>${c.condition_name}</td>
+                <td><span class="code-pill">${c.next_due_date}</span></td>
+                <td><span class="badge ${c.status === 'ACTIVE' ? 'badge-amber' : 'badge-teal'}">${c.status}</span></td>
+              </tr>
+            `).join('');
+          }
         }
 
       } catch (err) {
@@ -431,6 +526,65 @@
         });
         const data = await res.json();
         alert(`🚨 Dissatisfied Feedback Escalated:\nRating: ${data.rating}/5\nService Recovery Triggered: ${data.service_recovery_escalation}\nCheck Exception Queue below!`);
+        loadDashboard();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function triggerQueueTokenDemo() {
+      try {
+        const res = await fetch('/api/queue/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patient_id: 'DEMO-001',
+            department: 'Cardiology'
+          })
+        });
+        const data = await res.json();
+        alert(`🎫 Live OPD Token Generated:\nToken: #${data.token_number} (${data.department})\nPatients Ahead: ${data.patients_ahead}\nEstimated Wait: ${data.estimated_wait_minutes} mins\nWhatsApp Sent: "${data.message}"`);
+        loadDashboard();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function triggerCallNextDemo() {
+      try {
+        const res = await fetch('/api/queue/call-next', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ department: 'Cardiology' })
+        });
+        const data = await res.json();
+        if (data.status === 'QUEUE_EMPTY') {
+          alert(`📢 OPD Queue empty in Cardiology.`);
+        } else {
+          alert(`📢 Token #${data.token_number} Called to Consultation Room:\nPatient: ${data.patient_name}\nWhatsApp Alert: "${data.message}"`);
+        }
+        loadDashboard();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function triggerChronicDemo() {
+      try {
+        const res = await fetch('/api/chronic/check-ins', { method: 'POST' });
+        const data = await res.json();
+        alert(`🩺 Chronic Care Routine Recall Executed:\nRecalled Patients: ${data.recalled_count}\nWhatsApp reminders dispatched to quarterly patients.`);
+        loadDashboard();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function triggerRemindersDemo() {
+      try {
+        const res = await fetch('/api/scheduler/run-reminders', { method: 'POST' });
+        const data = await res.json();
+        alert(`⏰ Background Reminders Executed:\nT-24h Reminders: ${data.reminders_24h_sent}\nT-3h Reminders: ${data.reminders_3h_sent}`);
         loadDashboard();
       } catch (err) {
         alert('Error: ' + err.message);

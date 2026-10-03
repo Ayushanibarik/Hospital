@@ -15,6 +15,11 @@ export function seed() {
     DELETE FROM audit_logs;
     DELETE FROM follow_ups;
     DELETE FROM diagnostic_tasks;
+    DELETE FROM intake_forms;
+    DELETE FROM insurance_preverifications;
+    DELETE FROM queue_tokens;
+    DELETE FROM admission_preclearances;
+    DELETE FROM chronic_programs;
     DELETE FROM appointments;
     DELETE FROM leads;
     DELETE FROM patients;
@@ -104,7 +109,31 @@ export function seed() {
     VALUES ('FOL-DEMO-003', 'DEMO-003', 'post_discharge', '2026-10-05', 'morning 10:00 AM - 12:00 PM', 'Patient Care Coordinator', 'PENDING')
   `).run();
 
-  // 6. Sample Audit & Exceptions
+  // 6. Sample Pre-Consultation Intake Form (Module 3)
+  db.prepare(`
+    INSERT INTO intake_forms (form_id, appointment_id, patient_id, chief_complaint, symptoms_duration, current_meds, allergies)
+    VALUES ('FORM-001', 'APPT-DEMO-002', 'DEMO-002', 'Severe skin rash and itching on forearms', '3 weeks', 'Antihistamines 10mg', 'None')
+  `).run();
+
+  // 7. Sample Insurance Pre-Verification (Module 4)
+  db.prepare(`
+    INSERT INTO insurance_preverifications (verification_id, patient_id, policy_number, insurer_name, tpa_name, status, copay_estimate)
+    VALUES ('INS-001', 'DEMO-002', 'STAR-HEALTH-99482', 'Star Health Allied Insurance', 'MediAssist TPA', 'APPROVED', 500.0)
+  `).run();
+
+  // 8. Sample OPD Queue Token (Module 10)
+  db.prepare(`
+    INSERT INTO queue_tokens (token_id, appointment_id, patient_id, department, token_number, status)
+    VALUES ('TKN-001', 'APPT-DEMO-002', 'DEMO-002', 'Dermatology', 14, 'WAITING')
+  `).run();
+
+  // 9. Sample Chronic Disease Recall Program (Module 16)
+  db.prepare(`
+    INSERT INTO chronic_programs (program_id, patient_id, condition_name, last_visit_date, revisit_interval_days, next_due_date, status)
+    VALUES ('CHR-001', 'DEMO-001', 'Hypertension & Lipid Management', '2026-07-01', 90, '2026-09-29', 'ACTIVE')
+  `).run();
+
+  // 10. Sample Audit & Exceptions
   db.prepare(`
     INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, record_id, correlation_id)
     VALUES ('EVT-INIT-001', 'SYSTEM_INIT', 'v3.0', 'SYSTEM', 'SEEDED_DEMOCARE_ENVIRONMENT', 'DemoCare', 'HOSP-20261003-INIT001')
@@ -114,6 +143,7 @@ export function seed() {
   console.log(`   - ${doctors.length} Doctors across 4 Departments`);
   console.log(`   - ${slots.length} Demo Calendar Slots`);
   console.log(`   - 3 Test Patients (DEMO-001, DEMO-002, DEMO-003)`);
+  console.log(`   - Initialized Modules: Intake Forms, TPA Insurance, OPD Queue, Chronic Care`);
 }
 
 // Run directly if invoked from CLI
