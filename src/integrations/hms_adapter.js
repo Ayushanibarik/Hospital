@@ -1,3 +1,31 @@
+/**
+ * ============================================================================
+ * MODULE: Hospital Management System (HMS / EMR) Adapter (src/integrations/hms_adapter.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Enterprise adapter bridging the automation layer with hospital clinical software
+ *   (e.g. Suvarna, Napier, Akhil Miracle, Epic, Cerner). In demo mode, queries the
+ *   local SQLite database; in enterprise mode, connects via live REST/FHIR APIs.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section B (Reference Architecture)
+ *   - Blueprint V3: Section X (HMS/EMR Integration Discovery)
+ *   - Blueprint V3: Section Y (Integration Matrix Template)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - dotenv                               : Environment configuration loader
+ *   - ../db/index.js (db)                  : Local SQLite database instance
+ *
+ * KEY EXPORTS:
+ *   - HmsAdapter class                     : Static methods for doctor rosters, slot queries,
+ *                                            booking creation, and attendance sync
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Used by scheduling workflows to abstract external HMS vendor interfaces.
+ * ============================================================================
+ */
+
 import dotenv from 'dotenv';
 import { db } from '../db/index.js';
 
@@ -6,24 +34,13 @@ dotenv.config();
 const HMS_API_BASE_URL = process.env.HMS_API_BASE_URL || null;
 const HMS_API_KEY = process.env.HMS_API_KEY || null;
 
-/**
- * Enterprise Hospital Management System (HMS / HIS / EHR) Adapter
- * 
- * In Standalone/Demo mode: Queries the local SQLite database.
- * In Enterprise Production mode: Transparently bridges to the hospital's live
- * HMS system (e.g. Suvarna, Napier, Akhil Miracle, Epic, Cerner, custom REST/FHIR).
- */
 export class HmsAdapter {
-  /**
-   * Check if live enterprise HMS integration is enabled
-   */
+  
   static isEnterpriseConnected() {
     return Boolean(HMS_API_BASE_URL && HMS_API_KEY);
   }
 
-  /**
-   * Fetch active doctor roster from HMS or internal database
-   */
+  
   static async getDoctors(department = null) {
     if (this.isEnterpriseConnected()) {
       try {
@@ -42,7 +59,6 @@ export class HmsAdapter {
       }
     }
 
-    // Local SQLite fallback
     let query = 'SELECT * FROM doctors WHERE is_available = 1';
     const params = [];
     if (department && department !== 'All') {
@@ -53,9 +69,7 @@ export class HmsAdapter {
     return db.prepare(query).all(...params);
   }
 
-  /**
-   * Fetch available consultation slots
-   */
+  
   static async getAvailableSlots(department, date = null) {
     if (this.isEnterpriseConnected()) {
       try {
@@ -73,7 +87,6 @@ export class HmsAdapter {
       }
     }
 
-    // Local SQLite
     return db.prepare(`
       SELECT s.*, d.name as doctor_name
       FROM available_slots s
@@ -84,9 +97,7 @@ export class HmsAdapter {
     `).all(department);
   }
 
-  /**
-   * Book appointment in Hospital HMS
-   */
+  
   static async bookAppointment({ patientId, doctorId, slotId, department }) {
     if (this.isEnterpriseConnected()) {
       try {
@@ -106,14 +117,11 @@ export class HmsAdapter {
       }
     }
 
-    // Local SQLite
     db.prepare('UPDATE available_slots SET is_booked = 1 WHERE slot_id = ?').run(slotId);
     return { success: true, mode: 'LOCAL_DATABASE', slotId };
   }
 
-  /**
-   * Synchronize patient discharge status for post-discharge follow-up
-   */
+  
   static async getRecentDischarges() {
     if (this.isEnterpriseConnected()) {
       try {
@@ -126,7 +134,6 @@ export class HmsAdapter {
       }
     }
 
-    // Local SQLite
     return db.prepare(`
       SELECT patient_id, full_name, phone FROM patients LIMIT 5
     `).all();

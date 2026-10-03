@@ -1,3 +1,35 @@
+/**
+ * ============================================================================
+ * MODULE: WhatsApp Web QR Bridge & Multi-Device Dispatcher (src/whatsapp/qr_bridge.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   100% free live WhatsApp integration engine built on Baileys. Renders terminal QR
+ *   codes for device pairing, persists credentials in .wa_auth, handles automatic
+ *   reconnections, and dispatches real WhatsApp messages. Safely simulates delivery
+ *   when unlinked.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section W (WhatsApp — Production Setup Logic)
+ *   - Blueprint V3: Section C (Modules 6, 7, 9, 11, 14, 15, 17, 18, 19)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - @whiskeysockets/baileys              : Multi-device WhatsApp Web protocol implementation
+ *   - qrcode-terminal                      : Terminal QR code renderer
+ *   - pino                                 : Socket logger
+ *   - node:path, node:url                  : Auth credential path resolution
+ *
+ * KEY EXPORTS:
+ *   - initWhatsAppQR()                     : Initializes QR authentication socket
+ *   - getWhatsAppStatus()                  : Returns current connection state and QR availability
+ *   - dispatchWhatsApp({ toPhone, messageText }): Sends real or simulated WhatsApp message
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Triggered by workflow engines in src/workflows/engine.js and scheduler.
+ *   - Controlled via POST /api/whatsapp/connect in src/server.js.
+ * ============================================================================
+ */
+
 import makeWASocketPkg from '@whiskeysockets/baileys';
 import qrcode from 'qrcode-terminal';
 import pino from 'pino';
@@ -15,9 +47,6 @@ let sock = null;
 let isConnected = false;
 let currentQr = null;
 
-/**
- * Initialize WhatsApp Web QR Bridge (100% Free - sends real messages from your own phone)
- */
 export async function initWhatsAppQR() {
   try {
     const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
@@ -65,11 +94,7 @@ export async function initWhatsAppQR() {
   }
 }
 
-/**
- * Send real WhatsApp message if QR is connected, otherwise logs safely
- */
 export async function dispatchWhatsApp({ toPhone, messageText }) {
-  // 1. Enterprise Tier: Official Meta WhatsApp Cloud API (Graph API v20.0)
   if (process.env.WHATSAPP_API_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID) {
     try {
       let digits = (toPhone || '').replace(/\D/g, '');
@@ -109,7 +134,6 @@ export async function dispatchWhatsApp({ toPhone, messageText }) {
     }
   }
 
-  // 2. Free Tier: WhatsApp Web QR Bridge (Baileys)
   if (!isConnected || !sock) {
     return {
       dispatched: false,
@@ -119,7 +143,6 @@ export async function dispatchWhatsApp({ toPhone, messageText }) {
   }
 
   try {
-    // Strip non-digits and ensure country code (default to India 91 if 10 digits)
     let digits = (toPhone || '').replace(/\D/g, '');
     if (digits.length === 10) {
       digits = `91${digits}`;

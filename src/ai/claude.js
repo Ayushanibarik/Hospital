@@ -1,3 +1,32 @@
+/**
+ * ============================================================================
+ * MODULE: Universal AI Provider & Multi-Model Client (src/ai/claude.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Dispatches structured prompts (Prompts 1 to 6) to LLM providers with automatic 
+ *   fallback support: Anthropic Claude 3.5 Sonnet, Google Gemini 1.5 Flash (free tier),
+ *   local Ollama models, and deterministic offline rule-based fallbacks. Enforces
+ *   Master System Prompt guardrails and strict JSON output schemas.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section G (AI Guardrails), Section H (Master System Prompt),
+ *                   Section U (Claude Setup - Two Practical Routes)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - dotenv                               : Environment variable loader
+ *   - ./prompts.js                         : MASTER_SYSTEM_PROMPT, PROMPTS configuration
+ *   - global fetch                         : Native Node.js HTTP fetch API
+ *
+ * KEY EXPORTED FUNCTIONS:
+ *   - callClaude(promptType, variables)
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Called by src/workflows/engine.js for triage, message drafting, daily summaries,
+ *     exception classification, and AI operations assistant queries.
+ * ============================================================================
+ */
+
 import dotenv from 'dotenv';
 import { MASTER_SYSTEM_PROMPT, PROMPTS } from './prompts.js';
 
@@ -9,9 +38,6 @@ const AI_PROVIDER = process.env.AI_PROVIDER || 'AUTO';
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
 const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'llama3.2';
 
-/**
- * Universal AI Caller supporting 100% Free Tiers (Gemini Free, Ollama Local, and Fallback)
- */
 export async function callClaude(promptType, variables) {
   const promptConfig = PROMPTS[promptType];
   if (!promptConfig) {
@@ -20,7 +46,6 @@ export async function callClaude(promptType, variables) {
 
   const promptText = promptConfig.build(variables);
 
-  // 1. Google Gemini 1.5 Flash (100% Free Tier on Google AI Studio)
   if ((AI_PROVIDER === 'GEMINI' || (!ANTHROPIC_API_KEY && GEMINI_API_KEY)) && GEMINI_API_KEY) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
@@ -55,7 +80,6 @@ export async function callClaude(promptType, variables) {
     }
   }
 
-  // 2. Ollama Local LLM (100% Free, Offline, Infinite Tokens)
   if (AI_PROVIDER === 'OLLAMA') {
     try {
       const response = await fetch(`${OLLAMA_HOST}/api/generate`, {
@@ -79,7 +103,6 @@ export async function callClaude(promptType, variables) {
     }
   }
 
-  // 3. Anthropic Claude API (If key configured)
   if (ANTHROPIC_API_KEY && ANTHROPIC_API_KEY.startsWith('sk-ant')) {
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -108,13 +131,9 @@ export async function callClaude(promptType, variables) {
     }
   }
 
-  // 4. Built-in Deterministic Simulation Engine (100% Free, 0 keys needed)
   return runFallbackEngine(promptType, variables);
 }
 
-/**
- * Deterministic Rule-Based Engine implementing Blueprint invariants
- */
 function runFallbackEngine(promptType, vars) {
   switch (promptType) {
     case 'LEAD_QUALIFICATION': {

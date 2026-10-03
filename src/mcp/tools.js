@@ -1,9 +1,31 @@
-import { db } from '../db/index.js';
-
 /**
- * Hospital AI Automation - MCP Tools Definition & Implementation
- * Section V of Blueprint V3
+ * ============================================================================
+ * MODULE: Model Context Protocol (MCP) Hospital Tools (src/mcp/tools.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Exposes standardized Model Context Protocol (MCP) tools for Claude and external
+ *   AI agents. Implements the 3 mandatory tools from Section V plus OPD queue status,
+ *   enforcing strict schemas, authentication, and non-clinical access boundaries.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section V (MCP — Build Three Tools First)
+ *   - Blueprint V3: Section AA (Operational Dashboard Metrics)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - ../db/index.js (db)                  : SQLite database connection
+ *
+ * KEY EXPORTS:
+ *   - MCP_TOOLS_SCHEMA                     : JSON Schema definitions for all MCP tools
+ *   - executeMcpTool(toolName, args)       : Safe execution dispatcher for MCP tools
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Consumed by POST /api/mcp/execute and GET /api/mcp/tools in src/server.js.
+ *   - Used internally by Module 21 (Daily Summary) and Module 24 (AI Ops Assistant).
+ * ============================================================================
  */
+
+import { db } from '../db/index.js';
 
 export const MCP_TOOLS_SCHEMA = [
   {

@@ -1,9 +1,30 @@
-import pino from 'pino';
-
 /**
- * Enterprise Structured Logging Engine
- * Outputs high-throughput, structured JSON logs compliant with ELK / Datadog / CloudWatch.
+ * ============================================================================
+ * MODULE: Enterprise Structured Logging Engine (src/utils/logger.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   High-throughput JSON logging engine built on Pino. Formats output for modern log
+ *   aggregators (ELK, Datadog, CloudWatch) and provides Express middleware for request
+ *   timing and correlation ID tracing.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section F (Naming Conventions & Correlation IDs)
+ *   - Blueprint V3: Section Z (Error Handling & Idempotency)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - pino                                 : Fast JSON logger
+ *
+ * KEY EXPORTS:
+ *   - logger                               : Configured Pino logger instance
+ *   - requestLogger(req, res, next)        : Express HTTP request logging middleware
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Attached to the Express app in src/server.js and used across utility modules.
+ * ============================================================================
  */
+
+import pino from 'pino';
 
 export const logger = pino({
   level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
@@ -13,9 +34,6 @@ export const logger = pino({
   }
 });
 
-/**
- * Express HTTP Request Logging Middleware
- */
 export function requestLogger(req, res, next) {
   const start = Date.now();
   const correlationId = req.headers['x-correlation-id'] || `REQ-${Date.now().toString().slice(-6)}`;

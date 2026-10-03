@@ -1,11 +1,29 @@
+/**
+ * ============================================================================
+ * SCRIPT: Bulk Doctor & OPD Roster Importer (scripts/import_roster.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   CLI utility for importing doctor rosters and available consultation slots from JSON
+ *   into DemoCare's database using atomic transactions.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section D (Demo Calendar & Roster Setup)
+ *   - Blueprint V3: Section X (HMS Onboarding)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - node:fs, node:path                   : File reading and validation
+ *   - ../src/db/index.js (db)              : SQLite database instance
+ *
+ * USAGE:
+ *   node scripts/import_roster.js <path-to-roster.json>
+ * ============================================================================
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { db } from '../src/db/index.js';
 
-/**
- * Bulk Doctor & OPD Roster Importer for Enterprise Hospitals
- * Usage: node scripts/import_roster.js <path-to-roster.json>
- */
 async function importRoster() {
   const filePath = process.argv[2];
   if (!filePath) {

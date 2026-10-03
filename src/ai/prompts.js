@@ -1,6 +1,33 @@
 /**
- * Hospital Revenue & Patient Lifecycle Automation Layer
- * Prompts & AI Guardrails (Sections G through N of Master Blueprint V3)
+ * ============================================================================
+ * MODULE: AI Prompts & Guardrails Specification (src/ai/prompts.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Contains the exact verbatim Master System Prompt (Section H) and structured prompt
+ *   templates for Prompts 1 through 6. Enforces non-clinical administrative boundaries,
+ *   emergency human review escalation, and deterministic JSON schemas.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section G (AI Guardrails)
+ *   - Blueprint V3: Section H (Master System Prompt - Verbatim)
+ *   - Blueprint V3: Section I (Prompt 1 — Lead Qualification)
+ *   - Blueprint V3: Section J (Prompt 2 — Appointment Message)
+ *   - Blueprint V3: Section K (Prompt 3 — No-Show Recovery)
+ *   - Blueprint V3: Section L (Prompt 4 — Follow-Up Task)
+ *   - Blueprint V3: Section M (Prompt 5 — Daily Management Summary)
+ *   - Blueprint V3: Section N (Prompt 6 — Error / Exception Classifier)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - Pure ES Module (zero external dependencies)
+ *
+ * KEY EXPORTS:
+ *   - MASTER_SYSTEM_PROMPT                 : Canonical administrative system prompt
+ *   - PROMPTS                              : Object containing Prompts 1 through 6
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Imported by src/ai/claude.js to build system and user prompts.
+ * ============================================================================
  */
 
 export const MASTER_SYSTEM_PROMPT = `You are an administrative automation assistant for a hospital or clinic.
@@ -32,7 +59,6 @@ OUTPUT
 Return only the JSON schema requested by the workflow. No markdown. No extra commentary.`;
 
 export const PROMPTS = {
-  // Prompt 1 — Lead Qualification (Section I)
   LEAD_QUALIFICATION: {
     name: 'PROMPT_LEAD_01',
     build: ({ full_name, phone, department, enquiry_text, source }) => `
@@ -64,7 +90,6 @@ RULES
 `
   },
 
-  // Prompt 2 — Appointment Message (Section J)
   APPOINTMENT_MESSAGE: {
     name: 'APPT_CONFIRM_01',
     build: ({ patient_name, department, doctor_name, confirmed_slot, hospital_name, hospital_contact }) => `
@@ -92,7 +117,6 @@ RULES
 `
   },
 
-  // Prompt 3 — No-Show Recovery (Section K)
   NOSHOW_RECOVERY: {
     name: 'NOSHOW_RECOVERY_01',
     build: ({ patient_name, appointment_date, hospital_name, reschedule_link_or_options }) => `
@@ -118,7 +142,6 @@ RULES
 `
   },
 
-  // Prompt 4 — Follow-Up Task (Section L)
   FOLLOWUP_TASK: {
     name: 'PROMPT_FOLLOWUP_01',
     build: ({ patient_id, approved_followup_date, category, owner }) => `
@@ -144,7 +167,6 @@ RULES
 `
   },
 
-  // Prompt 5 — Daily Management Summary (Section M)
   DAILY_SUMMARY: {
     name: 'PROMPT_SUMMARY_01',
     build: ({ metrics_json }) => `
@@ -169,7 +191,6 @@ RULES
 `
   },
 
-  // Prompt 6 — Error / Exception Classifier (Section N)
   EXCEPTION_CLASSIFIER: {
     name: 'PROMPT_EXCEPTION_01',
     build: ({ workflow, failed_step, error, record_id }) => `

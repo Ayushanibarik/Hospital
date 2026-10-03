@@ -1,7 +1,26 @@
 /**
- * In-Memory High-Performance TTL Cache
- * Provides sub-millisecond retrieval for frequently requested read data
- * (e.g. Doctor Rosters, Available Slots, Department Lists).
+ * ============================================================================
+ * MODULE: High-Performance In-Memory TTL Cache (src/utils/cache.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   In-memory key-value cache with time-to-live (TTL) expiration. Provides sub-millisecond
+ *   retrieval for frequently accessed read data (e.g. doctor rosters, department lists)
+ *   to minimize SQLite query overhead.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Architectural Performance & Concurrency Invariants
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - Pure ES Module utilizing native JavaScript Map
+ *
+ * KEY EXPORTS:
+ *   - appCache                             : Default singleton instance with 60s TTL
+ *   - MemoryCache                          : Cache class for custom TTL instances
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Used in src/server.js for caching doctor rosters and system health endpoints.
+ * ============================================================================
  */
 
 class MemoryCache {

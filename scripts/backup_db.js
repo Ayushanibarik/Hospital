@@ -1,12 +1,29 @@
+/**
+ * ============================================================================
+ * SCRIPT: Enterprise SQLite Database Backup Utility (scripts/backup_db.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Creates an atomic, consistent point-in-time database snapshot into backups/
+ *   using SQLite VACUUM INTO. Fully safe to execute under live traffic in WAL mode.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section AL (Production Go-Live Step 2)
+ *   - Blueprint V3: Section AM (Maintenance SOP — Weekly Backup Integrity)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - node:fs, node:path                   : File system management
+ *   - ../src/db/index.js (db)              : SQLite database instance
+ *
+ * USAGE:
+ *   node scripts/backup_db.js
+ * ============================================================================
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { db } from '../src/db/index.js';
 
-/**
- * Automated Enterprise Database Backup Utility
- * Creates a consistent point-in-time SQLite snapshot using VACUUM INTO.
- * Safe to run during live production traffic under SQLite WAL mode.
- */
 async function backupDatabase() {
   const backupDir = path.resolve('backups');
   if (!fs.existsSync(backupDir)) {

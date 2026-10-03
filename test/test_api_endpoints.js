@@ -1,3 +1,25 @@
+/**
+ * ============================================================================
+ * TEST SUITE: HTTP REST API & Gateway Endpoint Suite (test/test_api_endpoints.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Spawns the Express server on an isolated port (3099) and executes live HTTP
+ *   integration tests against health probes, module status, daily reports, weekly
+ *   analytics, management telemetry, and operations assistant endpoints.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section B (Reference Architecture), Section AA (Dashboards)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - node:child_process (spawn)           : Isolated test server process runner
+ *   - global fetch                         : HTTP client
+ *
+ * USAGE:
+ *   node test/test_api_endpoints.js
+ * ============================================================================
+ */
+
 import { spawn } from 'node:child_process';
 
 async function testHttpEndpoints() {
@@ -8,13 +30,11 @@ async function testHttpEndpoints() {
   });
 
   serverProc.stdout.on('data', d => {
-    // console.log(`[Server]: ${d}`);
   });
   serverProc.stderr.on('data', d => {
     console.error(`[Server Err]: ${d}`);
   });
 
-  // Wait 1.5s for server to start
   await new Promise(r => setTimeout(r, 1500));
 
   const endpoints = [

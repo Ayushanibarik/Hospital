@@ -1,43 +1,119 @@
+/**
+ * ============================================================================
+ * MODULE: Workflow Automation Engine (src/workflows/engine.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Core business logic and patient lifecycle automation engine for DemoCare 
+ *   Multispeciality Hospital, implementing all 26 modules of Master Blueprint V3.
+ *   Orchestrates inbound patient intake, non-clinical AI triage, appointment 
+ *   scheduling, reminders, idempotent no-show recovery, OPD queue tracking, 
+ *   billing and copay, IPD admissions, discharge clearances, post-discharge 
+ *   check-ins, service recovery, SLA monitoring, and C-suite reporting.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Sections C (Modules 1–26), D, E, F, O, P, Q, R, Z
+ *   - Module 1: Lead Capture & Registration
+ *   - Module 2: Lead Qualification & Emergency Guardrails
+ *   - Module 3: Department Routing & Pre-Consultation Intake
+ *   - Module 4: Appointment Availability & Insurance Pre-Verification
+ *   - Module 5: Appointment Booking & Slot Locking
+ *   - Module 6: WhatsApp Appointment Confirmation
+ *   - Module 7: T-24h & T-3h Appointment Reminders
+ *   - Module 8: Appointment Cancellation & Reschedule Slot Release
+ *   - Module 9: No-Show Recovery & Idempotent Rescheduling
+ *   - Module 10: In-Hospital OPD Journey Tracking & Token Queue
+ *   - Module 11: Non-Clinical Diagnostic Ready Alerts
+ *   - Module 12: Billing & Insurance Copay Coordination
+ *   - Module 13: Inpatient Admission Administration
+ *   - Module 14: Multi-Point Discharge Clearances & Gate-Pass
+ *   - Module 15: Post-Discharge Recovery Follow-Up
+ *   - Module 16: Patient Rating & Experience Feedback
+ *   - Module 17: Service Recovery Escalation & Resolution
+ *   - Module 18: Chronic Care Protocols & Preventative Checkups
+ *   - Module 19: Clinic & Doctor Referral Growth Network
+ *   - Module 20: Inbound Lead Response SLA Escalation Scanner
+ *   - Module 21: Daily Management Executive Briefing
+ *   - Module 22: Department Performance & Capacity Utilization
+ *   - Module 23: Centralized Exception Queue & Failure Classifier
+ *   - Module 24: AI Operations Assistant (Zero-Liability Guardrails)
+ *   - Module 25: Deterministic Audit Logging (HOSP-YYYYMMDD-XXXXXX)
+ *   - Module 26: System Maintenance & Self-Diagnostics
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - node:crypto               : Cryptographic random bytes for correlation IDs & entity hashes
+ *   - ../db/index.js (db)       : SQLite database instance with WAL mode
+ *   - ../ai/claude.js (callClaude): Anthropic Claude 3.5 Sonnet / LLM integration
+ *   - ../whatsapp/qr_bridge.js  : Live WhatsApp Web QR Bridge / Cloud API dispatcher
+ *
+ * KEY EXPORTED FUNCTIONS:
+ *   - generateCorrelationId()
+ *   - generateUniqueId(prefix)
+ *   - handleLeadIntake(payload)
+ *   - handleNoShowRecovery(appointmentId)
+ *   - handleDischargeFollowup({ patient_id, patient_name, phone, discharge_date, approved_window })
+ *   - handlePatientFeedback({ patient_id, rating, comment })
+ *   - handleAppointmentReschedule({ appointment_id, new_date, new_slot_id })
+ *   - handleDiagnosticReady({ patient_id, test_category })
+ *   - handlePreConsultationIntake(payload)
+ *   - handleInsurancePreVerification(payload)
+ *   - handleGenerateQueueToken({ appointment_id, patient_id, department })
+ *   - handleCallNextQueueToken({ department })
+ *   - handleAdmissionPreClearance(payload)
+ *   - handleChronicRevisitCheck()
+ *   - handleInactiveReactivation()
+ *   - handleDoctorAvailability({ doctor_id, is_available })
+ *   - routeLeadToDepartment({ lead_id, target_department, notes })
+ *   - handleAppointmentCancellation({ appointment_id, reason })
+ *   - handleOpdJourneyStageUpdate({ token_number, patient_id, stage, department, location_room })
+ *   - handleBillingCoordination({ patient_id, appointment_id, total_amount, copay_amount, notes })
+ *   - handlePaymentReceived({ bill_id, payment_mode, reference_number })
+ *   - handleAdmissionIntake({ patient_id, doctor_id, department, room_category, bed_number, advance_deposit })
+ *   - handleDischargeClearance({ admission_id, clearance_type, approved_by })
+ *   - handleServiceRecoveryResolution({ exception_id, resolution_note, resolved_by, discount_coupon })
+ *   - handleReferralIntake({ referring_doctor, referring_clinic, patient_name, phone, specialty, clinical_notes })
+ *   - checkAndEscalateLeadSla(threshold_minutes)
+ *   - generateAdminDailyReport()
+ *   - getDepartmentPerformanceMetrics()
+ *   - handleAiOperationsQuery({ query, user_role })
+ *   - runSystemMaintenanceAudit()
+ *   - get26ModulesStatus()
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Triggered by Express REST & Webhook routes in src/server.js
+ *   - Triggered by background timer schedulers in src/workflows/scheduler.js
+ *   - Triggered by two-way inbound WhatsApp webhook in src/workflows/inbound_reply.js
+ *   - Queried by Model Context Protocol tools in src/mcp/tools.js
+ * ============================================================================
+ */
+
 import crypto from 'node:crypto';
 import { db } from '../db/index.js';
 import { callClaude } from '../ai/claude.js';
 import { dispatchWhatsApp } from '../whatsapp/qr_bridge.js';
 
-/**
- * Generate Correlation ID adhering to Section F: HOSP-YYYYMMDD-XXXXXX
- */
 export function generateCorrelationId() {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   const randomHex = crypto.randomBytes(3).toString('hex').toUpperCase();
   return `HOSP-${dateStr}-${randomHex}`;
 }
 
-/**
- * Generate unique random collision-proof entity/event ID
- */
 export function generateUniqueId(prefix = 'ID') {
   const rand = crypto.randomBytes(3).toString('hex').toUpperCase();
   return `${prefix}-${Date.now().toString().slice(-6)}-${rand}`;
 }
 
-/**
- * WORKFLOW 1: HOSPITAL | 01 Lead Intake
- * Sections O & P
- */
 export async function handleLeadIntake(payload) {
   const correlationId = payload.correlation_id || generateCorrelationId();
   const timestamp = new Date().toISOString();
 
-  // Audit entry for inbound event
   db.prepare(`
     INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, correlation_id)
     VALUES (?, 'HOSPITAL | 01 Lead Intake', 'v3.0', 'SYSTEM', 'INBOUND_WEBHOOK_RECEIVED', ?)
   `).run(generateUniqueId('EVT'), correlationId);
 
-  // 1. AI Lead Qualification
   const qualification = await callClaude('LEAD_QUALIFICATION', payload);
 
-  // 2. Human Review Escalation Check (Emergency / Clinical inquiry)
   if (qualification.priority_for_human_review === 'review') {
     const excId = `EXC-${Date.now()}`;
     db.prepare(`
@@ -55,7 +131,6 @@ export async function handleLeadIntake(payload) {
 
   const assignedDepartment = qualification.department || payload.department || 'General Medicine';
 
-  // 3. Upsert Patient
   let patient = db.prepare(`SELECT * FROM patients WHERE phone = ?`).get(payload.phone);
   let patientId = patient?.patient_id;
 
@@ -73,7 +148,6 @@ export async function handleLeadIntake(payload) {
     );
   }
 
-  // 4. Create Lead Record
   const leadId = `LEAD-${Date.now().toString().slice(-6)}`;
   db.prepare(`
     INSERT INTO leads (lead_id, patient_id, source, campaign, enquiry_text, department, priority, status, first_response_at)
@@ -88,7 +162,6 @@ export async function handleLeadIntake(payload) {
     timestamp
   );
 
-  // 5. Check Appointment Availability
   let slot = db.prepare(`
     SELECT s.*, d.name as doctor_name
     FROM available_slots s
@@ -99,7 +172,6 @@ export async function handleLeadIntake(payload) {
   `).get(assignedDepartment);
 
   if (!slot) {
-    // If no slot in requested department, find any future slot in General Medicine
     slot = db.prepare(`
       SELECT s.*, d.name as doctor_name
       FROM available_slots s
@@ -111,7 +183,6 @@ export async function handleLeadIntake(payload) {
   }
 
   if (!slot) {
-    // No slots available anywhere - log exception
     const excId = `EXC-${Date.now()}`;
     db.prepare(`
       INSERT INTO exceptions (exception_id, workflow_name, record_id, error_type, severity, owner, resolution_note)
@@ -126,7 +197,6 @@ export async function handleLeadIntake(payload) {
     };
   }
 
-  // 6. Lock slot and Book Appointment
   db.prepare(`UPDATE available_slots SET is_booked = 1 WHERE slot_id = ?`).run(slot.slot_id);
 
   const appointmentId = `APPT-${Date.now().toString().slice(-6)}`;
@@ -144,7 +214,6 @@ export async function handleLeadIntake(payload) {
 
   db.prepare(`UPDATE leads SET appointment_id = ?, status = 'booked' WHERE lead_id = ?`).run(appointmentId, leadId);
 
-  // 7. AI Confirmation Message Generation (Prompt 2)
   const messageData = await callClaude('APPOINTMENT_MESSAGE', {
     patient_name: payload.full_name,
     department: assignedDepartment,
@@ -154,14 +223,12 @@ export async function handleLeadIntake(payload) {
     hospital_contact: '+91 22 5550 1234'
   });
 
-  // 8. Communication Log (Simulated WhatsApp send)
   const msgId = `MSG-${Date.now().toString().slice(-6)}`;
   db.prepare(`
     INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
     VALUES (?, ?, 'WhatsApp', 'APPT_CONFIRM_01', 'HOSPITAL | 01 Lead Intake', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
   `).run(msgId, patientId, timestamp, correlationId);
 
-  // Dispatch via live WhatsApp Web QR Bridge (or safe simulation)
   await dispatchWhatsApp({ toPhone: payload.phone, messageText: messageData.message });
 
   return {
@@ -179,15 +246,10 @@ export async function handleLeadIntake(payload) {
   };
 }
 
-/**
- * WORKFLOW 2: HOSPITAL | 03 No-Show Recovery
- * Section Q
- */
 export async function handleNoShowRecovery(appointmentId) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
 
-  // 1. Lookup appointment
   const appt = db.prepare(`
     SELECT a.*, p.full_name, p.phone
     FROM appointments a
@@ -199,10 +261,8 @@ export async function handleNoShowRecovery(appointmentId) {
     throw new Error(`Appointment ${appointmentId} not found`);
   }
 
-  // 2. Mark attendance as no_show
   db.prepare(`UPDATE appointments SET attendance_status = 'no_show' WHERE appointment_id = ?`).run(appointmentId);
 
-  // 3. Idempotency Check: Check if recovery message already sent
   const existingMsg = db.prepare(`
     SELECT * FROM communication_logs 
     WHERE patient_id = ? AND template_name = 'NOSHOW_RECOVERY_01'
@@ -217,7 +277,6 @@ export async function handleNoShowRecovery(appointmentId) {
     };
   }
 
-  // 4. Generate Recovery Message (Prompt 3)
   const recoveryMsg = await callClaude('NOSHOW_RECOVERY', {
     patient_name: appt.full_name,
     appointment_date: appt.slot_start,
@@ -225,7 +284,6 @@ export async function handleNoShowRecovery(appointmentId) {
     reschedule_link_or_options: `https://democare.hospital/reschedule?token=${appointmentId}`
   });
 
-  // 5. Send & Log WhatsApp Message
   const msgId = `MSG-NOSHOW-${Date.now().toString().slice(-6)}`;
   db.prepare(`
     INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
@@ -234,7 +292,6 @@ export async function handleNoShowRecovery(appointmentId) {
 
   await dispatchWhatsApp({ toPhone: appt.phone, messageText: recoveryMsg.message });
 
-  // 6. Create Follow-Up Task
   const followupId = `FOL-NOSHOW-${Date.now().toString().slice(-6)}`;
   db.prepare(`
     INSERT INTO follow_ups (followup_id, patient_id, category, approved_date, approved_window, owner, status)
@@ -251,10 +308,6 @@ export async function handleNoShowRecovery(appointmentId) {
   };
 }
 
-/**
- * WORKFLOW 3: Discharge & Service Recovery
- * Section R
- */
 export async function handleDischargeFollowup({ patient_id, category = 'post_discharge' }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
@@ -264,7 +317,6 @@ export async function handleDischargeFollowup({ patient_id, category = 'post_dis
     throw new Error(`Patient ${patient_id} not found`);
   }
 
-  // 1. Create Follow-Up Task (Prompt 4)
   const taskData = await callClaude('FOLLOWUP_TASK', {
     patient_id,
     approved_followup_date: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
@@ -278,7 +330,6 @@ export async function handleDischargeFollowup({ patient_id, category = 'post_dis
     VALUES (?, ?, ?, ?, 'afternoon 2:00 PM - 5:00 PM', ?, 'SENT')
   `).run(followupId, patient_id, category, taskData.due_date, taskData.owner);
 
-  // 2. Send Discharge Administrative Check-in
   const msgId = `MSG-DISC-${Date.now().toString().slice(-6)}`;
   const messageText = `Hello ${patient.full_name}, DemoCare Multispeciality Hospital checking in after your recent discharge. Please remember to take medications exactly as given in your discharge summary. How is your recovery feeling today? (Reply with rating 1-5)`;
 
@@ -298,9 +349,6 @@ export async function handleDischargeFollowup({ patient_id, category = 'post_dis
   };
 }
 
-/**
- * Handle Patient Inbound Feedback & Trigger Service Recovery if Negative
- */
 export function handlePatientFeedback({ patient_id, rating, comment }) {
   const timestamp = new Date().toISOString();
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
@@ -309,7 +357,6 @@ export function handlePatientFeedback({ patient_id, rating, comment }) {
   let serviceRecoveryCreated = false;
 
   if (numRating <= 2) {
-    // Escalate negative feedback to Service Recovery Queue (Section R & C #17)
     const excId = `EXC-SR-${Date.now().toString().slice(-6)}`;
     db.prepare(`
       INSERT INTO exceptions (exception_id, workflow_name, record_id, error_type, severity, owner, resolution_note)
@@ -325,9 +372,6 @@ export function handlePatientFeedback({ patient_id, rating, comment }) {
   };
 }
 
-/**
- * WORKFLOW: Module 8 - Appointment Rescheduling
- */
 export async function handleAppointmentReschedule({ appointment_id, new_slot_id }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
@@ -343,7 +387,6 @@ export async function handleAppointmentReschedule({ appointment_id, new_slot_id 
     throw new Error(`Appointment ${appointment_id} not found`);
   }
 
-  // Find target new slot
   let targetSlot = null;
   if (new_slot_id) {
     targetSlot = db.prepare(`
@@ -353,7 +396,6 @@ export async function handleAppointmentReschedule({ appointment_id, new_slot_id 
       WHERE s.slot_id = ? AND s.is_booked = 0
     `).get(new_slot_id);
   } else {
-    // Pick next available slot in same department
     targetSlot = db.prepare(`
       SELECT s.*, d.name as doctor_name
       FROM available_slots s
@@ -367,17 +409,14 @@ export async function handleAppointmentReschedule({ appointment_id, new_slot_id 
     throw new Error(`No available slot found to reschedule`);
   }
 
-  // Lock new slot
   db.prepare(`UPDATE available_slots SET is_booked = 1 WHERE slot_id = ?`).run(targetSlot.slot_id);
 
-  // Update appointment record
   db.prepare(`
     UPDATE appointments
     SET doctor_id = ?, slot_start = ?, slot_end = ?, status = 'RESCHEDULED', attendance_status = 'scheduled'
     WHERE appointment_id = ?
   `).run(targetSlot.doctor_id, targetSlot.slot_start, targetSlot.slot_end, appointment_id);
 
-  // Send Rescheduled Confirmation
   const msgId = `MSG-RESCHED-${Date.now().toString().slice(-6)}`;
   const messageText = `Hello ${appt.full_name}, your appointment with ${targetSlot.doctor_name} has been successfully rescheduled to ${targetSlot.slot_start}. DemoCare Hospital: +91 22 5550 1234.`;
 
@@ -398,9 +437,6 @@ export async function handleAppointmentReschedule({ appointment_id, new_slot_id 
   };
 }
 
-/**
- * WORKFLOW: Module 11 - Diagnostic Follow-Up
- */
 export async function handleDiagnosticReady({ patient_id, test_category }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
@@ -416,7 +452,6 @@ export async function handleDiagnosticReady({ patient_id, test_category }) {
     VALUES (?, ?, ?, datetime('now', '-1 day'), datetime('now', '-2 hours'), ?, 'REVIEWED_BY_DOCTOR', 'SENT_TO_PATIENT')
   `).run(diagnosticId, patient_id, test_category || 'Routine Blood Panel & ECG', timestamp);
 
-  // Send purely administrative notification (NO clinical details)
   const msgId = `MSG-DIAG-${Date.now().toString().slice(-6)}`;
   const messageText = `Hello ${patient.full_name}, your diagnostic test results for ${test_category || 'Routine Lab Work'} have been reviewed by your physician and are ready for consultation at DemoCare Hospital. Please book a follow-up consultation or view your digital slip: https://democare.hospital/reports`;
 
@@ -436,9 +471,6 @@ export async function handleDiagnosticReady({ patient_id, test_category }) {
   };
 }
 
-/**
- * WORKFLOW: Module 3 - Pre-Consultation Intake Form
- */
 export async function handlePreConsultationIntake({ appointment_id, patient_id, chief_complaint, symptoms_duration, current_meds, allergies }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
@@ -482,9 +514,6 @@ export async function handlePreConsultationIntake({ appointment_id, patient_id, 
   };
 }
 
-/**
- * WORKFLOW: Module 4 - Insurance Pre-Verification / TPA
- */
 export async function handleInsurancePreVerification({ patient_id, policy_number, insurer_name, tpa_name, copay_estimate = 0 }) {
   const correlationId = generateCorrelationId();
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
@@ -515,15 +544,11 @@ export async function handleInsurancePreVerification({ patient_id, policy_number
   };
 }
 
-/**
- * WORKFLOW: Module 10 - In-Hospital OPD Flow & Token Queue Management
- */
 export async function handleGenerateQueueToken({ appointment_id, patient_id, department }) {
   const correlationId = generateCorrelationId();
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
   if (!patient) throw new Error(`Patient ${patient_id} not found`);
 
-  // Calculate next token number for this department today
   const lastToken = db.prepare(`
     SELECT MAX(token_number) as max_token
     FROM queue_tokens
@@ -538,7 +563,6 @@ export async function handleGenerateQueueToken({ appointment_id, patient_id, dep
     VALUES (?, ?, ?, ?, ?, 'WAITING')
   `).run(tokenId, appointment_id || null, patient_id, department, tokenNumber);
 
-  // Count patients waiting ahead
   const ahead = db.prepare(`
     SELECT COUNT(*) as count
     FROM queue_tokens
@@ -596,9 +620,6 @@ export async function handleCallNextQueueToken({ department }) {
   };
 }
 
-/**
- * WORKFLOW: Module 12 - Inpatient Admission Pre-Clearance
- */
 export async function handleAdmissionPreClearance({ patient_id, department, room_preference = 'SEMI_PRIVATE', attendant_name, attendant_phone }) {
   const correlationId = generateCorrelationId();
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
@@ -622,14 +643,10 @@ export async function handleAdmissionPreClearance({ patient_id, department, room
   };
 }
 
-/**
- * WORKFLOW: Module 16 - Chronic Disease Recall Check
- */
 export async function handleChronicRevisitCheck() {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
 
-  // Find active chronic care patients due for review
   const duePrograms = db.prepare(`
     SELECT c.*, p.full_name, p.phone
     FROM chronic_programs c
@@ -671,14 +688,10 @@ export async function handleChronicRevisitCheck() {
   };
 }
 
-/**
- * WORKFLOW: Module 17 - Inactive Patient Reactivation Campaign
- */
 export async function handleInactiveReactivation() {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
 
-  // Identify patients with no appointment in the last 180 days
   const eligible = db.prepare(`
     SELECT p.* FROM patients p
     WHERE p.patient_id NOT IN (
@@ -709,16 +722,12 @@ export async function handleInactiveReactivation() {
   };
 }
 
-/**
- * WORKFLOW: Module 18 - Staff Operations & Doctor Availability
- */
 export async function handleDoctorAvailability({ doctor_id, is_available }) {
   const doc = db.prepare(`SELECT * FROM doctors WHERE doctor_id = ?`).get(doctor_id);
   if (!doc) throw new Error(`Doctor ${doctor_id} not found`);
 
   db.prepare(`UPDATE doctors SET is_available = ? WHERE doctor_id = ?`).run(is_available ? 1 : 0, doctor_id);
 
-  // If unavailable, unbook/block upcoming slots
   if (!is_available) {
     db.prepare(`UPDATE available_slots SET is_booked = 1 WHERE doctor_id = ? AND slot_start >= datetime('now')`).run(doctor_id);
   }
@@ -731,9 +740,6 @@ export async function handleDoctorAvailability({ doctor_id, is_available }) {
   };
 }
 
-/**
- * WORKFLOW: Module 3 - Department Routing & Queue Assignment
- */
 export async function routeLeadToDepartment({ lead_id, target_department, notes }) {
   const correlationId = generateCorrelationId();
   const lead = db.prepare(`SELECT * FROM leads WHERE lead_id = ?`).get(lead_id);
@@ -757,9 +763,6 @@ export async function routeLeadToDepartment({ lead_id, target_department, notes 
   };
 }
 
-/**
- * WORKFLOW: Module 8 - Appointment Cancellation
- */
 export async function handleAppointmentCancellation({ appointment_id, reason = 'Patient Request' }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
@@ -774,21 +777,18 @@ export async function handleAppointmentCancellation({ appointment_id, reason = '
 
   if (!appt) throw new Error(`Appointment ${appointment_id} not found`);
 
-  // Update appointment status to CANCELLED
   db.prepare(`
     UPDATE appointments 
     SET status = 'CANCELLED', attendance_status = 'cancelled' 
     WHERE appointment_id = ?
   `).run(appointment_id);
 
-  // Release slot back to available pool
   db.prepare(`
     UPDATE available_slots 
     SET is_booked = 0 
     WHERE doctor_id = ? AND slot_start = ?
   `).run(appt.doctor_id, appt.slot_start);
 
-  // Communication Log
   const msgId = generateUniqueId('MSG-CAN');
   const messageText = `Hello ${appt.full_name}, your consultation with ${appt.doctor_name} on ${appt.slot_start} has been cancelled per your request. If you wish to re-book, please visit https://democare.hospital/book or call +91 22 5550 1234.`;
 
@@ -814,9 +814,6 @@ export async function handleAppointmentCancellation({ appointment_id, reason = '
   };
 }
 
-/**
- * WORKFLOW: Module 10 - Complete OPD Patient Journey Milestones
- */
 export async function handleOpdJourneyStageUpdate({ journey_id, patient_id, appointment_id, department, stage, notes }) {
   const correlationId = generateCorrelationId();
 
@@ -880,14 +877,10 @@ export async function handleOpdJourneyStageUpdate({ journey_id, patient_id, appo
   };
 }
 
-/**
- * WORKFLOW: Module 12 - Billing & Payment Status Coordination (Idempotent)
- */
 export async function handleBillingCoordination({ patient_id, encounter_id, service_type = 'Consultation & Procedure', total_amount, insurance_covered = 0, copay_amount = 0, idempotency_key }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
 
-  // Section Z Idempotency: verify idempotency key if provided
   const idemKey = idempotency_key || `IDEM-BILL-${patient_id}-${encounter_id || Date.now()}`;
   const existingBill = db.prepare(`SELECT * FROM billing_records WHERE idempotency_key = ?`).get(idemKey);
 
@@ -982,9 +975,6 @@ export async function handlePaymentReceived({ bill_id, payment_method = 'UPI', a
   };
 }
 
-/**
- * WORKFLOW: Module 13 - Complete IPD Admission Administration
- */
 export async function handleAdmissionIntake({ patient_id, department, room_number, bed_type = 'PRIVATE', doctor_id, attendant_name, attendant_phone, advance_deposit = 10000 }) {
   const correlationId = generateCorrelationId();
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
@@ -1015,9 +1005,6 @@ export async function handleAdmissionIntake({ patient_id, department, room_numbe
   };
 }
 
-/**
- * WORKFLOW: Module 14 - Discharge Administration & Clearance Tracking
- */
 export async function handleDischargeClearance({ patient_id, admission_id, doctor_name = 'Dr. Amit Patel' }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
@@ -1031,7 +1018,6 @@ export async function handleDischargeClearance({ patient_id, admission_id, docto
     VALUES (?, ?, ?, 1, 1, 1, 'CLEARED_FOR_DISCHARGE', 1, ?)
   `).run(dischargeId, patient_id, admission_id || null, doctor_name);
 
-  // If admission exists, update IPD status to DISCHARGED
   if (admission_id) {
     db.prepare(`UPDATE ipd_admissions SET status = 'DISCHARGED' WHERE admission_id = ?`).run(admission_id);
   }
@@ -1060,9 +1046,6 @@ export async function handleDischargeClearance({ patient_id, admission_id, docto
   };
 }
 
-/**
- * WORKFLOW: Module 17 - Service Recovery Escalation & Resolution Loop
- */
 export async function handleServiceRecoveryResolution({ exception_id, patient_id, resolution_action, manager_notes = 'Issue addressed by patient care supervisor' }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
@@ -1070,7 +1053,6 @@ export async function handleServiceRecoveryResolution({ exception_id, patient_id
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
   if (!patient) throw new Error(`Patient ${patient_id} not found`);
 
-  // Resolve exception
   if (exception_id) {
     db.prepare(`
       UPDATE exceptions 
@@ -1102,14 +1084,10 @@ export async function handleServiceRecoveryResolution({ exception_id, patient_id
   };
 }
 
-/**
- * WORKFLOW: Module 19 - Referral Engine (Doctor-to-Doctor & Clinic Referral Network)
- */
 export async function handleReferralIntake({ referring_doctor, referring_facility, patient_name, phone, email, department = 'Cardiology', clinical_notes }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
 
-  // Find or create patient
   let patient = db.prepare(`SELECT * FROM patients WHERE phone = ?`).get(phone);
   let patientId = patient?.patient_id;
   if (!patient) {
@@ -1126,14 +1104,12 @@ export async function handleReferralIntake({ referring_doctor, referring_facilit
     VALUES (?, ?, ?, ?, ?, ?, 'RECEIVED', 1)
   `).run(referralId, patientId, referring_doctor || 'Referring Physician', referring_facility || 'Partner Clinic', department, clinical_notes || 'Referred for specialist care');
 
-  // Fast-track lead creation
   const leadId = generateUniqueId('LEAD-REF');
   db.prepare(`
     INSERT INTO leads (lead_id, patient_id, source, campaign, enquiry_text, department, priority, status)
     VALUES (?, ?, 'Referral Engine', ?, ?, ?, 'high', 'new')
   `).run(leadId, patientId, referring_facility || 'Clinic Referral', `Referred by ${referring_doctor}: ${clinical_notes || 'Specialist consultation'}`, department);
 
-  // Acknowledgment message to referring doctor / patient
   const patientMsg = `Hello ${patient_name || 'Patient'}, Dr. ${referring_doctor} (${referring_facility}) has referred you to DemoCare Hospital ${department} Department. Our clinical coordinator is scheduling your consultation priority slot. Call +91 22 5550 1234 or reply 1 to confirm.`;
 
   db.prepare(`
@@ -1160,13 +1136,9 @@ export async function handleReferralIntake({ referring_doctor, referring_facilit
   };
 }
 
-/**
- * WORKFLOW: Module 20 - Lead SLA Escalation Engine
- */
 export async function checkAndEscalateLeadSla(slaThresholdMinutes = 15) {
   const correlationId = generateCorrelationId();
 
-  // Find leads created > slaThresholdMinutes ago that are still 'new' or 'qualified' with no appointment booked
   const overdueLeads = db.prepare(`
     SELECT l.*, p.full_name, p.phone
     FROM leads l
@@ -1182,7 +1154,6 @@ export async function checkAndEscalateLeadSla(slaThresholdMinutes = 15) {
     const excId = generateUniqueId('EXC-SLA');
     const note = `SLA BREACH: Lead ${lead.lead_id} (${lead.full_name}, ${lead.department}) unhandled for >${slaThresholdMinutes} minutes. Requires immediate front-desk callback!`;
 
-    // Prevent duplicate SLA exception
     const existingExc = db.prepare(`
       SELECT * FROM exceptions 
       WHERE record_id = ? AND error_type = 'LEAD_SLA_BREACH' AND status = 'OPEN'
@@ -1219,13 +1190,9 @@ export async function checkAndEscalateLeadSla(slaThresholdMinutes = 15) {
   };
 }
 
-/**
- * WORKFLOW: Module 21 - Admin Daily Executive Report
- */
 export async function generateAdminDailyReport() {
   const correlationId = generateCorrelationId();
 
-  // Aggregate daily metrics
   const totalLeads = db.prepare(`SELECT COUNT(*) as count FROM leads`).get().count;
   const bookedAppts = db.prepare(`SELECT COUNT(*) as count FROM appointments WHERE status = 'CONFIRMED'`).get().count;
   const noShows = db.prepare(`SELECT COUNT(*) as count FROM appointments WHERE attendance_status = 'no_show'`).get().count;
@@ -1275,9 +1242,6 @@ export async function generateAdminDailyReport() {
   };
 }
 
-/**
- * WORKFLOW: Module 22 - Department Performance Breakdown
- */
 export async function getDepartmentPerformanceMetrics() {
   const departments = ['Cardiology', 'Dermatology', 'Orthopedics', 'General Medicine'];
   const breakdown = [];
@@ -1313,14 +1277,10 @@ export async function getDepartmentPerformanceMetrics() {
   };
 }
 
-/**
- * WORKFLOW: Module 24 - AI Operations Assistant (Conversational Administrative Query Engine)
- */
 export async function handleAiOperationsQuery({ query, user_role = 'HOSPITAL_STAFF' }) {
   const correlationId = generateCorrelationId();
   const qLower = (query || '').toLowerCase();
 
-  // Inviolable Guardrail Check (Section G): Medical inquiries forbidden for administrative assistant
   const clinicalKeywords = ['diagnose', 'symptom', 'cure', 'prescribe', 'drug dosage', 'what medicine', 'treatment plan'];
   if (clinicalKeywords.some(kw => qLower.includes(kw))) {
     return {
@@ -1331,7 +1291,6 @@ export async function handleAiOperationsQuery({ query, user_role = 'HOSPITAL_STA
     };
   }
 
-  // Aggregate current live DB context for high accuracy
   const totalLeads = db.prepare(`SELECT COUNT(*) as c FROM leads`).get().c;
   const bookedAppts = db.prepare(`SELECT COUNT(*) as c FROM appointments WHERE status = 'CONFIRMED'`).get().c;
   const noShows = db.prepare(`SELECT COUNT(*) as c FROM appointments WHERE attendance_status = 'no_show'`).get().c;
@@ -1364,36 +1323,28 @@ export async function handleAiOperationsQuery({ query, user_role = 'HOSPITAL_STA
   };
 }
 
-/**
- * WORKFLOW: Module 26 - System Maintenance Audit & Self-Diagnostics
- */
 export async function runSystemMaintenanceAudit() {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
 
-  // 1. Database Integrity Check
   const integrity = db.prepare(`PRAGMA integrity_check`).get();
   const foreignKeys = db.prepare(`PRAGMA foreign_key_check`).all();
 
-  // 2. Scan for Stale Leads (> 24 hours unbooked)
   const staleLeads = db.prepare(`
     SELECT COUNT(*) as count FROM leads 
     WHERE status IN ('new', 'qualified') AND appointment_id IS NULL AND created_at <= datetime('now', '-24 hours')
   `).get().count;
 
-  // 3. Scan for Overdue Exceptions (> 48 hours unresolved)
   const overdueExceptions = db.prepare(`
     SELECT COUNT(*) as count FROM exceptions 
     WHERE status = 'OPEN' AND created_at <= datetime('now', '-48 hours')
   `).get().count;
 
-  // 4. Scan for Pending Follow-Ups (> 7 days past due)
   const overdueFollowups = db.prepare(`
     SELECT COUNT(*) as count FROM follow_ups 
     WHERE status = 'PENDING' AND approved_date < date('now')
   `).get().count;
 
-  // 5. Total Table Record Counts
   const tableStats = {
     patients: db.prepare(`SELECT COUNT(*) as c FROM patients`).get().c,
     leads: db.prepare(`SELECT COUNT(*) as c FROM leads`).get().c,
@@ -1438,10 +1389,6 @@ export async function runSystemMaintenanceAudit() {
   };
 }
 
-/**
- * MASTER STATUS: Comprehensive 26-Modules Status Verifier
- * Section C: Complete Module Map (1 to 26)
- */
 export function get26ModulesStatus() {
   const modules = [
     { id: 1, name: 'Lead Capture', category: 'Acquisition', route: '/webhook/lead-intake', status: 'ONLINE', description: 'Web, social, and form multi-channel lead ingestion with auto-deduplication' },
@@ -1480,6 +1427,3 @@ export function get26ModulesStatus() {
     modules
   };
 }
-
-
-

@@ -1,3 +1,29 @@
+/**
+ * ============================================================================
+ * TEST SUITE: 26-Modules Workflow & Verification Suite (test/test_workflows.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Automated end-to-end test suite testing all 26 Master Blueprint V3 modules,
+ *   two-way conversational WhatsApp lifecycle replies, non-clinical safety guardrails,
+ *   idempotent no-show deduplication, and SQLite WAL data persistence.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: All 26 Modules in Section C, Completion Standard
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - node:assert                          : Assertions library
+ *   - ../src/db/seed.js (seed)             : Clean test database seeder
+ *   - ../src/workflows/engine.js           : All 26 workflow handler functions
+ *   - ../src/workflows/inbound_reply.js    : Two-way WhatsApp message handler
+ *   - ../src/workflows/scheduler.js        : Reminder and SLA scanners
+ *   - ../src/mcp/tools.js                  : MCP tool tester
+ *
+ * USAGE:
+ *   npm run test:workflows OR node test/test_workflows.js
+ * ============================================================================
+ */
+
 import { seed } from '../src/db/seed.js';
 import { 
   handleLeadIntake, 
@@ -41,10 +67,8 @@ async function runTests() {
   console.log('🧪 MASTER BLUEPRINT V3 — COMPLETE 26 MODULES VERIFICATION');
   console.log('=============================================================\n');
 
-  // Reset & Seed database to pristine state
   seed();
 
-  // MODULE 1: Lead Capture
   console.log('--- [Module 1: Lead Capture] ---');
   const testPayload = {
     full_name: 'Rahul Sharma',
@@ -59,7 +83,6 @@ async function runTests() {
   if (leadResult.status !== 'SUCCESS') throw new Error('Module 1 Failed: Lead intake status not SUCCESS');
   console.log('✅ Module 1 Passed: Lead captured and upserted into patient & lead registry.');
 
-  // MODULE 2: Lead Qualification & Guardrails
   console.log('\n--- [Module 2: Lead Qualification & AI Guardrail] ---');
   const emergencyPayload = {
     full_name: 'Vikram Joshi',
@@ -72,7 +95,6 @@ async function runTests() {
   if (emergencyResult.status !== 'ESCALATED_TO_HUMAN') throw new Error('Module 2 Failed: Emergency not escalated');
   console.log('✅ Module 2 Passed: Clinical emergency safely escalated to Human Review Queue.');
 
-  // MODULE 3: Department Routing
   console.log('\n--- [Module 3: Department Routing] ---');
   const routeResult = await routeLeadToDepartment({
     lead_id: leadResult.lead_id,
@@ -82,31 +104,26 @@ async function runTests() {
   if (routeResult.status !== 'ROUTED') throw new Error('Module 3 Failed: Department routing failed');
   console.log('✅ Module 3 Passed: Lead dynamically routed to department queue.');
 
-  // MODULE 4: Appointment Availability
   console.log('\n--- [Module 4: Appointment Availability] ---');
   const slotsTool = await executeMcpTool('get_appointment_slots', { department: 'Cardiology' });
   if (!slotsTool.available_slots || slotsTool.available_slots.length === 0) throw new Error('Module 4 Failed: No slots found');
   console.log(`✅ Module 4 Passed: Retrieved ${slotsTool.count} available verified appointment slots.`);
 
-  // MODULE 5: Appointment Booking
   console.log('\n--- [Module 5: Appointment Booking] ---');
   const bookedAppt = db.prepare(`SELECT * FROM appointments WHERE appointment_id = ?`).get(leadResult.appointment_id);
   if (!bookedAppt || bookedAppt.status !== 'CONFIRMED') throw new Error('Module 5 Failed: Appointment not booked');
   console.log(`✅ Module 5 Passed: Atomic appointment booking locked slot ${bookedAppt.slot_start}.`);
 
-  // MODULE 6: Confirmation
   console.log('\n--- [Module 6: Confirmation] ---');
   const confirmLog = db.prepare(`SELECT * FROM communication_logs WHERE correlation_id = ? AND template_name = 'APPT_CONFIRM_01'`).get(leadResult.correlation_id);
   if (!confirmLog) throw new Error('Module 6 Failed: Confirmation message not logged');
   console.log('✅ Module 6 Passed: Section J appointment confirmation drafted & dispatched via WhatsApp.');
 
-  // MODULE 7: Reminder
   console.log('\n--- [Module 7: Reminder] ---');
   const reminderResult = await runAppointmentReminders();
   if (typeof reminderResult.reminders_24h_sent !== 'number') throw new Error('Module 7 Failed: Reminder runner error');
   console.log(`✅ Module 7 Passed: 24h & 3h appointment reminder scheduler executed (${reminderResult.reminders_24h_sent} sent).`);
 
-  // MODULE 8: Cancellation / Reschedule
   console.log('\n--- [Module 8: Cancellation / Reschedule] ---');
   const reschedResult = await handleAppointmentReschedule({ appointment_id: 'APPT-DEMO-002' });
   if (reschedResult.status !== 'RESCHEDULED_SUCCESS') throw new Error('Module 8 Failed: Reschedule failed');
@@ -114,9 +131,7 @@ async function runTests() {
   if (cancelResult.status !== 'CANCELLED_SUCCESS') throw new Error('Module 8 Failed: Cancellation failed');
   console.log('✅ Module 8 Passed: Reschedule and Cancellation verified with automatic slot release.');
 
-  // MODULE 9: No-Show Recovery
   console.log('\n--- [Module 9: No-Show Recovery & Idempotency] ---');
-  // Create test appointment for no-show
   const testNoShowApptId = 'APPT-TEST-NOSHOW';
   db.prepare(`
     INSERT INTO appointments (appointment_id, patient_id, department, doctor_id, slot_start, slot_end, status, attendance_status)
@@ -129,7 +144,6 @@ async function runTests() {
   if (duplicateNoShow.status !== 'SKIPPED_DUPLICATE') throw new Error('Module 9 Failed: Idempotency duplicate not blocked');
   console.log('✅ Module 9 Passed: No-show detected, Prompt 3 rescheduling sent, duplicate blocked by idempotency.');
 
-  // MODULE 10: OPD Journey Tracking
   console.log('\n--- [Module 10: OPD Journey Tracking] ---');
   const tokenGen = await handleGenerateQueueToken({ patient_id: 'DEMO-001', department: 'Cardiology' });
   if (tokenGen.status !== 'TOKEN_GENERATED') throw new Error('Module 10 Failed: Token generation failed');
@@ -144,13 +158,11 @@ async function runTests() {
   if (journeyUpdate.status !== 'JOURNEY_UPDATED') throw new Error('Module 10 Failed: OPD journey update failed');
   console.log('✅ Module 10 Passed: Queue token issued, called, and OPD journey milestone logged.');
 
-  // MODULE 11: Diagnostic Follow-Up
   console.log('\n--- [Module 11: Diagnostic Follow-Up] ---');
   const diagResult = await handleDiagnosticReady({ patient_id: 'DEMO-001', test_category: 'Cardiology ECG & Lipid Profile' });
   if (diagResult.status !== 'DIAGNOSTIC_NOTIFICATION_SENT') throw new Error('Module 11 Failed: Diagnostic alert failed');
   console.log('✅ Module 11 Passed: Non-clinical administrative diagnostic alert dispatched.');
 
-  // MODULE 12: Billing/Payment Status Coordination
   console.log('\n--- [Module 12: Billing/Payment Status Coordination] ---');
   const billingResult = await handleBillingCoordination({
     patient_id: 'DEMO-001',
@@ -162,7 +174,6 @@ async function runTests() {
     idempotency_key: 'IDEM-TEST-BILL-001'
   });
   if (billingResult.status !== 'BILLING_COORDINATION_INITIATED') throw new Error('Module 12 Failed: Billing initiation failed');
-  // Verify idempotency duplicate prevention
   const duplicateBilling = await handleBillingCoordination({
     patient_id: 'DEMO-001',
     idempotency_key: 'IDEM-TEST-BILL-001',
@@ -177,7 +188,6 @@ async function runTests() {
   if (paymentResult.status !== 'PAYMENT_CONFIRMED') throw new Error('Module 12 Failed: Payment confirmation failed');
   console.log('✅ Module 12 Passed: Idempotent billing invoice generated, copay calculated, and payment receipt confirmed.');
 
-  // MODULE 13: IPD/Admission Administration
   console.log('\n--- [Module 13: IPD/Admission Administration] ---');
   const admissionResult = await handleAdmissionIntake({
     patient_id: 'DEMO-002',
@@ -191,7 +201,6 @@ async function runTests() {
   if (admissionResult.status !== 'ADMISSION_REGISTERED') throw new Error('Module 13 Failed: IPD admission intake failed');
   console.log('✅ Module 13 Passed: Inpatient admission intake logged, bed allocated, and attendant pass generated.');
 
-  // MODULE 14: Discharge Administration
   console.log('\n--- [Module 14: Discharge Administration] ---');
   const dischargeClearance = await handleDischargeClearance({
     patient_id: 'DEMO-002',
@@ -201,13 +210,11 @@ async function runTests() {
   if (dischargeClearance.status !== 'DISCHARGE_CLEARED_SUCCESS') throw new Error('Module 14 Failed: Discharge clearance failed');
   console.log('✅ Module 14 Passed: Multi-point clinical, pharmacy & billing discharge gate-pass issued.');
 
-  // MODULE 15: Post-Discharge Follow-Up
   console.log('\n--- [Module 15: Post-Discharge Follow-Up] ---');
   const postDischargeResult = await handleDischargeFollowup({ patient_id: 'DEMO-003' });
   if (postDischargeResult.status !== 'DISCHARGE_FOLLOWUP_DISPATCHED') throw new Error('Module 15 Failed: Post-discharge follow-up failed');
   console.log('✅ Module 15 Passed: Day-2 recovery check-in task generated & WhatsApp follow-up dispatched.');
 
-  // MODULE 16: Feedback
   console.log('\n--- [Module 16: Feedback] ---');
   const feedbackResult = handlePatientFeedback({
     patient_id: 'DEMO-003',
@@ -217,7 +224,6 @@ async function runTests() {
   if (feedbackResult.status !== 'FEEDBACK_PROCESSED' || !feedbackResult.service_recovery_escalation) throw new Error('Module 16 Failed: Feedback processing failed');
   console.log('✅ Module 16 Passed: Patient rating captured and negative sentiment flagged.');
 
-  // MODULE 17: Service Recovery
   console.log('\n--- [Module 17: Service Recovery] ---');
   const recoveryResolution = await handleServiceRecoveryResolution({
     patient_id: 'DEMO-003',
@@ -227,7 +233,6 @@ async function runTests() {
   if (recoveryResolution.status !== 'SERVICE_RECOVERY_RESOLVED') throw new Error('Module 17 Failed: Service recovery resolution failed');
   console.log('✅ Module 17 Passed: Service recovery completed, patient notified via WhatsApp, exception resolved.');
 
-  // MODULE 18: Repeat Visit / Preventive Reminder
   console.log('\n--- [Module 18: Repeat Visit / Preventive Reminder] ---');
   const chronicResult = await handleChronicRevisitCheck();
   if (chronicResult.status !== 'CHRONIC_RECALL_EXECUTED') throw new Error('Module 18 Failed: Chronic recall failed');
@@ -235,7 +240,6 @@ async function runTests() {
   if (reactResult.status !== 'REACTIVATION_DISPATCHED') throw new Error('Module 18 Failed: Inactive reactivation failed');
   console.log('✅ Module 18 Passed: Quarterly chronic review & 180-day preventative health check campaigns dispatched.');
 
-  // MODULE 19: Referral Engine
   console.log('\n--- [Module 19: Referral Engine] ---');
   const referralResult = await handleReferralIntake({
     referring_doctor: 'Dr. Sudhir Saxena',
@@ -248,25 +252,21 @@ async function runTests() {
   if (referralResult.status !== 'REFERRAL_REGISTERED_SUCCESS') throw new Error('Module 19 Failed: Referral intake failed');
   console.log('✅ Module 19 Passed: Clinic referral logged, automated doctor acknowledgment & high-priority lead created.');
 
-  // MODULE 20: Lead SLA Escalation
   console.log('\n--- [Module 20: Lead SLA Escalation] ---');
   const slaResult = await checkAndEscalateLeadSla(15);
   if (slaResult.status !== 'SLA_SCAN_COMPLETED') throw new Error('Module 20 Failed: SLA scan failed');
   console.log(`✅ Module 20 Passed: Lead response SLA monitor identified & escalated ${slaResult.escalated_count} overdue lead(s).`);
 
-  // MODULE 21: Admin Daily Report
   console.log('\n--- [Module 21: Admin Daily Report] ---');
   const dailyReport = await generateAdminDailyReport();
   if (dailyReport.status !== 'REPORT_GENERATED' || !dailyReport.report.headline) throw new Error('Module 21 Failed: Daily report generation failed');
   console.log('✅ Module 21 Passed: Comprehensive executive daily briefing generated with operational metrics.');
 
-  // MODULE 22: Department Performance
   console.log('\n--- [Module 22: Department Performance] ---');
   const deptPerformance = await getDepartmentPerformanceMetrics();
   if (deptPerformance.status !== 'PERFORMANCE_AGGREGATED' || deptPerformance.departments.length < 4) throw new Error('Module 22 Failed: Department performance failed');
   console.log(`✅ Module 22 Passed: Department performance metrics computed across all ${deptPerformance.departments.length} departments.`);
 
-  // MODULE 23: Exception Queue
   console.log('\n--- [Module 23: Exception Queue & AI Classifier] ---');
   const exceptionClassification = await callClaude('EXCEPTION_CLASSIFIER', {
     workflow: 'HOSPITAL | 01 Lead Intake',
@@ -277,22 +277,18 @@ async function runTests() {
   if (!exceptionClassification.severity) throw new Error('Module 23 Failed: Exception classification missing severity');
   console.log(`✅ Module 23 Passed: Exception classifier analyzed failure (Severity: ${exceptionClassification.severity}).`);
 
-  // MODULE 24: AI Operations Assistant
   console.log('\n--- [Module 24: AI Operations Assistant] ---');
   const opsQuery = await handleAiOperationsQuery({ query: 'How many no-shows have been recorded today?' });
   if (opsQuery.status !== 'SUCCESS') throw new Error('Module 24 Failed: Operations query failed');
-  // Test clinical guardrail
   const clinicalQuery = await handleAiOperationsQuery({ query: 'Can you diagnose chest pain and prescribe aspirin?' });
   if (clinicalQuery.status !== 'GUARDRAIL_BLOCKED') throw new Error('Module 24 Failed: Clinical inquiry guardrail was not blocked');
   console.log('✅ Module 24 Passed: Administrative assistant answered ops query and strictly blocked medical diagnosis.');
 
-  // MODULE 25: Audit / Logging
   console.log('\n--- [Module 25: Audit / Logging] ---');
   const auditEntries = db.prepare(`SELECT COUNT(*) as count FROM audit_logs`).get().count;
   if (auditEntries < 5) throw new Error('Module 25 Failed: Insufficient audit trail entries');
   console.log(`✅ Module 25 Passed: Complete audit trail verified (${auditEntries} immutable events with correlation IDs).`);
 
-  // MODULE 26: Maintenance / Monitoring
   console.log('\n--- [Module 26: Maintenance / Monitoring] ---');
   const maintAudit = await runSystemMaintenanceAudit();
   if (maintAudit.status !== 'MAINTENANCE_AUDIT_COMPLETED' || maintAudit.system_health !== 'OPTIMAL') throw new Error('Module 26 Failed: System maintenance check failed');
@@ -300,7 +296,6 @@ async function runTests() {
   if (masterStatus.online_modules !== 26) throw new Error(`Module 26 Failed: Expected 26 online modules, got ${masterStatus.online_modules}`);
   console.log(`✅ Module 26 Passed: SQLite integrity verified (${maintAudit.database.integrity}), Master Status: 26/26 modules ONLINE.`);
 
-  // TWO-WAY WHATSAPP INBOUND SUITE
   console.log('\n--- [Two-Way WhatsApp Conversational Lifecycle Suite] ---');
   const confirmReply = await handleInboundPatientMessage({ fromPhone: '+919999999991', messageBody: '1' });
   console.log('Inbound Confirm:', confirmReply.status);

@@ -1,11 +1,31 @@
+/**
+ * ============================================================================
+ * MODULE: Centralized Error Tracking & Exception Collector (src/utils/error_tracker.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Captures uncaught application exceptions, persists them into the exceptions table
+ *   for ops staff review, logs structured error payloads via Pino, and integrates
+ *   with external APM (e.g. Sentry, Datadog) when configured.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section N (Prompt 6 — Error / Exception Classifier)
+ *   - Blueprint V3: Section Z (Error Handling & Idempotency)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - ../db/index.js (db)                  : SQLite database connection
+ *   - ./logger.js (logger)                 : Structured logging engine
+ *
+ * KEY EXPORTS:
+ *   - trackError(error, context)           : Records error, generates ERR ID, and logs
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Bound as Express centralized error middleware in src/server.js.
+ * ============================================================================
+ */
+
 import { db } from '../db/index.js';
 import { logger } from './logger.js';
-
-/**
- * Enterprise Error Tracking & Exception Collector
- * Centralizes application exceptions, records them in the database for staff review,
- * and integrates with APM / Sentry when configured.
- */
 
 export function trackError(error, context = {}) {
   const errorId = `ERR-${Date.now().toString().slice(-6)}`;
@@ -21,7 +41,6 @@ export function trackError(error, context = {}) {
 
   logger.error(errorPayload, `[ErrorTracker] Exception captured: ${error.message}`);
 
-  // Automatically log to database exceptions table if available
   try {
     const excId = `EXC-AUTO-${Date.now().toString().slice(-6)}`;
     db.prepare(`
@@ -37,9 +56,7 @@ export function trackError(error, context = {}) {
     logger.error(dbErr, '[ErrorTracker] Failed to persist exception to database');
   }
 
-  // Hook for Sentry or Datadog APM if client provides SENTRY_DSN in .env
   if (process.env.SENTRY_DSN) {
-    // Dispatches to Sentry webhook / SDK
     logger.info(`[ErrorTracker] Forwarded exception ${errorId} to external APM (Sentry)`);
   }
 

@@ -1,20 +1,40 @@
+/**
+ * ============================================================================
+ * MODULE: Background Appointment Reminder & SLA Scanner (src/workflows/scheduler.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Automated background cron and timer scheduler. Continuously scans for confirmed
+ *   appointments requiring T-24h and T-3h reminders and dispatches WhatsApp notices.
+ *   Also triggers recurring scans for overdue lead response SLAs (Module 20).
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section C (Modules 7, 20), Section Z (Error Handling & Idempotency)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - ../db/index.js (db)                  : SQLite database connection
+ *   - ./engine.js                          : generateCorrelationId, checkAndEscalateLeadSla
+ *   - ../whatsapp/qr_bridge.js             : dispatchWhatsApp
+ *
+ * KEY EXPORTED FUNCTIONS:
+ *   - runAppointmentReminders()
+ *   - runAllBackgroundTasks()
+ *   - startBackgroundScheduler(intervalMs)
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Initialized in src/server.js upon server startup (default 60s tick).
+ *   - Triggered on demand via POST /api/scheduler/run-reminders.
+ * ============================================================================
+ */
+
 import { db } from '../db/index.js';
 import { generateCorrelationId, checkAndEscalateLeadSla } from './engine.js';
 import { dispatchWhatsApp } from '../whatsapp/qr_bridge.js';
 
-/**
- * Hospital Automated Reminder & SLA Engine
- * Modules 7 (Reminder) & 20 (Lead SLA) of Master Blueprint V3
- */
-
-/**
- * Scan for upcoming appointments and dispatch 24h & 3h reminders
- */
 export async function runAppointmentReminders() {
   const now = new Date();
   const timestamp = now.toISOString();
 
-  // 1. Check for 24-Hour Reminders (Appointments between 20h and 26h away)
   const appts24h = db.prepare(`
     SELECT a.*, p.full_name, p.phone, d.name as doctor_name
     FROM appointments a
@@ -42,7 +62,6 @@ export async function runAppointmentReminders() {
     console.log(`[Scheduler] 24h Reminder sent to ${appt.full_name} (${appt.phone})`);
   }
 
-  // 2. Check for 3-Hour Reminders (Appointments between 2h and 4h away)
   const appts3h = db.prepare(`
     SELECT a.*, p.full_name, p.phone, d.name as doctor_name, d.room_number
     FROM appointments a
@@ -76,9 +95,6 @@ export async function runAppointmentReminders() {
   };
 }
 
-/**
- * Execute automated background tasks (reminders + Lead SLA escalation)
- */
 export async function runAllBackgroundTasks() {
   const reminderRes = await runAppointmentReminders();
   const slaRes = await checkAndEscalateLeadSla(15);
@@ -88,9 +104,6 @@ export async function runAllBackgroundTasks() {
   };
 }
 
-/**
- * Start the recurring background scheduler (runs every 60 seconds)
- */
 export function startBackgroundScheduler(intervalMs = 60000) {
   console.log(`⏱️ Starting Hospital Background Scheduler (Interval: ${intervalMs / 1000}s)...`);
   runAllBackgroundTasks().catch(err => console.error('[Scheduler Error]:', err.message));
@@ -101,4 +114,3 @@ export function startBackgroundScheduler(intervalMs = 60000) {
 
   return timer;
 }
-

@@ -1,11 +1,31 @@
+/**
+ * ============================================================================
+ * MODULE: Multi-Tenant Hospital Profile Configuration (src/config/hospital_profile.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Centralized hospital metadata configuration. Enables rapid re-branding across
+ *   client facilities (e.g. SUM Hospital, Apollo, AIIMS) via environment variables
+ *   without requiring changes to the workflow automation engine.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section D (DemoCare Hospital Specifications)
+ *   - Blueprint V3: Section AR (ABDM Facility Identifiers & Governance)
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - dotenv                               : Loads custom facility variables from .env
+ *
+ * KEY EXPORTS:
+ *   - HOSPITAL_PROFILE                     : Facility name, phone, city, address, ABDM ID
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Used in message drafting, receipts, patient intake, and executive briefings.
+ * ============================================================================
+ */
+
 import dotenv from 'dotenv';
 dotenv.config();
 
-/**
- * Enterprise Hospital Profile Configuration
- * Allows 1-minute re-branding for large hospitals (e.g. SUM Hospital, Apollo, AIIMS)
- * by updating .env parameters without altering any workflow engine code.
- */
 export const HOSPITAL_PROFILE = {
   name: process.env.HOSPITAL_NAME || 'DemoCare Multispeciality Hospital',
   shortName: process.env.HOSPITAL_SHORT_NAME || 'DemoCare',

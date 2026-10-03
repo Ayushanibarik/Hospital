@@ -1,18 +1,41 @@
+/**
+ * ============================================================================
+ * MODULE: Inbound WhatsApp Patient Message Reply Handler (src/workflows/inbound_reply.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Handles two-way conversational lifecycle replies from patients over WhatsApp.
+ *   Analyzes incoming text to detect emergency keywords (immediate clinical triage alert),
+ *   feedback ratings (1-5), confirmation triggers ('1' or 'YES'), appointment 
+ *   cancellations ('cancel'), and rescheduling requests ('2' or 'reschedule').
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: Section C (Modules 6, 8, 16, 17), Section W, Section Z
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - ../db/index.js (db)                  : SQLite database connection
+ *   - ./engine.js                          : generateCorrelationId, handleAppointmentReschedule, 
+ *                                            handleAppointmentCancellation, handlePatientFeedback
+ *   - ../whatsapp/qr_bridge.js             : dispatchWhatsApp
+ *
+ * KEY EXPORTED FUNCTIONS:
+ *   - handleInboundPatientMessage({ fromPhone, messageBody })
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Consumed by POST /webhook/whatsapp in src/server.js when Meta Webhooks or QR Bridge fire.
+ * ============================================================================
+ */
+
 import { db } from '../db/index.js';
 import { generateCorrelationId, handleAppointmentReschedule, handleAppointmentCancellation, handlePatientFeedback } from './engine.js';
 import { dispatchWhatsApp } from '../whatsapp/qr_bridge.js';
 
-/**
- * Handle Inbound WhatsApp Patient Message Replies
- * Two-way Conversational Lifecycle Loop
- */
 export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
   const correlationId = generateCorrelationId();
   const timestamp = new Date().toISOString();
   const text = (messageBody || '').trim();
   const lower = text.toLowerCase();
 
-  // Find patient by phone
   const cleanPhone = fromPhone.replace(/\D/g, '');
   const patient = db.prepare(`
     SELECT * FROM patients WHERE phone LIKE ? OR phone LIKE ?
@@ -26,7 +49,6 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     };
   }
 
-  // 1. Check for Emergency Keywords
   const emergencyKeywords = ['emergency', 'chest pain', 'heart attack', 'severe bleeding', 'breathing', 'unconscious', 'dying', 'suicide'];
   if (emergencyKeywords.some(kw => lower.includes(kw))) {
     const excId = `EXC-EMERG-${Date.now().toString().slice(-6)}`;
@@ -45,7 +67,6 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     };
   }
 
-  // Check last outbound message to understand patient context
   const lastOutbound = db.prepare(`
     SELECT * FROM communication_logs
     WHERE patient_id = ?
@@ -54,7 +75,6 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
 
   const isAwaitingRating = lastOutbound?.template_name?.includes('DISCHARGE') || lastOutbound?.template_name?.includes('FEEDBACK');
 
-  // If last message asked for feedback rating (1-5)
   if (isAwaitingRating && /^[1-5]$/.test(text)) {
     const rating = parseInt(text, 10);
     const feedbackResult = handlePatientFeedback({
@@ -76,9 +96,7 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     };
   }
 
-  // 2. Check for Confirmation Reply ('1', 'YES', 'CONFIRM')
   if (lower === '1' || lower === 'yes' || lower === 'confirm' || lower.includes('confirmed')) {
-    // Find active or upcoming appointment
     const activeAppt = db.prepare(`
       SELECT * FROM appointments 
       WHERE patient_id = ? AND status IN ('CONFIRMED', 'RESCHEDULED')
@@ -103,7 +121,6 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     }
   }
 
-  // 3. Check for Reschedule Request ('2', 'RESCHEDULE')
   if (lower === '2' || lower.includes('reschedule') || lower.includes('change date')) {
     const activeAppt = db.prepare(`
       SELECT * FROM appointments 
@@ -120,7 +137,6 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     }
   }
 
-  // 4. Check for Cancellation Request ('CANCEL', 'CANCEL APPOINTMENT')
   if (lower === 'cancel' || lower.includes('cancel my appointment') || lower.includes('cancel appointment')) {
     const activeAppt = db.prepare(`
       SELECT * FROM appointments 
@@ -144,7 +160,6 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     }
   }
 
-  // 5. Check for Standalone Numeric Feedback Rating (1 to 5)
   if (/^[1-5]$/.test(text)) {
     const rating = parseInt(text, 10);
     const feedbackResult = handlePatientFeedback({
@@ -166,7 +181,6 @@ export async function handleInboundPatientMessage({ fromPhone, messageBody }) {
     };
   }
 
-  // General Inquiry Fallback
   const defaultReply = `Hello ${patient.full_name}, thank you for contacting DemoCare Multispeciality Hospital. For OPD consultations or appointments, reply '1' to confirm, '2' to reschedule, or contact our helpdesk at +91 22 5550 1234.`;
   await dispatchWhatsApp({ toPhone: patient.phone, messageText: defaultReply });
 

@@ -1,3 +1,44 @@
+/**
+ * ============================================================================
+ * MODULE: Hospital AI Automation HTTP Server & REST Gateway (src/server.js)
+ * ============================================================================
+ * 
+ * DESCRIPTION:
+ *   Main Express.js application server. Exposes all 26 Master Blueprint webhooks,
+ *   REST APIs, operational dashboards, MCP tool endpoints, live static frontend 
+ *   portals, security middleware (Helmet, CORS, rate limits), Pino request logging,
+ *   and graceful shutdown handlers.
+ *
+ * BLUEPRINT MODULES & SECTIONS:
+ *   - Blueprint V3: All Sections (A through AS), Reference Architecture, 8 Layers
+ *
+ * PACKAGES & DEPENDENCIES:
+ *   - express, cors, helmet, express-rate-limit, dotenv
+ *   - ./db/index.js (db), ./db/seed.js (seed)
+ *   - ./workflows/engine.js (All 26 workflow handler functions)
+ *   - ./mcp/tools.js (executeMcpTool, MCP_TOOLS_SCHEMA)
+ *   - ./ai/claude.js (callClaude)
+ *   - ./whatsapp/qr_bridge.js (initWhatsAppQR, getWhatsAppStatus)
+ *   - ./workflows/inbound_reply.js (handleInboundPatientMessage)
+ *   - ./workflows/scheduler.js (startBackgroundScheduler, runAppointmentReminders)
+ *   - ./utils/cache.js, ./utils/logger.js, ./utils/error_tracker.js
+ *
+ * KEY EXPORTED / BOUND ROUTES:
+ *   - GET  /health                                 : Docker & Kubernetes health probe
+ *   - GET  /admin                                  : Operations & KPI Dashboard
+ *   - POST /webhook/lead-intake                    : Inbound patient lead capture
+ *   - POST /webhook/whatsapp                       : Two-way WhatsApp message handler
+ *   - POST /webhook/no-show-recovery               : No-show recovery trigger
+ *   - POST /webhook/discharge-followup             : Discharge check-in trigger
+ *   - GET  /api/dashboard/*                        : Operational, Weekly, and Management KPIs
+ *   - GET  /api/modules/status                     : 26-module live operational health
+ *   - POST /api/mcp/execute                        : MCP tool execution endpoint
+ *
+ * SYSTEM USAGE & INTEGRATION:
+ *   - Primary entry point for the application (npm start / node src/server.js).
+ * ============================================================================
+ */
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -55,10 +96,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Structured Request Logging (Pino ELK/CloudWatch compatible)
 app.use(requestLogger);
 
-// Hardened HTTP Security Headers
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -73,7 +112,6 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-// Global Rate Limiter (Protection against brute-force / DDoS)
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 600,
@@ -83,7 +121,6 @@ const globalLimiter = rateLimit({
 });
 app.use(globalLimiter);
 
-// Webhook Ingestion Limiter (Prevents lead spamming)
 const webhookLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 60,
@@ -96,7 +133,6 @@ app.use('/webhook/', webhookLimiter);
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
-// Edge CDN Caching for Static Frontend Assets (1 day cache)
 app.use(express.static(path.resolve(__dirname, '../public'), {
   extensions: ['html'],
   maxAge: '1d',
@@ -105,7 +141,6 @@ app.use(express.static(path.resolve(__dirname, '../public'), {
   }
 }));
 
-// Production Health Check & Readiness Probe (Docker / K8s standard)
 app.get('/health', (req, res) => {
   try {
     const dbCheck = db.prepare('SELECT 1 as alive').get();
@@ -125,16 +160,10 @@ app.get('/health', (req, res) => {
   }
 });
 
-// Explicit route for admin dashboard
 app.get('/admin', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../public/admin.html'));
 });
 
-// -------------------------------------------------------------
-// WEBHOOKS (Sections O, P, Q, R)
-// -------------------------------------------------------------
-
-// Webhook 1: Lead Intake (Section O & P)
 app.post('/webhook/lead-intake', async (req, res) => {
   try {
     const result = await handleLeadIntake(req.body);
@@ -145,7 +174,6 @@ app.post('/webhook/lead-intake', async (req, res) => {
   }
 });
 
-// Webhook 2: No-Show Recovery (Section Q)
 app.post('/webhook/no-show-recovery', async (req, res) => {
   try {
     const { appointment_id } = req.body;
@@ -160,7 +188,6 @@ app.post('/webhook/no-show-recovery', async (req, res) => {
   }
 });
 
-// Webhook 3: Discharge Follow-Up (Section R)
 app.post('/webhook/discharge-followup', async (req, res) => {
   try {
     const { patient_id } = req.body;
@@ -175,7 +202,6 @@ app.post('/webhook/discharge-followup', async (req, res) => {
   }
 });
 
-// Inbound Patient Feedback (Service Recovery Loop)
 app.post('/api/feedback', (req, res) => {
   try {
     const result = handlePatientFeedback(req.body);
@@ -185,7 +211,6 @@ app.post('/api/feedback', (req, res) => {
   }
 });
 
-// Module 8: Appointment Rescheduling
 app.post('/api/appointments/:id/reschedule', async (req, res) => {
   try {
     const { id } = req.params;
@@ -197,7 +222,6 @@ app.post('/api/appointments/:id/reschedule', async (req, res) => {
   }
 });
 
-// Module 8: Appointment Cancellation
 app.post('/api/appointments/:id/cancel', async (req, res) => {
   try {
     const { id } = req.params;
@@ -209,7 +233,6 @@ app.post('/api/appointments/:id/cancel', async (req, res) => {
   }
 });
 
-// Module 3: Department Routing & Queue Assignment
 app.post('/api/leads/route', async (req, res) => {
   try {
     const { lead_id, target_department, notes } = req.body;
@@ -220,7 +243,6 @@ app.post('/api/leads/route', async (req, res) => {
   }
 });
 
-// Module 11: Diagnostic Follow-Up Notification
 app.post('/webhook/diagnostic-ready', async (req, res) => {
   try {
     const { patient_id, test_category } = req.body;
@@ -234,7 +256,6 @@ app.post('/webhook/diagnostic-ready', async (req, res) => {
   }
 });
 
-// Module 3: Digital Pre-Consultation Intake Form
 app.post('/api/intake/pre-consultation', async (req, res) => {
   try {
     const result = await handlePreConsultationIntake(req.body);
@@ -244,7 +265,6 @@ app.post('/api/intake/pre-consultation', async (req, res) => {
   }
 });
 
-// Module 4: Insurance Pre-Verification / TPA
 app.post('/api/insurance/pre-verify', async (req, res) => {
   try {
     const result = await handleInsurancePreVerification(req.body);
@@ -254,7 +274,6 @@ app.post('/api/insurance/pre-verify', async (req, res) => {
   }
 });
 
-// Module 10: OPD Flow & Queue Token Management
 app.post('/api/queue/token', async (req, res) => {
   try {
     const { appointment_id, patient_id, department } = req.body;
@@ -301,7 +320,6 @@ app.get('/api/queue/tokens', (req, res) => {
   }
 });
 
-// Module 12: Inpatient Admission Pre-Clearance
 app.post('/api/admission/pre-clearance', async (req, res) => {
   try {
     const result = await handleAdmissionPreClearance(req.body);
@@ -311,7 +329,6 @@ app.post('/api/admission/pre-clearance', async (req, res) => {
   }
 });
 
-// Module 16: Chronic Disease Management & Revisit Scheduling
 app.get('/api/chronic/programs', (req, res) => {
   try {
     const programs = db.prepare(`
@@ -335,7 +352,6 @@ app.post('/api/chronic/check-ins', async (req, res) => {
   }
 });
 
-// Module 17: Inactive Patient Reactivation Campaign
 app.post('/api/campaigns/reactivation', async (req, res) => {
   try {
     const result = await handleInactiveReactivation();
@@ -345,7 +361,6 @@ app.post('/api/campaigns/reactivation', async (req, res) => {
   }
 });
 
-// Module 18: Staff Operations & Doctor Availability Management
 app.get('/api/doctors', (req, res) => {
   try {
     const cached = appCache.get('all_doctors');
@@ -371,10 +386,6 @@ app.patch('/api/doctors/:id/availability', async (req, res) => {
   }
 });
 
-
-// -------------------------------------------------------------
-// WHATSAPP WEB QR BRIDGE (100% Free - Section W Option B)
-// -------------------------------------------------------------
 app.get('/api/whatsapp/status', (req, res) => {
   res.json(getWhatsAppStatus());
 });
@@ -388,7 +399,6 @@ app.post('/api/whatsapp/connect', async (req, res) => {
   }
 });
 
-// Two-Way WhatsApp Inbound Webhook (Meta Cloud API / Test endpoint)
 app.get('/webhook/whatsapp', (req, res) => {
   const mode = req.query['hub.mode'];
   const token = req.query['hub.verify_token'];
@@ -421,7 +431,6 @@ app.post('/webhook/whatsapp', async (req, res) => {
   }
 });
 
-// Staff Operations: Update Appointment Status
 app.patch('/api/appointments/:id/status', (req, res) => {
   try {
     const { id } = req.params;
@@ -442,7 +451,6 @@ app.patch('/api/appointments/:id/status', (req, res) => {
   }
 });
 
-// Trigger Reminder Scheduler
 app.post('/api/scheduler/run-reminders', async (req, res) => {
   try {
     const result = await runAppointmentReminders();
@@ -452,7 +460,6 @@ app.post('/api/scheduler/run-reminders', async (req, res) => {
   }
 });
 
-// Audit Logs Endpoint
 app.get('/api/dashboard/audit-logs', (req, res) => {
   try {
     const logs = db.prepare(`SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT 30`).all();
@@ -462,7 +469,6 @@ app.get('/api/dashboard/audit-logs', (req, res) => {
   }
 });
 
-// Follow-ups Endpoint
 app.get('/api/dashboard/follow-ups', (req, res) => {
   try {
     const tasks = db.prepare(`
@@ -477,7 +483,6 @@ app.get('/api/dashboard/follow-ups', (req, res) => {
   }
 });
 
-// Diagnostics Endpoint
 app.get('/api/dashboard/diagnostics', (req, res) => {
   try {
     const tasks = db.prepare(`
@@ -492,7 +497,6 @@ app.get('/api/dashboard/diagnostics', (req, res) => {
   }
 });
 
-// Intake Forms Endpoint
 app.get('/api/dashboard/intake-forms', (req, res) => {
   try {
     const forms = db.prepare(`
@@ -507,7 +511,6 @@ app.get('/api/dashboard/intake-forms', (req, res) => {
   }
 });
 
-// Insurance Pre-Verifications Endpoint
 app.get('/api/dashboard/insurance', (req, res) => {
   try {
     const list = db.prepare(`
@@ -522,7 +525,6 @@ app.get('/api/dashboard/insurance', (req, res) => {
   }
 });
 
-// Inpatient Pre-Clearance Endpoint
 app.get('/api/dashboard/admissions', (req, res) => {
   try {
     const list = db.prepare(`
@@ -537,7 +539,6 @@ app.get('/api/dashboard/admissions', (req, res) => {
   }
 });
 
-// Chronic Care Tracking Endpoint
 app.get('/api/dashboard/chronic', (req, res) => {
   try {
     const list = db.prepare(`
@@ -552,7 +553,6 @@ app.get('/api/dashboard/chronic', (req, res) => {
   }
 });
 
-// Module 10: OPD Patient Journey Milestones
 app.post('/api/opd/journey/stage', async (req, res) => {
   try {
     const result = await handleOpdJourneyStageUpdate(req.body);
@@ -576,7 +576,6 @@ app.get('/api/dashboard/opd-journeys', (req, res) => {
   }
 });
 
-// Module 12: Billing & Payment Status Coordination
 app.post('/api/billing/create', async (req, res) => {
   try {
     const result = await handleBillingCoordination(req.body);
@@ -609,7 +608,6 @@ app.get('/api/dashboard/billing', (req, res) => {
   }
 });
 
-// Module 13: Inpatient Admission Administration
 app.post('/api/admissions/intake', async (req, res) => {
   try {
     const result = await handleAdmissionIntake(req.body);
@@ -634,7 +632,6 @@ app.get('/api/dashboard/ipd-admissions', (req, res) => {
   }
 });
 
-// Module 14: Discharge Administration & Clearance Tracking
 app.post('/api/discharge/clearance', async (req, res) => {
   try {
     const result = await handleDischargeClearance(req.body);
@@ -658,7 +655,6 @@ app.get('/api/dashboard/discharge-clearances', (req, res) => {
   }
 });
 
-// Module 17: Service Recovery Resolution
 app.post('/api/service-recovery/resolve', async (req, res) => {
   try {
     const result = await handleServiceRecoveryResolution(req.body);
@@ -683,7 +679,6 @@ app.get('/api/dashboard/service-recovery', (req, res) => {
   }
 });
 
-// Module 19: Clinic & Doctor Referral Engine
 app.post('/api/referrals/intake', async (req, res) => {
   try {
     const result = await handleReferralIntake(req.body);
@@ -707,7 +702,6 @@ app.get('/api/dashboard/referrals', (req, res) => {
   }
 });
 
-// Module 20: Lead SLA Escalation Scanner
 app.post('/api/scheduler/run-lead-sla', async (req, res) => {
   try {
     const { threshold_minutes } = req.body || {};
@@ -718,7 +712,6 @@ app.post('/api/scheduler/run-lead-sla', async (req, res) => {
   }
 });
 
-// Module 21: Admin Daily Executive Report
 app.get('/api/reports/daily', async (req, res) => {
   try {
     const result = await generateAdminDailyReport();
@@ -737,7 +730,6 @@ app.post('/api/reports/daily/generate', async (req, res) => {
   }
 });
 
-// Module 22: Department Performance Breakdown
 app.get('/api/dashboard/department-performance', async (req, res) => {
   try {
     const result = await getDepartmentPerformanceMetrics();
@@ -747,7 +739,6 @@ app.get('/api/dashboard/department-performance', async (req, res) => {
   }
 });
 
-// Module 24: AI Operations Assistant (Administrative Ops Invariants)
 app.post('/api/ai/operations-assistant', async (req, res) => {
   try {
     const { query, role } = req.body;
@@ -759,7 +750,6 @@ app.post('/api/ai/operations-assistant', async (req, res) => {
   }
 });
 
-// Module 26: System Maintenance Audit & Self-Diagnostics
 app.get('/api/system/maintenance-audit', async (req, res) => {
   try {
     const result = await runSystemMaintenanceAudit();
@@ -769,15 +759,9 @@ app.get('/api/system/maintenance-audit', async (req, res) => {
   }
 });
 
-// MASTER STATUS: Master Blueprint 26-Modules Live Status
 app.get('/api/modules/status', (req, res) => {
   res.json(get26ModulesStatus());
 });
-
-
-// -------------------------------------------------------------
-// OPERATIONAL DASHBOARD APIS (Section AA)
-// -------------------------------------------------------------
 
 app.get('/api/dashboard/metrics', async (req, res) => {
   try {
@@ -867,7 +851,6 @@ app.get('/api/dashboard/ai-summary', async (req, res) => {
   }
 });
 
-// Section AA: Dashboard — Weekly Review Metrics
 app.get('/api/dashboard/weekly', (req, res) => {
   try {
     const totalLeads = db.prepare(`SELECT COUNT(*) as count FROM leads`).get().count;
@@ -905,7 +888,6 @@ app.get('/api/dashboard/weekly', (req, res) => {
   }
 });
 
-// Section AA: Dashboard — Management Executive View
 app.get('/api/dashboard/management', (req, res) => {
   try {
     const topExceptions = db.prepare(`
@@ -960,7 +942,6 @@ app.get('/api/dashboard/management', (req, res) => {
   }
 });
 
-// Reset / Re-seed endpoint for live video demo resets
 app.post('/api/demo/reset', (req, res) => {
   try {
     seed();
@@ -970,9 +951,6 @@ app.post('/api/demo/reset', (req, res) => {
   }
 });
 
-// -------------------------------------------------------------
-// MCP TOOL ENDPOINTS (Section V)
-// -------------------------------------------------------------
 app.get('/api/mcp/tools', (req, res) => {
   res.json({ tools: MCP_TOOLS_SCHEMA });
 });
@@ -987,7 +965,6 @@ app.post('/api/mcp/execute', async (req, res) => {
   }
 });
 
-// Centralized 404 handler for unmatched routes
 app.use((req, res) => {
   if (req.accepts('html')) {
     return res.status(404).sendFile(path.join(__dirname, '../public/404.html'));
@@ -995,7 +972,6 @@ app.use((req, res) => {
   res.status(404).json({ success: false, error: 'Endpoint not found', path: req.originalUrl });
 });
 
-// Centralized Error Handling Middleware (Never leak stack traces in production)
 app.use((err, req, res, next) => {
   const errorId = trackError(err, {
     url: req.originalUrl || req.url,
@@ -1010,7 +986,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
 const server = app.listen(PORT, () => {
   console.log(`\n🏥 Hospital AI Automation Server running at: http://localhost:${PORT}`);
   console.log(`   - Public Demo Patient Form: http://localhost:${PORT}/`);
@@ -1018,11 +993,9 @@ const server = app.listen(PORT, () => {
   console.log(`   - Health & Liveness Probe: http://localhost:${PORT}/health`);
   console.log(`   - Webhook Lead Intake: http://localhost:${PORT}/webhook/lead-intake\n`);
 
-  // Start background 24h & 3h appointment reminder scheduler
   startBackgroundScheduler(60000);
 });
 
-// Graceful Shutdown Handler (Docker & Kubernetes standard)
 function gracefulShutdown(signal) {
   console.log(`\n🛑 Received ${signal}. Initiating graceful shutdown...`);
   server.close(() => {
@@ -1042,4 +1015,3 @@ function gracefulShutdown(signal) {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
