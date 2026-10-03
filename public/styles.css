@@ -1279,3 +1279,15 @@ html, body {
   font-weight: 600;
   color: var(--text-dark);
 }
+
+/* View Panels Routing System */
+.view-panel {
+  display: none;
+  flex-direction: column;
+  gap: 24px;
+  animation: fadeIn 0.18s ease-in-out forwards;
+}
+
+.view-panel.active {
+  display: flex;
+}

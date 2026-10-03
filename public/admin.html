@@ -266,7 +266,7 @@
         <ul class="sidebar-nav">
           <div class="nav-section-title">CORE PLATFORM</div>
           <li>
-            <a class="nav-item active" data-view="home" onclick="switchView('home')">
+            <a href="#home" class="nav-item active" data-view="home" onclick="switchView('home'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -282,7 +282,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="ai-modules" onclick="switchView('ai-modules')">
+            <a href="#ai-modules" class="nav-item" data-view="ai-modules" onclick="switchView('ai-modules'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -299,7 +299,7 @@
 
           <div class="nav-section-title">CLINICAL WORKFLOWS</div>
           <li>
-            <a class="nav-item" data-view="appointments" onclick="switchView('appointments')">
+            <a href="#appointments" class="nav-item" data-view="appointments" onclick="switchView('appointments'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -315,7 +315,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="doctors" onclick="switchView('doctors')">
+            <a href="#doctors" class="nav-item" data-view="doctors" onclick="switchView('doctors'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -330,7 +330,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="patients" onclick="switchView('patients')">
+            <a href="#patients" class="nav-item" data-view="patients" onclick="switchView('patients'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -346,7 +346,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="queue" onclick="switchView('queue')">
+            <a href="#queue" class="nav-item" data-view="queue" onclick="switchView('queue'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -364,7 +364,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="admissions" onclick="switchView('admissions')">
+            <a href="#admissions" class="nav-item" data-view="admissions" onclick="switchView('admissions'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -381,7 +381,7 @@
 
           <div class="nav-section-title">ADMIN & REVENUE</div>
           <li>
-            <a class="nav-item" data-view="billing" onclick="switchView('billing')">
+            <a href="#billing" class="nav-item" data-view="billing" onclick="switchView('billing'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -394,7 +394,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="departments" onclick="switchView('departments')">
+            <a href="#departments" class="nav-item" data-view="departments" onclick="switchView('departments'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -407,7 +407,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="reports" onclick="switchView('reports')">
+            <a href="#reports" class="nav-item" data-view="reports" onclick="switchView('reports'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -421,7 +421,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="exceptions" onclick="switchView('exceptions')">
+            <a href="#exceptions" class="nav-item" data-view="exceptions" onclick="switchView('exceptions'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -438,7 +438,7 @@
 
           <div class="nav-section-title">SYSTEM INFRASTRUCTURE</div>
           <li>
-            <a class="nav-item" data-view="maintenance" onclick="switchView('maintenance')">
+            <a href="#maintenance" class="nav-item" data-view="maintenance" onclick="switchView('maintenance'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -451,7 +451,7 @@
             </a>
           </li>
           <li>
-            <a class="nav-item" data-view="whatsapp" onclick="switchView('whatsapp')">
+            <a href="#whatsapp" class="nav-item" data-view="whatsapp" onclick="switchView('whatsapp'); return false;">
               <span class="nav-item-left">
                 <span class="icon">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -509,7 +509,7 @@
         <div id="view-home" class="view-panel active">
           <!-- Row 1: 4 Metric Cards -->
           <section class="metrics-grid">
-            <div class="metric-card" onclick="switchView('admissions')">
+            <div class="metric-card" data-view="admissions" onclick="switchView('admissions')">
               <div class="metric-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"></path>
@@ -529,7 +529,7 @@
               </div>
             </div>
 
-            <div class="metric-card" onclick="switchView('doctors')">
+            <div class="metric-card" data-view="doctors" onclick="switchView('doctors')">
               <div class="metric-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
@@ -550,7 +550,7 @@
               </div>
             </div>
 
-            <div class="metric-card" onclick="switchView('patients')">
+            <div class="metric-card" data-view="patients" onclick="switchView('patients')">
               <div class="metric-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -569,7 +569,7 @@
               </div>
             </div>
 
-            <div class="metric-card" onclick="switchView('appointments')">
+            <div class="metric-card" data-view="appointments" onclick="switchView('appointments')">
               <div class="metric-header">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -672,7 +672,7 @@
                 <p class="card-subtitle">Real-time clinical triage & admission pipeline</p>
               </div>
               <div class="view-action-group">
-                <button class="btn-topbar outline" onclick="switchView('patients')">View All Patients →</button>
+                <button class="btn-topbar outline" data-view="patients" onclick="switchView('patients')">View All Patients →</button>
               </div>
             </div>
             <div style="overflow-x:auto;">
@@ -2192,6 +2192,26 @@
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
         e.preventDefault();
         document.getElementById('globalSearchInput')?.focus();
+      }
+    });
+
+    // Hashchange listener for browser Back/Forward and direct URL navigation
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '') || 'home';
+      if (state.currentView !== hash) {
+        switchView(hash);
+      }
+    });
+
+    // Universal Click Delegator for all [data-view] elements (Sidebar links, Metric cards, buttons)
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-view]');
+      if (target) {
+        const view = target.getAttribute('data-view');
+        if (view && view !== state.currentView) {
+          e.preventDefault();
+          switchView(view);
+        }
       }
     });
 
