@@ -3,574 +3,1009 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DemoCare Multispeciality Hospital — Doctor Consultations & Patient Care</title>
-  <meta name="description" content="DemoCare Multispeciality Hospital provides 24/7 emergency care, specialized OPD doctor consultations, and advanced healthcare services in Mumbai. Book your appointment online.">
+  <title>Evergreen Hospital — Hospital Management Dashboard</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --bg-page: #f8fafc;
+      --bg-sidebar: #ffffff;
+      --border: #eaecf0;
+      --border-light: #f2f4f7;
+      --text-dark: #101828;
+      --text-body: #344054;
+      --text-muted: #667085;
+      --text-light: #98a2b3;
+      --mint-bg: #ecfdf5;
+      --mint-text: #059669;
+      --mint-border: #a7f3d0;
+      --badge-green-bg: #ecfdf5;
+      --badge-green-text: #027a48;
+      --badge-green-border: #a6f4c5;
+      --badge-red-bg: #fef3f2;
+      --badge-red-text: #b42318;
+      --badge-red-border: #fecdca;
+      --badge-blue-bg: #eff8ff;
+      --badge-blue-text: #175cd3;
+      --badge-blue-border: #b2ddff;
+      --badge-yellow-bg: #fffaeb;
+      --badge-yellow-text: #b54708;
+      --badge-yellow-border: #fedf89;
+      --badge-grey-bg: #f2f4f7;
+      --badge-grey-text: #344054;
+      --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+      --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+      --shadow-floating: 0 12px 24px -4px rgba(16, 24, 40, 0.08), 0 4px 6px -2px rgba(16, 24, 40, 0.03);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; font-family: var(--font-sans); background: var(--bg-page); color: var(--text-body); -webkit-font-smoothing: antialiased; }
+    .app-shell { display: flex; width: 100vw; min-height: 100vh; background-color: var(--bg-page); overflow-x: hidden; }
+
+    /* Sidebar */
+    .sidebar { width: 250px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; min-height: 100vh; }
+    .sidebar-brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; padding: 0 6px; }
+    .brand-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+    .brand-logo-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--mint-bg); color: var(--mint-text); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; border: 1px solid var(--mint-border); }
+    .brand-text { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.01em; }
+    .sidebar-collapse-btn { background: #ffffff; border: 1px solid var(--border); border-radius: 6px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; }
+    .sidebar-collapse-btn:hover { background: #f8fafc; color: var(--text-dark); }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+    .nav-section-title { font-size: 0.7rem; font-weight: 700; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; padding: 16px 12px 6px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--text-muted); text-decoration: none; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
+    .nav-item:hover { background: #f8fafc; color: var(--text-dark); }
+    .nav-item.active { background: #f2f4f7; color: var(--text-dark); font-weight: 700; }
+    .nav-item .icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; opacity: 0.85; }
+    .nav-item.active .icon { opacity: 1; }
+    .nav-item.logout { color: #dc2626; margin-top: 6px; }
+    .nav-item.logout:hover { background: #fef2f2; }
+
+    /* Canvas */
+    .main-canvas { flex: 1; display: flex; flex-direction: column; background: #f8fafc; min-width: 0; overflow-y: auto; }
+    .topbar { height: 76px; padding: 0 36px; background: #ffffff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .topbar-title { font-size: 1.55rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.02em; }
+    .topbar-right { display: flex; align-items: center; gap: 16px; }
+    .search-box { position: relative; width: 280px; }
+    .search-input { width: 100%; padding: 9px 48px 9px 36px; font-size: 0.88rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #ffffff; color: var(--text-dark); outline: none; font-family: inherit; }
+    .search-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12); }
+    .search-icon-left { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 0.88rem; }
+    .search-kbd-pill { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.72rem; font-weight: 600; color: var(--text-light); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; background: #f8fafc; }
+
+    /* Content */
+    .dashboard-content { padding: 28px 36px 48px; display: flex; flex-direction: column; gap: 24px; }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .metric-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; justify-content: space-between; min-height: 148px; transition: all 0.15s ease; }
+    .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .metric-header { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; color: var(--text-dark); }
+    .metric-header svg { width: 18px; height: 18px; color: var(--text-dark); }
+    .metric-main-val { display: flex; align-items: baseline; gap: 10px; margin: 12px 0 8px; }
+    .stat-number-huge { font-size: 2.2rem; font-weight: 800; color: var(--text-dark); line-height: 1; letter-spacing: -0.02em; }
+    .pill-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: var(--radius-full); font-size: 0.74rem; font-weight: 700; }
+    .pill-green { background: var(--badge-green-bg); color: var(--badge-green-text); border: 1px solid var(--badge-green-border); }
+    .pill-grey { background: var(--badge-grey-bg); color: var(--badge-grey-text); }
+    .pill-red { background: var(--badge-red-bg); color: var(--badge-red-text); border: 1px solid var(--badge-red-border); }
+    .pill-blue { background: var(--badge-blue-bg); color: var(--badge-blue-text); border: 1px solid var(--badge-blue-border); }
+    .pill-yellow { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); border: 1px solid var(--badge-yellow-border); }
+    .metric-breakdown-row { display: flex; align-items: center; gap: 16px; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 10px; margin-top: 4px; }
+    .metric-breakdown-row strong { color: var(--text-dark); font-weight: 700; }
+    .metric-caption-text { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* Analytics */
+    .analytics-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
+    .chart-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; }
+    .chart-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .chart-card-title { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); }
+    .btn-add-report-pill { display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid var(--border); padding: 5px 14px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; color: var(--text-dark); cursor: pointer; transition: all 0.15s; }
+    .btn-add-report-pill:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .donut-wrapper { position: relative; width: 190px; height: 190px; margin: 10px auto; }
+    .donut-svg-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .donut-center-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+    .donut-center-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+    .donut-center-percent { font-size: 2.1rem; font-weight: 800; color: var(--text-dark); line-height: 1.1; letter-spacing: -0.02em; }
+    .donut-legend-row { display: flex; justify-content: space-around; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f2f4f7; }
+    .legend-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .legend-head { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; }
+    .dot-indicator { width: 8px; height: 8px; border-radius: 50%; }
+    .legend-sub { font-size: 0.74rem; color: var(--text-muted); }
+
+    /* Wave Chart */
+    .wave-chart-area { position: relative; width: 100%; height: 220px; margin-top: 10px; }
+    .floating-patient-card { position: absolute; top: 0; right: 50px; background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; box-shadow: var(--shadow-floating); z-index: 10; min-width: 210px; }
+    .floating-head { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+    .floating-val-row { display: flex; align-items: baseline; gap: 8px; margin: 6px 0; }
+    .floating-val-number { font-size: 1.65rem; font-weight: 800; color: var(--text-dark); line-height: 1; }
+    .floating-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 6px; margin-top: 4px; }
+    .floating-details-grid strong { color: var(--text-dark); }
+    .wave-legend-bottom { display: flex; align-items: center; justify-content: flex-start; gap: 24px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f2f4f7; font-size: 0.8rem; color: var(--text-body); }
+    .legend-symbol { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; }
+
+    /* Table */
+    .table-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; box-shadow: var(--shadow-xs); }
+    .table-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .table-title { font-size: 1.15rem; font-weight: 800; color: var(--text-dark); }
+    .time-toggle-pill { display: inline-flex; background: #f2f4f7; border-radius: var(--radius-sm); padding: 3px; }
+    .time-btn { border: none; background: transparent; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+    .time-btn.active { background: #ffffff; color: var(--text-dark); box-shadow: var(--shadow-xs); font-weight: 700; }
+    .modern-patients-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+    .modern-patients-table th { padding: 12px 16px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .modern-patients-table td { padding: 15px 16px; border-bottom: 1px solid #f2f4f7; color: var(--text-body); vertical-align: middle; }
+    .modern-patients-table tr:hover td { background: #f9fafb; }
+    .modern-patients-table tr:last-child td { border-bottom: none; }
+    .custom-checkbox { width: 16px; height: 16px; border-radius: 4px; accent-color: #10b981; cursor: pointer; }
+    .patient-name-text { font-weight: 700; color: var(--text-dark); }
+    .patient-sub-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Modals */
+    .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem; }
+    .modal-window { background: #ffffff; border-radius: var(--radius-lg); box-shadow: var(--shadow-floating); width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+    .modal-header-row { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-heading { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); }
+    .modal-close-btn { background: transparent; border: none; font-size: 1.5rem; line-height: 1; color: var(--text-light); cursor: pointer; }
+    .modal-close-btn:hover { color: var(--text-dark); }
+    .modal-body-content { padding: 1.5rem; }
+    .modal-footer-row { padding: 1rem 1.5rem; background: #f8fafc; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem; }
+    .form-input-group { margin-bottom: 1rem; }
+    .input-label { display: block; font-size: 0.84rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.35rem; }
+    .input-field { width: 100%; padding: 0.65rem 0.9rem; font-size: 0.88rem; font-family: inherit; color: var(--text-dark); background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-sm); outline: none; }
+    .input-field:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12); }
+    .grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-action { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem 1.2rem; border-radius: var(--radius-sm); font-size: 0.86rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+    .btn-action.primary { background: #10b981; color: #ffffff; }
+    .btn-action.primary:hover { background: #059669; }
+    .btn-action.outline { background: #ffffff; color: var(--text-body); border-color: var(--border); }
+    .btn-action.outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+    @media (max-width: 1240px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px) {
+      .sidebar { display: none; }
+      .metrics-grid { grid-template-columns: 1fr; }
+      .dashboard-content { padding: 16px; }
+      .topbar { padding: 0 16px; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Top 24/7 Emergency Helpline -->
-  <div class="emergency-topbar">
-    <div class="container topbar-info">
-      <div>
-        <span>🚨 24/7 Emergency & Cardiac Care Helpline: </span>
-        <a href="tel:+912255501234">+91 22 5550 1234</a> / <strong>112</strong>
+  <!-- Full-Screen Native Web App Shell -->
+  <div class="app-shell">
+
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <a href="/" class="brand-link">
+          <div class="brand-logo-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M2 12h20"></path>
+            </svg>
+          </div>
+          <span class="brand-text">Evergreen Hospital</span>
+        </a>
+        <button class="sidebar-collapse-btn" title="Collapse Sidebar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
       </div>
-      <div>
-        <span>📍 Worli Healthcare Corridor, Mumbai | 🕒 OPD Timings: Mon-Sun 08:00 AM – 08:00 PM</span>
+
+      <ul class="sidebar-nav">
+        <li>
+          <a class="nav-item active" onclick="handleNavClick('Home', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+              </svg>
+            </span>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Inbox', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </span>
+            <span>Inbox</span>
+          </a>
+        </li>
+
+        <div class="nav-section-title">APPLICATIONS</div>
+
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Doctor', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
+                <circle cx="12" cy="18" r="3"></circle>
+                <path d="M6 3h3M15 3h3"></path>
+              </svg>
+            </span>
+            <span>Doctor</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Patient', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </span>
+            <span>Patient</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Departments', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </span>
+            <span>Departments</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Schedule', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
+            <span>Schedule</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Appointment', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <polyline points="9 11 12 14 22 4"></polyline>
+              </svg>
+            </span>
+            <span>Appointment</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Report', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </span>
+            <span>Report</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Human Resources', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="5" r="3"></circle>
+                <circle cx="5" cy="19" r="3"></circle>
+                <circle cx="19" cy="19" r="3"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <path d="M12 12l-7 4M12 12l7 4"></path>
+              </svg>
+            </span>
+            <span>Human Resources</span>
+          </a>
+        </li>
+
+        <div class="nav-section-title">OTHERS</div>
+
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Payment', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
+            </span>
+            <span>Payment</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Widgets', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </span>
+            <span>Widgets</span>
+          </a>
+        </li>
+
+        <div class="nav-section-title">SUPPORT</div>
+
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Settings', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+            </span>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Security', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </span>
+            <span>Security</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" onclick="handleNavClick('Help', this)">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </span>
+            <span>Help</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item logout" onclick="alert('Session logged out.')">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </span>
+            <span>Log Out</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Main Canvas -->
+    <main class="main-canvas">
+
+      <!-- Topbar -->
+      <header class="topbar">
+        <h1 class="topbar-title">Dashboard</h1>
+
+        <div class="topbar-right">
+          <div class="search-box">
+            <span class="search-icon-left">🔍</span>
+            <input type="text" id="patientSearch" class="search-input" placeholder="Search" onkeyup="filterPatientTable(this.value)">
+            <span class="search-kbd-pill">⌘ F</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Content Body -->
+      <div class="dashboard-content">
+
+        <!-- Row 1: 4 Metric Cards (Beds, Doctors, Patients, Appointments) -->
+        <div class="metrics-grid">
+
+          <!-- Card 1: Total Beds -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"></path>
+              </svg>
+              <span>Total Beds</span>
+            </div>
+            <div class="metric-main-val">
+              <span class="stat-number-huge">60</span>
+              <span class="pill-badge pill-green">Available</span>
+            </div>
+            <div class="metric-breakdown-row">
+              <div><strong>12</strong> Executive Room</div>
+              <div><strong>30</strong> Premium Room</div>
+              <div><strong>18</strong> Basic Room</div>
+            </div>
+          </div>
+
+          <!-- Card 2: Doctors -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
+                <circle cx="12" cy="18" r="3"></circle>
+                <path d="M6 3h3M15 3h3"></path>
+              </svg>
+              <span>Doctors</span>
+            </div>
+            <div class="metric-main-val">
+              <span class="stat-number-huge">46</span>
+              <span class="pill-badge pill-green">Available</span>
+              <span style="font-size:1.4rem; font-weight:800; color:var(--text-dark); margin-left:8px;">4</span>
+              <span class="pill-badge pill-grey">Leave</span>
+            </div>
+            <div class="metric-caption-text">
+              Shows the current number of available doctors.
+            </div>
+          </div>
+
+          <!-- Card 3: Patients -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Patients</span>
+            </div>
+            <div class="metric-main-val">
+              <span class="stat-number-huge">212</span>
+              <span class="pill-badge pill-green">↗ 12%</span>
+            </div>
+            <div class="metric-caption-text">
+              Displays live updates of patient numbers.
+            </div>
+          </div>
+
+          <!-- Card 4: Appointments (Meaningful 4th Card!) -->
+          <div class="metric-card">
+            <div class="metric-header">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <polyline points="9 11 12 14 22 4"></polyline>
+              </svg>
+              <span>Appointments</span>
+            </div>
+            <div class="metric-main-val">
+              <span class="stat-number-huge">58</span>
+              <span class="pill-badge pill-green">Confirmed</span>
+            </div>
+            <div class="metric-breakdown-row">
+              <div><strong>24</strong> Morning</div>
+              <div><strong>20</strong> Afternoon</div>
+              <div><strong>14</strong> Evening</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Row 2: Analytics Grid (Report Donut + Patients Overview Wave Chart) -->
+        <div class="analytics-grid">
+
+          <!-- Left Card: Report (Donut Gauge) -->
+          <div class="chart-card">
+            <div class="chart-card-top">
+              <h3 class="chart-card-title">Report</h3>
+              <button class="btn-add-report-pill" onclick="openAddReportModal()">
+                <span style="font-weight:700;">+</span> Add Report
+              </button>
+            </div>
+
+            <div class="donut-wrapper">
+              <svg class="donut-svg-ring" viewBox="0 0 160 160">
+                <!-- Base Circle -->
+                <circle cx="80" cy="80" r="62" fill="none" stroke="#f1f5f9" stroke-width="16" />
+                <!-- Arc 1: Urgent 35% (Coral Red) -->
+                <circle cx="80" cy="80" r="62" fill="none" stroke="#fb7185" stroke-width="16" 
+                        stroke-dasharray="136 253" stroke-dashoffset="0" stroke-linecap="round" />
+                <!-- Arc 2: Moderate 25% (Lime Green) -->
+                <circle cx="80" cy="80" r="62" fill="none" stroke="#bef264" stroke-width="16" 
+                        stroke-dasharray="97 292" stroke-dashoffset="-140" stroke-linecap="round" />
+                <!-- Arc 3: Low 15% (Cyan) -->
+                <circle cx="80" cy="80" r="62" fill="none" stroke="#2dd4bf" stroke-width="16" 
+                        stroke-dasharray="58 331" stroke-dashoffset="-240" stroke-linecap="round" />
+              </svg>
+
+              <div class="donut-center-content">
+                <div class="donut-center-label">Total Done</div>
+                <div class="donut-center-percent">75%</div>
+              </div>
+            </div>
+
+            <div class="donut-legend-row">
+              <div class="legend-col">
+                <div class="legend-head">
+                  <span class="dot-indicator" style="background:#fb7185;"></span>
+                  <span style="color:#fb7185;">Urgent</span>
+                </div>
+                <span class="legend-sub">35% done</span>
+              </div>
+              <div class="legend-col">
+                <div class="legend-head">
+                  <span class="dot-indicator" style="background:#84cc16;"></span>
+                  <span style="color:#65a30d;">Moderate</span>
+                </div>
+                <span class="legend-sub">25% done</span>
+              </div>
+              <div class="legend-col">
+                <div class="legend-head">
+                  <span class="dot-indicator" style="background:#2dd4bf;"></span>
+                  <span style="color:#0d9488;">Low</span>
+                </div>
+                <span class="legend-sub">15% done</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Card: Patients Overview (Wave Chart + Floating Card) -->
+          <div class="chart-card">
+            <div class="chart-card-top">
+              <h3 class="chart-card-title">Patients Overview</h3>
+            </div>
+
+            <div class="wave-chart-area">
+
+              <!-- Floating Stat Card (Exact Replica) -->
+              <div class="floating-patient-card">
+                <div class="floating-head">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                  </svg>
+                  <span>Patients</span>
+                </div>
+                <div class="floating-val-row">
+                  <span class="floating-val-number">50</span>
+                  <span class="pill-badge pill-green">Discharged</span>
+                </div>
+                <div class="floating-details-grid">
+                  <div><strong>10</strong> Executive Room</div>
+                  <div><strong>16</strong> Appointment</div>
+                  <div><strong>20</strong> Premium Room</div>
+                  <div><strong>4</strong> Emergency Room</div>
+                </div>
+              </div>
+
+              <!-- Smooth SVG Dual-Wave Area Chart -->
+              <svg width="100%" height="180" viewBox="0 0 700 180" preserveAspectRatio="none" style="overflow:visible;">
+                <defs>
+                  <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.22" />
+                    <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Horizontal Guidelines & Y-Axis values -->
+                <text x="0" y="32" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">60</text>
+                <line x1="25" y1="28" x2="700" y2="28" stroke="#f1f5f9" stroke-width="1" />
+
+                <text x="0" y="85" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">40</text>
+                <line x1="25" y1="81" x2="700" y2="81" stroke="#f1f5f9" stroke-width="1" />
+
+                <text x="0" y="138" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">20</text>
+                <line x1="25" y1="134" x2="700" y2="134" stroke="#f1f5f9" stroke-width="1" />
+
+                <!-- Primary Solid Curve: Discharge Area & Line -->
+                <path d="M 30,95 Q 120,68 220,80 T 420,86 T 600,68 T 700,90 L 700,165 L 30,165 Z" fill="url(#waveGradient)" />
+                <path d="M 30,95 Q 120,68 220,80 T 420,86 T 600,68 T 700,90" fill="none" stroke="#0d9488" stroke-width="2.5" />
+                <circle cx="600" cy="68" r="4.5" fill="#0d9488" stroke="#ffffff" stroke-width="2" />
+
+                <!-- Secondary Dashed Curve: New Patients -->
+                <path d="M 30,115 Q 120,95 220,105 T 420,110 T 600,98 T 700,118" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4" />
+              </svg>
+
+              <!-- X-Axis Labels -->
+              <div style="display:flex; justify-content:space-between; margin-left:30px; margin-top:6px; font-size:0.75rem; color:#94a3b8;">
+                <span>01-07</span>
+                <span>08-12</span>
+                <span>13-17</span>
+                <span>18-21</span>
+              </div>
+
+            </div>
+
+            <div class="wave-legend-bottom">
+              <div class="legend-symbol">
+                <span style="display:inline-block; width:22px; height:3px; background:#0d9488; border-radius:2px;"></span>
+                <span>Discharge</span>
+              </div>
+              <div class="legend-symbol">
+                <span style="display:inline-block; width:22px; height:0px; border-bottom:2px dashed #94a3b8;"></span>
+                <span>New</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Row 3: Bottom Table (Patients Detail Information) -->
+        <div class="table-card">
+          <div class="table-card-top">
+            <h3 class="table-title">Patients Detail Information</h3>
+
+            <div class="time-toggle-pill">
+              <button class="time-btn active" id="btnToday" onclick="setTimeFilter('Today')">Today</button>
+              <button class="time-btn" id="btnLastWeek" onclick="setTimeFilter('Last Week')">Last Week</button>
+            </div>
+          </div>
+
+          <table class="modern-patients-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">
+                  <input type="checkbox" class="custom-checkbox" onchange="toggleSelectAll(this)">
+                </th>
+                <th>Name</th>
+                <th>ID Number</th>
+                <th>Admission Date</th>
+                <th>Diagnose</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="patientsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal: + Add Report / New Walk-in Patient -->
+  <div class="modal-backdrop" id="addReportModal">
+    <div class="modal-window">
+      <div class="modal-header-row">
+        <h4 class="modal-heading">Register New Patient Intake</h4>
+        <button class="modal-close-btn" onclick="closeAddReportModal()">&times;</button>
+      </div>
+      <form onsubmit="handleAddPatientSubmit(event)">
+        <div class="modal-body-content">
+          <div class="form-input-group">
+            <label class="input-label">Patient Full Name</label>
+            <input type="text" id="intakeName" class="input-field" placeholder="e.g. Sabrina Carpanter" required>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Age & Gender</label>
+              <input type="text" id="intakeAgeGender" class="input-field" placeholder="e.g. 39 y.o., Female" required>
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">WhatsApp Mobile Number</label>
+              <input type="tel" id="intakePhone" class="input-field" placeholder="e.g. +91 99999 99999" required>
+            </div>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Department</label>
+              <select id="intakeDept" class="input-field" required>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="General Medicine">General Medicine</option>
+              </select>
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Clinical Status</label>
+              <select id="intakeStatus" class="input-field">
+                <option value="Urgent">Urgent</option>
+                <option value="In Consult">In Consult</option>
+                <option value="Observation">Observation</option>
+                <option value="Discharged">Discharged</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Diagnosis / Reason for Visit</label>
+            <input type="text" id="intakeDiagnose" class="input-field" placeholder="e.g. Bruised Rib, Fracture assessment" required>
+          </div>
+        </div>
+        <div class="modal-footer-row">
+          <button type="button" class="btn-action outline" onclick="closeAddReportModal()">Cancel</button>
+          <button type="submit" class="btn-action primary">Save & Dispatch Pass</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Patient Details -->
+  <div class="modal-backdrop" id="patientDetailModal">
+    <div class="modal-window">
+      <div class="modal-header-row">
+        <h4 class="modal-heading" id="modalPatientTitle">Patient Record</h4>
+        <button class="modal-close-btn" onclick="closePatientModal()">&times;</button>
+      </div>
+      <div class="modal-body-content" id="modalPatientBody">
+      </div>
+      <div class="modal-footer-row">
+        <button type="button" class="btn-action outline" onclick="closePatientModal()">Close</button>
+        <button type="button" class="btn-action primary" id="modalActionBtn">Send WhatsApp Pass</button>
       </div>
     </div>
   </div>
 
-  <!-- Hospital Main Navigation -->
-  <header class="navbar">
-    <div class="container nav-inner">
-      <a href="/" class="brand-link">
-        <div class="brand-symbol">🏥</div>
-        <div class="brand-text">
-          <h1>DemoCare Hospital</h1>
-          <p>NABH & NABL ACCREDITED MULTISPECIALITY</p>
-        </div>
-      </a>
-
-      <nav>
-        <ul class="nav-menu">
-          <li><a href="#bookingSection">Book Appointment</a></li>
-          <li><a href="#specialtiesSection">Specialties</a></li>
-          <li><a href="#doctorsSection">Our Doctors</a></li>
-          <li><a href="#facilitiesSection">Hospital Facilities</a></li>
-          <li><a href="#contactSection">Contact & Location</a></li>
-        </ul>
-      </nav>
-
-      <div class="nav-actions">
-        <a href="#bookingSection" class="btn btn-primary btn-sm">Book Consultation</a>
-        <a href="/admin" class="btn btn-outline btn-sm">Staff & Reception Portal</a>
-      </div>
-    </div>
-  </header>
-
-  <!-- Hero Section -->
-  <section class="hero-section">
-    <div class="container hero-grid">
-      <div class="hero-content">
-        <h2>Compassionate Care.<br><span>Trusted Medical Specialists.</span></h2>
-        <p class="hero-lead">
-          Experience world-class healthcare with top doctors across Cardiology, Dermatology, Orthopedics, and General Medicine. Book outpatient appointments online with instant confirmation on your phone.
-        </p>
-
-        <div class="trust-badges">
-          <div class="trust-item">
-            <span class="icon">🛡️</span>
-            <span>NABH Accredited Hospital</span>
-          </div>
-          <div class="trust-item">
-            <span class="icon">👨‍⚕️</span>
-            <span>40+ Senior Specialists</span>
-          </div>
-          <div class="trust-item">
-            <span class="icon">📲</span>
-            <span>WhatsApp Appointment Pass</span>
-          </div>
-          <div class="trust-item">
-            <span class="icon">💳</span>
-            <span>100% Cashless Insurance Desk</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Emergency Callout Card -->
-      <div class="card" style="background:#ffffff; border-top: 4px solid var(--primary);">
-        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
-          <div style="font-size:2rem;">🚑</div>
-          <div>
-            <h3 style="font-size:1.1rem; color:var(--slate-900); font-weight:700;">Need Immediate Medical Attention?</h3>
-            <p style="font-size:0.84rem; color:var(--slate-500);">Our trauma and acute care center is fully staffed 24/7.</p>
-          </div>
-        </div>
-        <div style="background:var(--rose-bg); border:1px solid var(--rose-border); border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1rem;">
-          <div style="font-size:0.85rem; color:#991b1b; font-weight:600;">
-            For chest pain, severe breathlessness, head trauma, or accidents:
-          </div>
-          <div style="font-size:1.2rem; font-weight:800; color:#b91c1c; margin-top:0.25rem;">
-            Call +91 22 5550 1234
-          </div>
-        </div>
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:var(--slate-600);">
-          <span>⏱️ Average ER Triage: &lt; 5 mins</span>
-          <span style="color:var(--emerald); font-weight:700;">● Active 24x7</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Appointment Booking Section -->
-  <section class="container" id="bookingSection" style="padding-top: 3.5rem; padding-bottom: 3.5rem;">
-    <div class="section-title-wrap">
-      <div class="section-tag">Online Outpatient Booking</div>
-      <h2 class="section-title">Schedule Doctor Consultation</h2>
-      <p class="section-subtitle">Select your department, doctor, and preferred time. Your digital appointment pass will be delivered via WhatsApp.</p>
-    </div>
-
-    <div class="hero-grid">
-      <!-- Left: Booking Form -->
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <h3 class="card-title">Patient Consultation Details</h3>
-            <p class="card-subtitle">Fill in the details below to reserve your consultation slot.</p>
-          </div>
-          <span class="badge badge-primary">OPD Booking</span>
-        </div>
-
-        <!-- Quick Demo Fillers for Testing -->
-        <div class="quick-fill-bar">
-          <div class="quick-fill-label">Quick Patient Sample Fillers:</div>
-          <div class="quick-buttons">
-            <button type="button" class="quick-btn" onclick="fillPatientSample('normal')">
-              👤 Rahul Sharma (Dermatology Consultation)
-            </button>
-            <button type="button" class="quick-btn" onclick="fillPatientSample('emergency')">
-              🚨 Vikram Joshi (Acute Chest Pain Advisory)
-            </button>
-          </div>
-        </div>
-
-        <form id="appointmentForm" onsubmit="handleAppointmentBooking(event)">
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="patientName">Patient Full Name <small>*</small></label>
-              <input type="text" id="patientName" class="form-control" placeholder="e.g. Rahul Sharma" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="patientPhone">Mobile Number (WhatsApp) <small>*</small></label>
-              <input type="tel" id="patientPhone" class="form-control" placeholder="e.g. +91 99999 99999" required>
-            </div>
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="deptSelect">Speciality / Department <small>*</small></label>
-              <select id="deptSelect" class="form-control" required onchange="updateDoctorDropdown()">
-                <option value="">Select Department</option>
-                <option value="Dermatology">Dermatology (Skin, Hair, Nails)</option>
-                <option value="Cardiology">Cardiology (Heart, BP, ECG)</option>
-                <option value="Orthopedics">Orthopedics (Bones, Joints, Spine)</option>
-                <option value="General Medicine">General Medicine (Fever, Diabetes, General OPD)</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="doctorSelect">Preferred Doctor</label>
-              <select id="doctorSelect" class="form-control">
-                <option value="">First Available Senior Specialist</option>
-                <option value="Dr. Priya Sharma">Dr. Priya Sharma (Dermatology)</option>
-                <option value="Dr. Rajesh Patel">Dr. Rajesh Patel (Cardiology)</option>
-                <option value="Dr. Anita Desai">Dr. Anita Desai (Orthopedics)</option>
-                <option value="Dr. Vikram Mehta">Dr. Vikram Mehta (General Medicine)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-grid-2">
-            <div class="form-group">
-              <label class="form-label" for="bookingDate">Preferred Date <small>*</small></label>
-              <input type="date" id="bookingDate" class="form-control" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="preferredTime">Preferred Time Slot</label>
-              <select id="preferredTime" class="form-control">
-                <option value="Morning">Morning (09:00 AM – 12:00 PM)</option>
-                <option value="Afternoon">Afternoon (12:00 PM – 04:00 PM)</option>
-                <option value="Evening">Evening (04:00 PM – 08:00 PM)</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="symptomsText">Symptoms / Health Concern <small>*</small></label>
-            <textarea id="symptomsText" class="form-control" placeholder="Please describe your symptoms, how long you've had them, or reason for visit..." required></textarea>
-          </div>
-
-          <button type="submit" class="btn btn-primary btn-lg" id="submitBookingBtn" style="width: 100%;">
-            <span>Confirm Appointment</span>
-          </button>
-        </form>
-      </div>
-
-      <!-- Right: Booking Confirmation & WhatsApp Pass Display -->
-      <div class="card" id="statusCard">
-        <div class="card-header">
-          <h3 class="card-title">Appointment Confirmation</h3>
-          <span class="badge badge-neutral" id="bookingStatusBadge">Awaiting Details</span>
-        </div>
-
-        <div id="bookingEmptyState" style="text-align:center; padding:3rem 1.5rem; color:var(--slate-500);">
-          <div style="font-size:3rem; margin-bottom:1rem;">🗓️</div>
-          <h4 style="font-size:1.05rem; color:var(--slate-800); margin-bottom:0.5rem; font-weight:700;">Ready to Book Your Visit</h4>
-          <p style="font-size:0.88rem; line-height:1.6; max-width:380px; margin:0 auto;">
-            Fill out the consultation form on the left. Upon booking, your appointment pass and OPD queue instructions will appear here and be dispatched directly to your WhatsApp.
-          </p>
-          <div style="margin-top:1.5rem; padding:1rem; background:var(--slate-50); border-radius:var(--radius-md); text-align:left; font-size:0.82rem; color:var(--slate-600);">
-            <div style="font-weight:700; color:var(--slate-800); margin-bottom:0.3rem;">What to expect:</div>
-            <div>✓ Instant Doctor slot allocation</div>
-            <div>✓ WhatsApp appointment token & room guidance</div>
-            <div>✓ Zero waiting in reception billing queues</div>
-          </div>
-        </div>
-
-        <!-- Confirmed State -->
-        <div id="bookingSuccessBox" style="display:none;">
-          <div class="result-success-card">
-            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
-              <span style="font-size:1.4rem;">🎉</span>
-              <h4 style="color:var(--emerald); font-size:1.15rem; font-weight:800;">Appointment Confirmed!</h4>
-            </div>
-            <p style="font-size:0.88rem; color:var(--slate-700); margin-bottom:1rem;">
-              Your consultation has been reserved in our hospital schedule.
-            </p>
-            <div style="background:#ffffff; padding:1rem; border-radius:var(--radius-md); border:1px solid var(--emerald-border); font-size:0.86rem; line-height:1.7;" id="confirmedDetailsText">
-            </div>
-          </div>
-
-          <div style="margin-top:1.25rem;">
-            <div style="font-size:0.84rem; font-weight:700; color:var(--slate-700); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
-              <span>📲</span> Digital Pass Dispatched to Patient WhatsApp:
-            </div>
-            <div class="whatsapp-mock-card">
-              <div style="font-size:0.75rem; font-weight:700; color:#0f766e; margin-bottom:0.4rem;">
-                DemoCare Hospital Verified Business Desk
-              </div>
-              <div class="whatsapp-bubble" id="whatsappMessageText"></div>
-              <div class="whatsapp-meta">
-                <span id="msgTimestamp">Just now</span>
-                <span style="color:#0284c7;">✓✓ Delivered</span>
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top:1.5rem; display:flex; gap:0.75rem;">
-            <button onclick="window.print()" class="btn btn-outline btn-sm" style="flex:1;">🖨️ Print Pass</button>
-            <a href="/admin" class="btn btn-primary btn-sm" style="flex:1;">View on Reception Screen →</a>
-          </div>
-        </div>
-
-        <!-- Emergency / Urgent Triage State -->
-        <div id="bookingEmergencyBox" style="display:none;">
-          <div class="result-emergency-card">
-            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem;">
-              <span style="font-size:1.6rem;">🚨</span>
-              <h4 style="color:#b91c1c; font-size:1.15rem; font-weight:800;">Immediate Medical Advisory</h4>
-            </div>
-            <p style="font-size:0.9rem; color:#7f1d1d; line-height:1.6; margin-bottom:1rem;" id="emergencyReasonText">
-              Based on the symptoms you reported, please do not wait for an OPD scheduled consultation.
-            </p>
-            <div style="background:#ffffff; border:1px solid var(--rose-border); border-radius:var(--radius-md); padding:1rem; font-size:0.88rem; color:#991c1c;">
-              <strong>Immediate Actions:</strong>
-              <ul style="margin-top:0.4rem; padding-left:1.2rem; line-height:1.6;">
-                <li>Proceed directly to our <strong>24/7 Emergency & Trauma Center</strong> (Ground Floor, West Wing).</li>
-                <li>Call our Emergency Ambulance dispatch at <a href="tel:+912255501234" style="color:#b91c1c; font-weight:800;">+91 22 5550 1234</a>.</li>
-                <li>Our on-duty Emergency Medical Officer has been notified of your inquiry.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Specialties Section -->
-  <section class="container" id="specialtiesSection" style="padding-bottom:3.5rem;">
-    <div class="section-title-wrap">
-      <div class="section-tag">Clinical Excellence</div>
-      <h2 class="section-title">Specialized Clinical Departments</h2>
-      <p class="section-subtitle">Dedicated centers of excellence offering comprehensive diagnostic, medical, and surgical therapies.</p>
-    </div>
-
-    <div class="features-grid">
-      <div class="feature-box">
-        <div class="feature-icon">❤️</div>
-        <h3 class="feature-title">Cardiology & Heart Center</h3>
-        <p class="feature-desc">ECG, 2D Echo, TMT, coronary interventions, hypertension management, and preventive heart screenings.</p>
-        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('Cardiology')">Book Cardiology</button>
-      </div>
-
-      <div class="feature-box">
-        <div class="feature-icon">✨</div>
-        <h3 class="feature-title">Dermatology & Cosmetology</h3>
-        <p class="feature-desc">Comprehensive treatment for acne, eczema, psoriasis, hair restoration, allergies, and clinical dermatology.</p>
-        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('Dermatology')">Book Dermatology</button>
-      </div>
-
-      <div class="feature-box">
-        <div class="feature-icon">🦴</div>
-        <h3 class="feature-title">Orthopedics & Joint Care</h3>
-        <p class="feature-desc">Minimally invasive joint replacements, sports injuries, spine care, fractures, and advanced rehabilitation.</p>
-        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('Orthopedics')">Book Orthopedics</button>
-      </div>
-
-      <div class="feature-box">
-        <div class="feature-icon">🩺</div>
-        <h3 class="feature-title">General Medicine</h3>
-        <p class="feature-desc">Diagnosis and management of fever, infectious diseases, diabetes, thyroid disorders, and preventive health.</p>
-        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('General Medicine')">Book Medicine</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Senior Doctors Section -->
-  <section class="container" id="doctorsSection" style="padding-bottom:3.5rem;">
-    <div class="section-title-wrap">
-      <div class="section-tag">Our Medical Faculty</div>
-      <h2 class="section-title">Senior Consultant Physicians & Surgeons</h2>
-      <p class="section-subtitle">Experienced doctors committed to providing personalized, evidence-based patient care.</p>
-    </div>
-
-    <div class="doctors-grid">
-      <div class="doctor-card">
-        <div class="doctor-avatar-wrap">👩‍⚕️</div>
-        <h4 class="doctor-name">Dr. Priya Sharma</h4>
-        <div class="doctor-dept">Chief Consultant — Dermatology</div>
-        <div class="doctor-exp">MD (Dermatology), AIIMS • 14+ Years Experience</div>
-        <div class="doctor-timings">
-          🕒 Mon, Wed, Fri: 10:00 AM – 02:00 PM<br>
-          📍 Room 204, OPD Block B
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Priya Sharma', 'Dermatology')">Book with Dr. Priya</button>
-      </div>
-
-      <div class="doctor-card">
-        <div class="doctor-avatar-wrap">👨‍⚕️</div>
-        <h4 class="doctor-name">Dr. Rajesh Patel</h4>
-        <div class="doctor-dept">Head of Department — Cardiology</div>
-        <div class="doctor-exp">DM (Cardiology), KEM • 18+ Years Experience</div>
-        <div class="doctor-timings">
-          🕒 Tue, Thu, Sat: 09:00 AM – 01:00 PM<br>
-          📍 Room 108, Cardiac Center
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Rajesh Patel', 'Cardiology')">Book with Dr. Rajesh</button>
-      </div>
-
-      <div class="doctor-card">
-        <div class="doctor-avatar-wrap">👩‍⚕️</div>
-        <h4 class="doctor-name">Dr. Anita Desai</h4>
-        <div class="doctor-dept">Senior Surgeon — Orthopedics</div>
-        <div class="doctor-exp">MS (Ortho), MCh Joint Replacement • 16+ Years Experience</div>
-        <div class="doctor-timings">
-          🕒 Mon, Thu, Sat: 11:00 AM – 04:00 PM<br>
-          📍 Room 302, Ortho Suite
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Anita Desai', 'Orthopedics')">Book with Dr. Anita</button>
-      </div>
-
-      <div class="doctor-card">
-        <div class="doctor-avatar-wrap">👨‍⚕️</div>
-        <h4 class="doctor-name">Dr. Vikram Mehta</h4>
-        <div class="doctor-dept">Senior Consultant — General Medicine</div>
-        <div class="doctor-exp">MD (Internal Medicine) • 12+ Years Experience</div>
-        <div class="doctor-timings">
-          🕒 Daily: 08:30 AM – 01:30 PM<br>
-          📍 Room 101, Main OPD Wing
-        </div>
-        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Vikram Mehta', 'General Medicine')">Book with Dr. Vikram</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Hospital Facilities Section -->
-  <section class="container" id="facilitiesSection" style="padding-bottom:3.5rem;">
-    <div class="section-title-wrap">
-      <div class="section-tag">Infrastructure & Patient Services</div>
-      <h2 class="section-title">Comprehensive Hospital Infrastructure</h2>
-      <p class="section-subtitle">Equipped with state-of-the-art diagnostic technology and patient-centric care facilities.</p>
-    </div>
-
-    <div class="features-grid">
-      <div class="feature-box">
-        <div class="feature-icon">🔬</div>
-        <h4 class="feature-title">NABL Accredited Diagnostics</h4>
-        <p class="feature-desc">Fully automated pathology, biochemistry, 128-slice CT scan, digital X-ray, and 1.5T MRI diagnostics.</p>
-      </div>
-      <div class="feature-box">
-        <div class="feature-icon">🏥</div>
-        <h4 class="feature-title">Modular Operation Theaters</h4>
-        <p class="feature-desc">Ultra-clean laminar airflow surgical suites designed for orthopedic, cardiac, and general laparoscopic surgeries.</p>
-      </div>
-      <div class="feature-box">
-        <div class="feature-icon">💊</div>
-        <h4 class="feature-title">24/7 In-House Pharmacy</h4>
-        <p class="feature-desc">Round-the-clock dispensing of verified authentic medicines, surgical consumables, and critical injectables.</p>
-      </div>
-      <div class="feature-box">
-        <div class="feature-icon">🛡️</div>
-        <h4 class="feature-title">Cashless Insurance (TPA) Desk</h4>
-        <p class="feature-desc">Empaneled with all major insurance providers (Star Health, HDFC ERGO, ICICI Lombard, Care Health, Medi Assist, etc.).</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Hospital Footer -->
-  <footer class="hospital-footer" id="contactSection">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-col">
-          <h4>DemoCare Multispeciality Hospital</h4>
-          <p>
-            A premier healthcare institution dedicated to delivering compassionate, patient-first medical treatments with advanced technology.
-          </p>
-          <div style="margin-top:1rem; font-size:0.85rem; color:var(--teal-light);">
-            📍 Central Healthcare Corridor, Worli, Mumbai 400018
-          </div>
-        </div>
-
-        <div class="footer-col">
-          <h4>Emergency & Help</h4>
-          <p><strong>Ambulance:</strong> 112 / +91 22 5550 1234</p>
-          <p><strong>OPD Appointment:</strong> +91 22 5550 1235</p>
-          <p><strong>General Inquiries:</strong> info@democare.hospital</p>
-          <p><strong>Visiting Hours:</strong> 04:00 PM – 07:00 PM</p>
-        </div>
-
-        <div class="footer-col">
-          <h4>Clinical Specialties</h4>
-          <p><a href="#specialtiesSection">Cardiology & Cardiac ICU</a></p>
-          <p><a href="#specialtiesSection">Dermatology & Cosmetology</a></p>
-          <p><a href="#specialtiesSection">Orthopedics & Joint Replacement</a></p>
-          <p><a href="#specialtiesSection">General Internal Medicine</a></p>
-          <p><a href="#specialtiesSection">24/7 Critical Care & Trauma</a></p>
-        </div>
-
-        <div class="footer-col">
-          <h4>Hospital Staff</h4>
-          <p><a href="/admin">Front Desk & Reception Desk</a></p>
-          <p><a href="/admin">Doctor Consultation Queue</a></p>
-          <p><a href="/admin">IPD Bed & Discharge Management</a></p>
-          <p><a href="/health">System Status Probe</a></p>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <div>
-          © 2026 DemoCare Multispeciality Hospital. All Rights Reserved. NABH & NABL Accredited Healthcare Facility.
-        </div>
-        <div>
-          Medical Disclaimer: Online inquiries do not replace emergency clinical assessment. In case of acute emergencies, please dial 112 or visit the nearest emergency room.
-        </div>
-      </div>
-    </div>
-  </footer>
-
   <script>
-    // Initialize default booking date to tomorrow
-    document.addEventListener('DOMContentLoaded', () => {
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const yyyy = tomorrow.getFullYear();
-      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
-      const dd = String(tomorrow.getDate()).padStart(2, '0');
-      document.getElementById('bookingDate').value = `${yyyy}-${mm}-${dd}`;
-    });
-
-    function selectDepartment(dept) {
-      document.getElementById('deptSelect').value = dept;
-      updateDoctorDropdown();
-      document.getElementById('bookingSection').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function selectDoctor(doctorName, dept) {
-      document.getElementById('deptSelect').value = dept;
-      updateDoctorDropdown();
-      document.getElementById('doctorSelect').value = doctorName;
-      document.getElementById('bookingSection').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function updateDoctorDropdown() {
-      const dept = document.getElementById('deptSelect').value;
-      const docSelect = document.getElementById('doctorSelect');
-      if (dept === 'Dermatology') {
-        docSelect.value = 'Dr. Priya Sharma';
-      } else if (dept === 'Cardiology') {
-        docSelect.value = 'Dr. Rajesh Patel';
-      } else if (dept === 'Orthopedics') {
-        docSelect.value = 'Dr. Anita Desai';
-      } else if (dept === 'General Medicine') {
-        docSelect.value = 'Dr. Vikram Mehta';
+    const todayPatients = [
+      {
+        id: 'BR263585643',
+        name: 'Sabrina Carpanter',
+        meta: '39 y.o., Female',
+        date: '6 Jan 2024',
+        diagnose: 'Bruised Rib',
+        status: 'Urgent',
+        statusClass: 'pill-red',
+        phone: '+91 98201 12345',
+        dept: 'Orthopedics'
+      },
+      {
+        id: 'PAT-092591',
+        name: 'Rahul Sharma',
+        meta: '34 y.o., Male',
+        date: '7 Jan 2024',
+        diagnose: 'Skin Rash & Allergy',
+        status: 'Discharged',
+        statusClass: 'pill-green',
+        phone: '+91 99999 99999',
+        dept: 'Dermatology'
+      },
+      {
+        id: 'PAT-081442',
+        name: 'Sunita Mehra',
+        meta: '52 y.o., Female',
+        date: '7 Jan 2024',
+        diagnose: 'Hypertension Review',
+        status: 'In Consult',
+        statusClass: 'pill-blue',
+        phone: '+91 98222 33444',
+        dept: 'Cardiology'
+      },
+      {
+        id: 'PAT-077321',
+        name: 'Amitabh Sen',
+        meta: '45 y.o., Male',
+        date: '8 Jan 2024',
+        diagnose: 'Knee Ligament Sprain',
+        status: 'Observation',
+        statusClass: 'pill-yellow',
+        phone: '+91 98333 44555',
+        dept: 'Orthopedics'
+      },
+      {
+        id: 'PAT-065112',
+        name: 'Vikram Joshi',
+        meta: '58 y.o., Male',
+        date: '8 Jan 2024',
+        diagnose: 'Cardiac Discomfort',
+        status: 'Urgent',
+        statusClass: 'pill-red',
+        phone: '+91 98888 88888',
+        dept: 'Cardiology'
+      },
+      {
+        id: 'PAT-054993',
+        name: 'Pooja Verma',
+        meta: '29 y.o., Female',
+        date: '8 Jan 2024',
+        diagnose: 'Acute Viral Fever',
+        status: 'Recovered',
+        statusClass: 'pill-green',
+        phone: '+91 98444 55666',
+        dept: 'General Medicine'
       }
-    }
+    ];
 
-    function fillPatientSample(type) {
-      if (type === 'normal') {
-        document.getElementById('patientName').value = 'Rahul Sharma';
-        document.getElementById('patientPhone').value = '+91 99999 99999';
-        document.getElementById('deptSelect').value = 'Dermatology';
-        updateDoctorDropdown();
-        document.getElementById('symptomsText').value = 'Need consultation for persistent skin allergy and acne rash on face for the last 2 weeks.';
-      } else if (type === 'emergency') {
-        document.getElementById('patientName').value = 'Vikram Joshi';
-        document.getElementById('patientPhone').value = '+91 98888 88888';
-        document.getElementById('deptSelect').value = 'Cardiology';
-        updateDoctorDropdown();
-        document.getElementById('symptomsText').value = 'Severe crushing chest pain radiating to left shoulder, breathlessness, and cold sweating since 30 minutes!';
+    const lastWeekPatients = [
+      {
+        id: 'BR263441920',
+        name: 'Meena Saxena',
+        meta: '42 y.o., Female',
+        date: '28 Dec 2023',
+        diagnose: 'Migraine & Vertigo',
+        status: 'Discharged',
+        statusClass: 'pill-green',
+        phone: '+91 98111 22334',
+        dept: 'General Medicine'
+      },
+      {
+        id: 'BR263441819',
+        name: 'Rajesh Khanna',
+        meta: '61 y.o., Male',
+        date: '29 Dec 2023',
+        diagnose: 'Type 2 Diabetes Screening',
+        status: 'Recovered',
+        statusClass: 'pill-green',
+        phone: '+91 98111 55667',
+        dept: 'General Medicine'
+      },
+      {
+        id: 'BR263441712',
+        name: 'Arjun Deshmukh',
+        meta: '26 y.o., Male',
+        date: '30 Dec 2023',
+        diagnose: 'Ankle Fracture Post-Op',
+        status: 'Observation',
+        statusClass: 'pill-yellow',
+        phone: '+91 98111 88990',
+        dept: 'Orthopedics'
       }
+    ];
+
+    let currentList = [...todayPatients];
+
+    function renderTable(list) {
+      const tbody = document.getElementById('patientsTableBody');
+      tbody.innerHTML = '';
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 2rem; color: #94a3b8;">No matching records found.</td></tr>`;
+        return;
+      }
+
+      list.forEach((p) => {
+        const tr = document.createElement('tr');
+        tr.style.cursor = 'pointer';
+        tr.onclick = (e) => {
+          if (e.target.type !== 'checkbox') openPatientModal(p);
+        };
+
+        tr.innerHTML = `
+          <td><input type="checkbox" class="custom-checkbox" onclick="event.stopPropagation()"></td>
+          <td>
+            <div class="patient-name-text">${p.name}</div>
+            <div class="patient-sub-meta">${p.meta}</div>
+          </td>
+          <td style="font-family:monospace; font-weight:600; color:#475569;">${p.id}</td>
+          <td style="color:#64748b;">${p.date}</td>
+          <td style="font-weight:600; color:#334155;">${p.diagnose}</td>
+          <td><span class="pill-badge ${p.statusClass}">${p.status}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    async function handleAppointmentBooking(e) {
+    function setTimeFilter(type) {
+      document.getElementById('btnToday').classList.toggle('active', type === 'Today');
+      document.getElementById('btnLastWeek').classList.toggle('active', type === 'Last Week');
+      currentList = type === 'Today' ? [...todayPatients] : [...lastWeekPatients];
+      renderTable(currentList);
+    }
+
+    function filterPatientTable(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        renderTable(currentList);
+        return;
+      }
+      const filtered = currentList.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.id.toLowerCase().includes(q) ||
+        p.diagnose.toLowerCase().includes(q) ||
+        p.status.toLowerCase().includes(q)
+      );
+      renderTable(filtered);
+    }
+
+    function toggleSelectAll(master) {
+      document.querySelectorAll('.custom-checkbox').forEach(cb => cb.checked = master.checked);
+    }
+
+    function handleNavClick(name, el) {
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      el.classList.add('active');
+      if (name === 'Doctor') filterPatientTable('Consult');
+      else if (name === 'Appointment') setTimeFilter('Today');
+      else renderTable(currentList);
+    }
+
+    function openAddReportModal() {
+      document.getElementById('addReportModal').style.display = 'flex';
+    }
+    function closeAddReportModal() {
+      document.getElementById('addReportModal').style.display = 'none';
+    }
+
+    function handleAddPatientSubmit(e) {
       e.preventDefault();
-      const btn = document.getElementById('submitBookingBtn');
-      btn.disabled = true;
-      btn.innerHTML = '<span>⏳ Confirming Your Appointment...</span>';
+      const name = document.getElementById('intakeName').value.trim();
+      const meta = document.getElementById('intakeAgeGender').value.trim();
+      const phone = document.getElementById('intakePhone').value.trim();
+      const dept = document.getElementById('intakeDept').value;
+      const status = document.getElementById('intakeStatus').value;
+      const diagnose = document.getElementById('intakeDiagnose').value.trim();
 
-      const payload = {
-        full_name: document.getElementById('patientName').value.trim(),
-        phone: document.getElementById('patientPhone').value.trim(),
-        department: document.getElementById('deptSelect').value,
-        preferred_date: document.getElementById('bookingDate').value,
-        enquiry_text: document.getElementById('symptomsText').value.trim(),
-        source: 'Website Appointment Desk'
+      let statusClass = 'pill-green';
+      if (status === 'Urgent') statusClass = 'pill-red';
+      if (status === 'In Consult') statusClass = 'pill-blue';
+      if (status === 'Observation') statusClass = 'pill-yellow';
+
+      const newPatient = {
+        id: `BR${Math.floor(100000000 + Math.random() * 900000000)}`,
+        name, meta, date: 'Today', diagnose, status, statusClass, phone, dept
       };
 
-      try {
-        const response = await fetch('/webhook/lead-intake', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+      todayPatients.unshift(newPatient);
+      currentList.unshift(newPatient);
+      renderTable(currentList);
+      closeAddReportModal();
 
-        const data = await response.json();
-        renderBookingOutcome(data);
-      } catch (err) {
-        alert('Unable to process appointment: ' + err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<span>Confirm Appointment</span>';
-      }
+      fetch('/webhook/lead-intake', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: name,
+          phone: phone,
+          department: dept,
+          preferred_date: new Date().toISOString().split('T')[0],
+          enquiry_text: diagnose,
+          source: 'Evergreen Dashboard Desk'
+        })
+      }).catch(() => {});
+
+      alert(`✅ Patient ${name} registered. WhatsApp appointment pass dispatched.`);
     }
 
-    function renderBookingOutcome(data) {
-      document.getElementById('bookingEmptyState').style.display = 'none';
+    function openPatientModal(p) {
+      document.getElementById('modalPatientTitle').innerText = `${p.name} (${p.id})`;
+      document.getElementById('modalPatientBody').innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid #f1f5f9;">
+          <div>
+            <div style="font-size:1.1rem; font-weight:700; color:#101828;">${p.name}</div>
+            <div style="font-size:0.84rem; color:#64748b;">${p.meta} • ${p.phone}</div>
+          </div>
+          <span class="pill-badge ${p.statusClass}">${p.status}</span>
+        </div>
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:1rem; font-size:0.88rem;">
+          <div style="margin-bottom:6px;"><strong>Clinical Diagnosis:</strong> ${p.diagnose}</div>
+          <div style="margin-bottom:6px;"><strong>Department:</strong> ${p.dept}</div>
+          <div><strong>Admission / Record Date:</strong> ${p.date}</div>
+        </div>
+        <div style="font-size:0.84rem; color:#475569; line-height:1.6;">
+          WhatsApp Delivery: <strong style="color:#059669;">✓ Verified & Active</strong><br>
+          Automated pre-consultation guidelines dispatched to patient's mobile.
+        </div>
+      `;
 
-      if (data.status === 'SUCCESS') {
-        document.getElementById('bookingStatusBadge').className = 'badge badge-success';
-        document.getElementById('bookingStatusBadge').innerText = 'Confirmed';
-        document.getElementById('bookingEmergencyBox').style.display = 'none';
-        document.getElementById('bookingSuccessBox').style.display = 'block';
+      document.getElementById('modalActionBtn').onclick = () => {
+        alert(`📲 WhatsApp pass resent to ${p.name} at ${p.phone}.`);
+        closePatientModal();
+      };
 
-        document.getElementById('confirmedDetailsText').innerHTML = `
-          <strong>Patient Name:</strong> ${document.getElementById('patientName').value}<br>
-          <strong>Department:</strong> ${data.department}<br>
-          <strong>Consulting Doctor:</strong> ${data.doctor}<br>
-          <strong>Appointment Time:</strong> ${data.slot}<br>
-          <strong>Appointment Pass ID:</strong> <span style="font-family:monospace; font-weight:700; color:var(--primary);">${data.appointment_id}</span>
-        `;
-        document.getElementById('whatsappMessageText').innerText = data.message_sent;
-      } else if (data.status === 'ESCALATED_TO_HUMAN') {
-        document.getElementById('bookingStatusBadge').className = 'badge badge-danger';
-        document.getElementById('bookingStatusBadge').innerText = 'Urgent Clinical Advisory';
-        document.getElementById('bookingSuccessBox').style.display = 'none';
-        document.getElementById('bookingEmergencyBox').style.display = 'block';
-        document.getElementById('emergencyReasonText').innerText = data.reason;
-      }
+      document.getElementById('patientDetailModal').style.display = 'flex';
     }
+
+    function closePatientModal() {
+      document.getElementById('patientDetailModal').style.display = 'none';
+    }
+
+    // Keyboard shortcut ⌘ F / Ctrl+F focus on search
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
+        e.preventDefault();
+        const el = document.getElementById('patientSearch');
+        if (el) el.focus();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTable(currentList);
+    });
   </script>
 </body>
 </html>

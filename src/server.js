@@ -142,9 +142,13 @@ app.use(express.json({ limit: '2mb' }));
 
 app.use(express.static(path.resolve(__dirname, '../public'), {
   extensions: ['html'],
-  maxAge: '1d',
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
   setHeaders: (res) => {
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    if (process.env.NODE_ENV === 'production') {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
   }
 }));
 
