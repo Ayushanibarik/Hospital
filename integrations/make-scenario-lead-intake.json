@@ -1,0 +1,119 @@
+{
+  "name": "HOSPITAL | 01 Lead Intake",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": {
+        "hook": "HOSPITAL_DEMO_LEAD_IN"
+      },
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0,
+          "name": "Hospital Demo Lead Inbound"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "json:ParseJSON",
+      "version": 1,
+      "parameters": {
+        "type": "string",
+        "json": "{{1.data}}"
+      },
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0,
+          "name": "Normalize Payload"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "http:ActionMakeRequest",
+      "version": 3,
+      "parameters": {
+        "url": "http://localhost:3000/webhook/lead-intake",
+        "method": "POST",
+        "headers": [
+          { "name": "Content-Type", "value": "application/json" }
+        ],
+        "bodyType": "raw",
+        "data": "{\"full_name\":\"{{2.full_name}}\",\"phone\":\"{{2.phone}}\",\"department\":\"{{2.department}}\",\"preferred_date\":\"{{2.preferred_date}}\",\"enquiry_text\":\"{{2.enquiry_text}}\",\"source\":\"{{2.source}}\",\"correlation_id\":\"{{2.correlation_id}}\"}"
+      },
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 0,
+          "name": "Process AI Automation Layer"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "router",
+      "version": 1,
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 5,
+              "module": "util:SetVariable",
+              "parameters": {
+                "name": "BookingStatus",
+                "value": "{{3.data.status}}"
+              }
+            }
+          ],
+          "filter": {
+            "name": "Success",
+            "conditions": [
+              [
+                {
+                  "a": "{{3.data.status}}",
+                  "o": "text:equal",
+                  "b": "SUCCESS"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "flow": [
+            {
+              "id": 6,
+              "module": "util:SetVariable",
+              "parameters": {
+                "name": "EscalationReason",
+                "value": "{{3.data.reason}}"
+              }
+            }
+          ],
+          "filter": {
+            "name": "Human Review Escalation",
+            "conditions": [
+              [
+                {
+                  "a": "{{3.data.status}}",
+                  "o": "text:equal",
+                  "b": "ESCALATED_TO_HUMAN"
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "metadata": {
+        "designer": {
+          "x": 900,
+          "y": 0,
+          "name": "Route by AI Status"
+        }
+      }
+    }
+  ]
+}
