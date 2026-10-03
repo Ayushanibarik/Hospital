@@ -13,6 +13,14 @@ export function generateCorrelationId() {
 }
 
 /**
+ * Generate unique random collision-proof entity/event ID
+ */
+export function generateUniqueId(prefix = 'ID') {
+  const rand = crypto.randomBytes(3).toString('hex').toUpperCase();
+  return `${prefix}-${Date.now().toString().slice(-6)}-${rand}`;
+}
+
+/**
  * WORKFLOW 1: HOSPITAL | 01 Lead Intake
  * Sections O & P
  */
@@ -24,7 +32,7 @@ export async function handleLeadIntake(payload) {
   db.prepare(`
     INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, correlation_id)
     VALUES (?, 'HOSPITAL | 01 Lead Intake', 'v3.0', 'SYSTEM', 'INBOUND_WEBHOOK_RECEIVED', ?)
-  `).run(`EVT-${Date.now()}-${Math.floor(Math.random() * 1000)}`, correlationId);
+  `).run(generateUniqueId('EVT'), correlationId);
 
   // 1. AI Lead Qualification
   const qualification = await callClaude('LEAD_QUALIFICATION', payload);
@@ -449,7 +457,7 @@ export async function handlePreConsultationIntake({ appointment_id, patient_id, 
     throw new Error('Valid patient_id or appointment_id required for pre-consultation intake');
   }
 
-  const formId = `FORM-${Date.now().toString().slice(-6)}`;
+  const formId = generateUniqueId('FORM');
   db.prepare(`
     INSERT INTO intake_forms (form_id, appointment_id, patient_id, chief_complaint, symptoms_duration, current_meds, allergies, submitted_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -458,7 +466,7 @@ export async function handlePreConsultationIntake({ appointment_id, patient_id, 
   db.prepare(`
     INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, record_id, correlation_id)
     VALUES (?, 'HOSPITAL | 03 Pre-Consultation Intake', 'v3.0', 'PATIENT', 'SUBMITTED_INTAKE_FORM', ?, ?)
-  `).run(`EVT-${Date.now()}`, formId, correlationId);
+  `).run(generateUniqueId('EVT'), formId, correlationId);
 
   const messageText = `Hello ${patient.full_name}, thank you for submitting your pre-consultation intake details. Your information has been shared securely with your doctor for review before your appointment.`;
   await dispatchWhatsApp({ toPhone: patient.phone, messageText });
@@ -480,7 +488,7 @@ export async function handleInsurancePreVerification({ patient_id, policy_number
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
   if (!patient) throw new Error(`Patient ${patient_id} not found`);
 
-  const verificationId = `INS-${Date.now().toString().slice(-6)}`;
+  const verificationId = generateUniqueId('INS');
   db.prepare(`
     INSERT INTO insurance_preverifications (verification_id, patient_id, policy_number, insurer_name, tpa_name, status, copay_estimate)
     VALUES (?, ?, ?, ?, ?, 'APPROVED', ?)
@@ -489,7 +497,7 @@ export async function handleInsurancePreVerification({ patient_id, policy_number
   db.prepare(`
     INSERT INTO audit_logs (event_id, workflow_name, workflow_version, actor_type, action, record_id, correlation_id)
     VALUES (?, 'HOSPITAL | 04 Insurance Pre-Verification', 'v3.0', 'STAFF', 'INSURANCE_PRE_VERIFIED', ?, ?)
-  `).run(`EVT-${Date.now()}`, verificationId, correlationId);
+  `).run(generateUniqueId('EVT'), verificationId, correlationId);
 
   const messageText = `Hello ${patient.full_name}, your insurance pre-verification for ${insurer_name} (Policy: ${policy_number}) has been pre-cleared by DemoCare TPA desk. Estimated Copay: ₹${copay_estimate}.`;
   await dispatchWhatsApp({ toPhone: patient.phone, messageText });
@@ -521,7 +529,7 @@ export async function handleGenerateQueueToken({ appointment_id, patient_id, dep
   `).get(department);
 
   const tokenNumber = (lastToken?.max_token || 0) + 1;
-  const tokenId = `TKN-${Date.now().toString().slice(-6)}`;
+  const tokenId = generateUniqueId('TKN');
 
   db.prepare(`
     INSERT INTO queue_tokens (token_id, appointment_id, patient_id, department, token_number, status)
@@ -594,7 +602,7 @@ export async function handleAdmissionPreClearance({ patient_id, department, room
   const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
   if (!patient) throw new Error(`Patient ${patient_id} not found`);
 
-  const admissionId = `ADM-${Date.now().toString().slice(-6)}`;
+  const admissionId = generateUniqueId('ADM');
   db.prepare(`
     INSERT INTO admission_preclearances (admission_id, patient_id, department, room_preference, attendant_name, attendant_phone, estimate_acknowledged, advance_deposit_status)
     VALUES (?, ?, ?, ?, ?, ?, 1, 'RECEIVED')
@@ -630,7 +638,7 @@ export async function handleChronicRevisitCheck() {
   const dispatched = [];
 
   for (const prog of duePrograms) {
-    const msgId = `MSG-CHR-${Date.now().toString().slice(-6)}`;
+    const msgId = generateUniqueId('MSG-CHR');
     const messageText = `Hello ${prog.full_name}, your quarterly ${prog.condition_name} review at DemoCare Hospital is due this week. Routine checks help ensure optimal health management. Reply 1 to book your consultation slot, or call +91 22 5550 1234.`;
 
     db.prepare(`
@@ -679,7 +687,7 @@ export async function handleInactiveReactivation() {
 
   const contacted = [];
   for (const pat of eligible) {
-    const msgId = `MSG-REACT-${Date.now().toString().slice(-6)}`;
+    const msgId = generateUniqueId('MSG-REACT');
     const messageText = `Namaste ${pat.full_name}, it has been a while since your last health wellness check at DemoCare Hospital. Regular preventative screenings keep you healthy. Book a comprehensive health check this month: https://democare.hospital/checkup or reply 1 to schedule.`;
 
     db.prepare(`

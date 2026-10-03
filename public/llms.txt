@@ -1,0 +1,19 @@
+# DemoCare Multispeciality Hospital — Healthcare Automation API
+
+DemoCare Multispeciality Hospital operates an automated patient communication, triage, and scheduling automation layer compliant with NABH standards and India's Digital Personal Data Protection (DPDP) Act.
+
+## Public Services
+- Homepage & Patient Consultation Intake: https://democare.hospital/
+- System Health & Uptime Probe: https://democare.hospital/health
+
+## Core Capabilities
+- Automated Inbound Lead Qualification & OPD Booking
+- Clinical Emergency Escalation Guardrails (Chest Pain, Trauma, Severe Bleeding)
+- WhatsApp Automated 24h & 3h Reminders & No-Show Recovery
+- Cashless Insurance Pre-Verification / TPA Desks
+- Live OPD Token Queue Distribution
+- Post-Discharge Patient Care & Feedback Triage
+
+## Security & Compliance
+- Data Protection: In-memory encryption, zero PHI transmission to third-party ad networks
+- Architecture: REST API, SQLite WAL Mode, Node.js Microservices

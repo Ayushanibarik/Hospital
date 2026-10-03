@@ -633,9 +633,12 @@ app.post('/api/mcp/execute', async (req, res) => {
   }
 });
 
-// Centralized 404 handler for unmatched API routes
-app.use('/api/*', (req, res) => {
-  res.status(404).json({ error: 'Endpoint not found', path: req.originalUrl });
+// Centralized 404 handler for unmatched routes
+app.use((req, res) => {
+  if (req.accepts('html')) {
+    return res.status(404).sendFile(path.join(__dirname, '../public/404.html'));
+  }
+  res.status(404).json({ success: false, error: 'Endpoint not found', path: req.originalUrl });
 });
 
 // Centralized Error Handling Middleware (Never leak stack traces in production)
