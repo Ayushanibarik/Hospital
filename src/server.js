@@ -5,7 +5,14 @@ import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import { db } from './db/index.js';
 import { seed } from './db/seed.js';
-import { handleLeadIntake, handleNoShowRecovery, handleDischargeFollowup, handlePatientFeedback } from './workflows/engine.js';
+import { 
+  handleLeadIntake, 
+  handleNoShowRecovery, 
+  handleDischargeFollowup, 
+  handlePatientFeedback,
+  handleAppointmentReschedule,
+  handleDiagnosticReady 
+} from './workflows/engine.js';
 import { executeMcpTool, MCP_TOOLS_SCHEMA } from './mcp/tools.js';
 import { callClaude } from './ai/claude.js';
 
@@ -70,6 +77,32 @@ app.post('/webhook/discharge-followup', async (req, res) => {
 app.post('/api/feedback', (req, res) => {
   try {
     const result = handlePatientFeedback(req.body);
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 8: Appointment Rescheduling
+app.post('/api/appointments/:id/reschedule', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { new_slot_id } = req.body;
+    const result = await handleAppointmentReschedule({ appointment_id: id, new_slot_id });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Module 11: Diagnostic Follow-Up Notification
+app.post('/webhook/diagnostic-ready', async (req, res) => {
+  try {
+    const { patient_id, test_category } = req.body;
+    if (!patient_id) {
+      return res.status(400).json({ success: false, error: 'patient_id is required' });
+    }
+    const result = await handleDiagnosticReady({ patient_id, test_category });
     res.json({ success: true, ...result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

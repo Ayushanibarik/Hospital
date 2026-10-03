@@ -130,13 +130,19 @@
 
       <div class="action-btn-group">
         <button class="action-btn" onclick="triggerNoShowDemo()">
-          <span>📉 1-Click No-Show Recovery Trigger</span>
+          <span>📉 1-Click No-Show Recovery</span>
+        </button>
+        <button class="action-btn" onclick="triggerRescheduleDemo()">
+          <span>🔄 1-Click Patient Reschedule (Module 8)</span>
+        </button>
+        <button class="action-btn" onclick="triggerDiagnosticDemo()">
+          <span>🔬 1-Click Diagnostic Ready Alert (Module 11)</span>
         </button>
         <button class="action-btn" onclick="triggerDischargeDemo()">
-          <span>🏥 1-Click Discharge Follow-up Trigger</span>
+          <span>🏥 1-Click Discharge Follow-up</span>
         </button>
         <button class="action-btn danger" onclick="triggerBadFeedbackDemo()">
-          <span>⭐ 1-Click Negative Feedback (Service Recovery Loop)</span>
+          <span>⭐ 1-Click Negative Feedback (Service Recovery)</span>
         </button>
       </div>
     </div>
@@ -355,6 +361,39 @@
         });
         const data = await res.json();
         alert(`⚡ No-Show Recovery Result:\nStatus: ${data.status}\nMessage Sent to WhatsApp: "${data.message_sent || data.message}"`);
+        loadDashboard();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function triggerRescheduleDemo() {
+      try {
+        const res = await fetch('/api/appointments/APPT-DEMO-002/reschedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        const data = await res.json();
+        alert(`🔄 Appointment Rescheduled Successfully:\nAppointment: ${data.appointment_id}\nDoctor: ${data.doctor}\nNew Slot: ${data.new_slot}\nMessage Dispatched: "${data.message}"`);
+        loadDashboard();
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function triggerDiagnosticDemo() {
+      try {
+        const res = await fetch('/webhook/diagnostic-ready', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patient_id: 'DEMO-001',
+            test_category: 'Cardiology Lipid & ECG Report'
+          })
+        });
+        const data = await res.json();
+        alert(`🔬 Diagnostic Report Ready Alert Sent:\nPatient: ${data.patient_name}\nDiagnostic ID: ${data.diagnostic_id}\nMessage Dispatched: "${data.message}"`);
         loadDashboard();
       } catch (err) {
         alert('Error: ' + err.message);

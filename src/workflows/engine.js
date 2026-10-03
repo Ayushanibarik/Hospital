@@ -306,3 +306,111 @@ export function handlePatientFeedback({ patient_id, rating, comment }) {
     service_recovery_escalation: serviceRecoveryCreated
   };
 }
+
+/**
+ * WORKFLOW: Module 8 - Appointment Rescheduling
+ */
+export async function handleAppointmentReschedule({ appointment_id, new_slot_id }) {
+  const correlationId = generateCorrelationId();
+  const timestamp = new Date().toISOString();
+
+  const appt = db.prepare(`
+    SELECT a.*, p.full_name, p.phone
+    FROM appointments a
+    JOIN patients p ON a.patient_id = p.patient_id
+    WHERE a.appointment_id = ?
+  `).get(appointment_id);
+
+  if (!appt) {
+    throw new Error(`Appointment ${appointment_id} not found`);
+  }
+
+  // Find target new slot
+  let targetSlot = null;
+  if (new_slot_id) {
+    targetSlot = db.prepare(`
+      SELECT s.*, d.name as doctor_name
+      FROM available_slots s
+      JOIN doctors d ON s.doctor_id = d.doctor_id
+      WHERE s.slot_id = ? AND s.is_booked = 0
+    `).get(new_slot_id);
+  } else {
+    // Pick next available slot in same department
+    targetSlot = db.prepare(`
+      SELECT s.*, d.name as doctor_name
+      FROM available_slots s
+      JOIN doctors d ON s.doctor_id = d.doctor_id
+      WHERE s.department = ? AND s.is_booked = 0
+      ORDER BY s.slot_start ASC LIMIT 1
+    `).get(appt.department);
+  }
+
+  if (!targetSlot) {
+    throw new Error(`No available slot found to reschedule`);
+  }
+
+  // Lock new slot
+  db.prepare(`UPDATE available_slots SET is_booked = 1 WHERE slot_id = ?`).run(targetSlot.slot_id);
+
+  // Update appointment record
+  db.prepare(`
+    UPDATE appointments
+    SET doctor_id = ?, slot_start = ?, slot_end = ?, status = 'RESCHEDULED', attendance_status = 'scheduled'
+    WHERE appointment_id = ?
+  `).run(targetSlot.doctor_id, targetSlot.slot_start, targetSlot.slot_end, appointment_id);
+
+  // Send Rescheduled Confirmation
+  const msgId = `MSG-RESCHED-${Date.now().toString().slice(-6)}`;
+  const messageText = `Hello ${appt.full_name}, your appointment with ${targetSlot.doctor_name} has been successfully rescheduled to ${targetSlot.slot_start}. DemoCare Hospital: +91 22 5550 1234.`;
+
+  db.prepare(`
+    INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
+    VALUES (?, ?, 'WhatsApp', 'APPT_RESCHEDULE_01', 'HOSPITAL | Appointment Reschedule', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
+  `).run(msgId, appt.patient_id, timestamp, correlationId);
+
+  return {
+    status: 'RESCHEDULED_SUCCESS',
+    correlation_id: correlationId,
+    appointment_id,
+    new_slot: targetSlot.slot_start,
+    doctor: targetSlot.doctor_name,
+    message: messageText
+  };
+}
+
+/**
+ * WORKFLOW: Module 11 - Diagnostic Follow-Up
+ */
+export async function handleDiagnosticReady({ patient_id, test_category }) {
+  const correlationId = generateCorrelationId();
+  const timestamp = new Date().toISOString();
+
+  const patient = db.prepare(`SELECT * FROM patients WHERE patient_id = ?`).get(patient_id);
+  if (!patient) {
+    throw new Error(`Patient ${patient_id} not found`);
+  }
+
+  const diagnosticId = `DIAG-${Date.now().toString().slice(-6)}`;
+  db.prepare(`
+    INSERT INTO diagnostic_tasks (diagnostic_id, patient_id, test_category, ordered_at, completed_at, report_ready_at, review_status, notification_status)
+    VALUES (?, ?, ?, datetime('now', '-1 day'), datetime('now', '-2 hours'), ?, 'REVIEWED_BY_DOCTOR', 'SENT_TO_PATIENT')
+  `).run(diagnosticId, patient_id, test_category || 'Routine Blood Panel & ECG', timestamp);
+
+  // Send purely administrative notification (NO clinical details)
+  const msgId = `MSG-DIAG-${Date.now().toString().slice(-6)}`;
+  const messageText = `Hello ${patient.full_name}, your diagnostic test results for ${test_category || 'Routine Lab Work'} have been reviewed by your physician and are ready for consultation at DemoCare Hospital. Please book a follow-up consultation or view your digital slip: https://democare.hospital/reports`;
+
+  db.prepare(`
+    INSERT INTO communication_logs (message_id, patient_id, channel, template_name, workflow_name, sent_at, delivery_status, response_status, correlation_id)
+    VALUES (?, ?, 'WhatsApp', 'DIAGNOSTIC_READY_01', 'HOSPITAL | Diagnostic Follow-Up', ?, 'DELIVERED', 'AWAITING_REPLY', ?)
+  `).run(msgId, patient_id, timestamp, correlationId);
+
+  return {
+    status: 'DIAGNOSTIC_NOTIFICATION_SENT',
+    correlation_id: correlationId,
+    diagnostic_id: diagnosticId,
+    patient_name: patient.full_name,
+    message: messageText
+  };
+}
+

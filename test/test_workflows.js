@@ -1,5 +1,12 @@
 import { seed } from '../src/db/seed.js';
-import { handleLeadIntake, handleNoShowRecovery, handleDischargeFollowup, handlePatientFeedback } from '../src/workflows/engine.js';
+import { 
+  handleLeadIntake, 
+  handleNoShowRecovery, 
+  handleDischargeFollowup, 
+  handlePatientFeedback,
+  handleAppointmentReschedule,
+  handleDiagnosticReady 
+} from '../src/workflows/engine.js';
 import { executeMcpTool } from '../src/mcp/tools.js';
 import { callClaude } from '../src/ai/claude.js';
 import { db } from '../src/db/index.js';
@@ -89,8 +96,22 @@ async function runTests() {
   if (!summaryReport.headline) throw new Error('Test 7 Failed: Headline missing in Daily Summary');
   console.log('✅ Test 7 Passed: Daily executive report generated successfully.');
 
+  // TEST 8: Appointment Rescheduling (Module 8)
+  console.log('\n--- [Test 8] Appointment Rescheduling ---');
+  const reschedResult = await handleAppointmentReschedule({ appointment_id: 'APPT-DEMO-002' });
+  console.log('Reschedule Result:', JSON.stringify(reschedResult, null, 2));
+  if (reschedResult.status !== 'RESCHEDULED_SUCCESS') throw new Error('Test 8 Failed: Reschedule failed');
+  console.log('✅ Test 8 Passed: Patient rescheduled to new slot and confirmation message dispatched.');
+
+  // TEST 9: Diagnostic Ready Administrative Notification (Module 11)
+  console.log('\n--- [Test 9] Diagnostic Ready Notification ---');
+  const diagResult = await handleDiagnosticReady({ patient_id: 'DEMO-001', test_category: 'Cardiology ECG & Lipid Profile' });
+  console.log('Diagnostic Result:', JSON.stringify(diagResult, null, 2));
+  if (diagResult.status !== 'DIAGNOSTIC_NOTIFICATION_SENT') throw new Error('Test 9 Failed: Diagnostic notification failed');
+  console.log('✅ Test 9 Passed: Non-clinical administrative diagnostic alert dispatched.');
+
   console.log('\n=============================================');
-  console.log('🎉 ALL 7 TEST SUITES PASSED FLAWLESSLY!');
+  console.log('🎉 ALL 9 TEST SUITES PASSED FLAWLESSLY!');
   console.log('=============================================\n');
 }
 
