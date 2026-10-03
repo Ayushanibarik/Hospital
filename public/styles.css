@@ -11,10 +11,10 @@
   --border-light: #f2f4f7;
 
   /* Typography */
-  --text-dark: #101828;
-  --text-body: #344054;
-  --text-muted: #667085;
-  --text-light: #98a2b3;
+  --text-dark: #0f172a;
+  --text-body: #1e293b;
+  --text-muted: #334155;
+  --text-light: #475569;
 
   /* Brand Accents */
   --teal-primary: #0d9488;
@@ -404,21 +404,28 @@ html, body {
   display: flex;
   align-items: center;
   gap: 16px;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  border-top: 1px solid #f2f4f7;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+  border-top: 1px solid #e2e8f0;
   padding-top: 10px;
   margin-top: 4px;
 }
 
-.metric-breakdown-row strong {
-  color: var(--text-dark);
+.metric-breakdown-row span {
+  color: #1e293b;
   font-weight: 700;
 }
 
+.metric-breakdown-row strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
 .metric-caption-text {
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
   line-height: 1.4;
 }
 
@@ -998,29 +1005,32 @@ html, body {
 }
 
 .doctor-meta-block span {
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  font-size: 0.8rem;
+  color: #334155;
+  font-weight: 600;
 }
 
 .doctor-details-box {
   background: #f8fafc;
-  border: 1px solid #f1f5f9;
+  border: 1px solid #e2e8f0;
   border-radius: var(--radius-sm);
   padding: 10px 14px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .doctor-details-box div {
   display: flex;
   justify-content: space-between;
-  color: var(--text-muted);
+  color: #1e293b;
+  font-weight: 700;
 }
 
 .doctor-details-box strong {
-  color: var(--text-dark);
+  color: #0f172a;
+  font-weight: 800;
 }
 
 .doctor-toggle-bar {
@@ -1114,17 +1124,18 @@ html, body {
 }
 
 .module-name-title {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 800;
   color: var(--text-dark);
   line-height: 1.3;
 }
 
 .module-layer-tag {
-  font-size: 0.72rem;
-  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #059669;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 /* AI Chat Assistant View */

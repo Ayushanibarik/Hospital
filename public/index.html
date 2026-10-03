@@ -15,10 +15,10 @@
       --bg-sidebar: #ffffff;
       --border: #eaecf0;
       --border-light: #f2f4f7;
-      --text-dark: #101828;
-      --text-body: #344054;
-      --text-muted: #667085;
-      --text-light: #98a2b3;
+      --text-dark: #0f172a;
+      --text-body: #1e293b;
+      --text-muted: #334155;
+      --text-light: #475569;
       --mint-bg: #ecfdf5;
       --mint-text: #059669;
       --mint-border: #a7f3d0;
@@ -125,8 +125,10 @@
     .pill-red { background: var(--badge-red-bg); color: var(--badge-red-text); border: 1px solid var(--badge-red-border); }
     .pill-blue { background: var(--badge-blue-bg); color: var(--badge-blue-text); border: 1px solid var(--badge-blue-border); }
     .pill-yellow { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); border: 1px solid var(--badge-yellow-border); }
-    .metric-breakdown-row { display: flex; align-items: center; gap: 14px; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 10px; margin-top: 4px; }
-    .metric-breakdown-row strong { color: var(--text-dark); font-weight: 700; }
+    .metric-breakdown-row { display: flex; align-items: center; gap: 14px; font-size: 0.82rem; font-weight: 700; color: #1e293b; border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 4px; }
+    .metric-breakdown-row span { color: #1e293b; font-weight: 700; }
+    .metric-breakdown-row strong { color: #0f172a; font-weight: 800; }
+    .metric-caption-text { font-size: 0.82rem; font-weight: 700; color: #1e293b; line-height: 1.4; }
 
     /* Analytics Row */
     .analytics-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
@@ -143,14 +145,14 @@
     /* Wave Chart */
     .wave-chart-area { position: relative; width: 100%; height: 220px; margin-top: 8px; }
     .floating-patient-card { position: absolute; top: 0; right: 40px; background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; box-shadow: var(--shadow-floating); z-index: 10; min-width: 200px; }
-    .floating-head { display: flex; align-items: center; gap: 6px; font-size: 0.76rem; font-weight: 600; color: var(--text-muted); }
+    .floating-head { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: #1e293b; }
     .floating-val-number { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); line-height: 1; margin: 4px 0; }
-    .floating-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 6px; }
+    .floating-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 0.78rem; font-weight: 700; color: #1e293b; border-top: 1px solid #e2e8f0; padding-top: 6px; }
 
     /* Modern Table */
     .modern-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
-    .modern-table th { padding: 12px 16px; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
-    .modern-table td { padding: 14px 16px; border-bottom: 1px solid #f2f4f7; color: var(--text-body); vertical-align: middle; }
+    .modern-table th { padding: 12px 16px; font-size: 0.78rem; font-weight: 800; color: #0f172a; border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
+    .modern-table td { padding: 14px 16px; border-bottom: 1px solid #f2f4f7; color: #0f172a; font-weight: 600; vertical-align: middle; }
     .modern-table tr:hover td { background: #f9fafb; }
     .modern-table tr:last-child td { border-bottom: none; }
     .custom-checkbox { width: 16px; height: 16px; border-radius: 4px; accent-color: #10b981; cursor: pointer; }
@@ -161,11 +163,11 @@
     .doctor-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
     .doctor-card-top { display: flex; align-items: center; gap: 14px; }
     .doctor-avatar-circle { width: 46px; height: 46px; border-radius: var(--radius-md); background: var(--mint-bg); color: var(--mint-text); border: 1px solid var(--mint-border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; }
-    .doctor-meta-block h4 { font-size: 0.96rem; font-weight: 700; color: var(--text-dark); }
-    .doctor-meta-block span { font-size: 0.78rem; color: var(--text-muted); }
-    .doctor-details-box { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 4px; }
-    .doctor-details-box div { display: flex; justify-content: space-between; color: var(--text-muted); }
-    .doctor-details-box strong { color: var(--text-dark); }
+    .doctor-meta-block h4 { font-size: 0.96rem; font-weight: 800; color: var(--text-dark); }
+    .doctor-meta-block span { font-size: 0.8rem; color: #334155; font-weight: 600; }
+    .doctor-details-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.82rem; display: flex; flex-direction: column; gap: 6px; }
+    .doctor-details-box div { display: flex; justify-content: space-between; color: #1e293b; font-weight: 700; }
+    .doctor-details-box strong { color: #0f172a; font-weight: 800; }
     .doctor-toggle-bar { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #f2f4f7; }
     .toggle-duty-btn { padding: 5px 12px; border-radius: var(--radius-full); font-size: 0.76rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
     .toggle-duty-btn.duty-on { background: var(--badge-green-bg); color: var(--badge-green-text); border-color: var(--badge-green-border); }
@@ -179,8 +181,8 @@
     .module-id-badge { font-size: 0.72rem; font-weight: 800; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; }
     .module-pulse-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 700; color: #027a48; }
     .pulse-indicator-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; animation: pulseGlow 1.8s infinite; }
-    .module-name-title { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); line-height: 1.3; }
-    .module-layer-tag { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .module-name-title { font-size: 0.92rem; font-weight: 800; color: var(--text-dark); line-height: 1.3; }
+    .module-layer-tag { font-size: 0.74rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.05em; }
 
     /* AI Chat Panel */
     .ai-ops-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -473,10 +475,6 @@
       <header class="topbar">
         <div class="topbar-title-wrap">
           <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
-          <span class="topbar-badge-live">
-            <span style="width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
-            26 Modules Operational
-          </span>
         </div>
         <div class="topbar-right">
           <div class="search-box">
@@ -495,7 +493,7 @@
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            <span id="topbarActionLabel">+ Register Patient</span>
+            <span id="topbarActionLabel">Register Patient</span>
           </button>
         </div>
       </header>
@@ -523,9 +521,9 @@
                 <span class="pill-badge pill-green">Available</span>
               </div>
               <div class="metric-breakdown-row">
-                <span>12 <strong>Executive</strong></span>
-                <span>30 <strong>Premium</strong></span>
-                <span>18 <strong>Basic</strong></span>
+                <span><strong>12 Executive</strong></span>
+                <span><strong>30 Premium</strong></span>
+                <span><strong>18 Basic</strong></span>
               </div>
             </div>
 
@@ -544,9 +542,9 @@
                 <span class="pill-badge pill-grey" id="statDocLeaveBadge">1 Leave</span>
               </div>
               <div class="metric-breakdown-row">
-                <span>Dermatology: <strong>3</strong></span>
-                <span>Cardiology: <strong>3</strong></span>
-                <span>Ortho: <strong>3</strong></span>
+                <span><strong>Dermatology: 3</strong></span>
+                <span><strong>Cardiology: 3</strong></span>
+                <span><strong>Ortho: 3</strong></span>
               </div>
             </div>
 
@@ -563,9 +561,9 @@
                 <span class="pill-badge pill-green" style="color:#027a48; background:#ecfdf5;">↗ 12%</span>
               </div>
               <div class="metric-breakdown-row">
-                <span>18 Urgent</span>
-                <span>164 Routine</span>
-                <span>30 Follow-up</span>
+                <span><strong>18 Urgent</strong></span>
+                <span><strong>164 Routine</strong></span>
+                <span><strong>30 Follow-up</strong></span>
               </div>
             </div>
 
@@ -584,9 +582,9 @@
                 <span class="pill-badge pill-green">Confirmed</span>
               </div>
               <div class="metric-breakdown-row">
-                <span>24 <strong>Morning</strong></span>
-                <span>20 <strong>Afternoon</strong></span>
-                <span>14 <strong>Evening</strong></span>
+                <span><strong>24 Morning</strong></span>
+                <span><strong>20 Afternoon</strong></span>
+                <span><strong>14 Evening</strong></span>
               </div>
             </div>
           </section>
@@ -669,7 +667,6 @@
             <div class="card-shell-header">
               <div>
                 <h3 class="card-title">Patients Detail Information</h3>
-                <p class="card-subtitle">Real-time clinical triage & admission pipeline</p>
               </div>
               <div class="view-action-group">
                 <button class="btn-topbar outline" data-view="patients" onclick="switchView('patients')">View All Patients →</button>
@@ -706,7 +703,6 @@
               <div class="card-shell-header" style="margin-bottom:12px;">
                 <div>
                   <h3 class="card-title">AI Operations Assistant</h3>
-                  <p class="card-subtitle">Hospital intelligence, bed availability, SLAs & protocol support</p>
                 </div>
                 <span class="pill-badge pill-green">Claude & Ops Engine Active</span>
               </div>
@@ -733,7 +729,6 @@
               <div class="card-shell-header">
                 <div>
                   <h3 class="card-title">26 Master Blueprint Modules</h3>
-                  <p class="card-subtitle">Real-time status of all autonomous healthcare microservices</p>
                 </div>
                 <span class="pill-badge pill-green">26 / 26 ONLINE</span>
               </div>
@@ -753,7 +748,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Appointments Management & Automated Reminders</h2>
-              <p>Calendar slot scheduling, 24h & 3h WhatsApp notifications, and no-show recovery</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar outline" onclick="triggerReminders()">
@@ -825,7 +819,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Doctor Directory & Live Availability Roster</h2>
-              <p>Specialist physicians across 4 departments with real-time shift & on-leave toggle</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar outline" onclick="filterDoctorsByDept('All')">All (12)</button>
@@ -848,7 +841,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Patient Registry & Clinical Triage Intake</h2>
-              <p>Inbound AI qualification, emergency triage guardrails, and digital pass dispatch</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="openIntakeModal()">+ Register New Patient</button>
@@ -891,7 +883,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>OPD Queue Management & Real-Time Token Dispenser</h2>
-              <p>Live clinic waiting tokens, consultation milestones, and token display board</p>
             </div>
             <div class="view-action-group">
               <select id="queueDeptSelect" class="input-field" style="width:160px; padding:7px 10px;">
@@ -966,7 +957,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Inpatient Admissions (IPD) & Bed Allocation</h2>
-              <p>Bed inventory management, pre-clearances, and automated discharge gate-passes</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="showToast('Admissions pre-clearance wizard launched', 'info')">+ Admit Patient</button>
@@ -1030,7 +1020,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Billing, Invoices & Insurance Pre-Verification</h2>
-              <p>Atomic payment receipts, TPA co-pay calculation, and idempotent financial reconciliation</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="showToast('New billing invoice generated', 'success')">+ Generate Invoice</button>
@@ -1094,7 +1083,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Clinical Department Performance & Routing</h2>
-              <p>Conversion metrics, physician capacity, and intelligent lead distribution</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="showToast('Department routing rules refreshed', 'success')">Refresh Routing Rules</button>
@@ -1108,7 +1096,6 @@
           <section class="card-shell">
             <div class="card-shell-header">
               <h3 class="card-title">Department Lead Routing Console</h3>
-              <p class="card-subtitle">Manually redirect an enquiry or lead to a specialized department queue</p>
             </div>
             <div class="grid-2-col" style="margin-top:10px;">
               <div class="form-input-group">
@@ -1143,7 +1130,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Executive Briefings & Quality Intelligence</h2>
-              <p>Daily hospital briefing, SLA compliance metrics, and no-show recovery auditing</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="generateDailyBriefingModal()">📄 Generate Daily Executive Briefing</button>
@@ -1191,7 +1177,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Exceptions Queue & Service Recovery</h2>
-              <p>SLA breaches, negative patient feedback alerts, and 1-click grievance remediation</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="showToast('Exceptions queue refreshed', 'success')">Refresh Queue</button>
@@ -1231,7 +1216,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>System Health & Immutable Security Audit Trail</h2>
-              <p>SQLite 3 database integrity, WAL checkpointing, and tamper-proof event logging</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="runMaintenanceAudit()">⚡ Run Live Maintenance Audit</button>
@@ -1292,7 +1276,6 @@
           <div class="view-header-row">
             <div class="view-title-block">
               <h2>Two-Way WhatsApp Patient Communications Bridge</h2>
-              <p>Meta Cloud API webhooks, QR Bridge session listener, and inbound message parser</p>
             </div>
             <div class="view-action-group">
               <button class="btn-topbar primary" onclick="connectWhatsAppBridge()">Connect / Sync QR Bridge</button>
@@ -1481,15 +1464,15 @@
       const actionBtn = document.getElementById('topbarActionBtn');
       const actionLabel = document.getElementById('topbarActionLabel');
       if (viewName === 'doctors') {
-        actionLabel.innerText = '+ Add Doctor';
+        actionLabel.innerText = 'Add Doctor';
       } else if (viewName === 'ai-modules') {
         actionLabel.innerText = 'Ask AI Question';
       } else if (viewName === 'appointments') {
-        actionLabel.innerText = '+ Book Slot';
+        actionLabel.innerText = 'Book Slot';
       } else if (viewName === 'queue') {
         actionLabel.innerText = 'Call Next Token';
       } else {
-        actionLabel.innerText = '+ Register Patient';
+        actionLabel.innerText = 'Register Patient';
       }
 
       // Trigger view data loader
@@ -1879,8 +1862,8 @@
               <span class="pill-badge pill-green">${d.active_doctors} Doctors</span>
             </div>
             <div class="metric-breakdown-row">
-              <span>Leads: <strong>${d.total_leads}</strong></span>
-              <span>Wait: <strong>${d.avg_wait_time_minutes}m</strong></span>
+              <span><strong>Leads: ${d.total_leads}</strong></span>
+              <span><strong>Wait: ${d.avg_wait_time_minutes}m</strong></span>
             </div>
           </div>
         `).join('');
@@ -1931,7 +1914,7 @@
             </span>
           </div>
           <div class="module-name-title">${m.name}</div>
-          <div class="module-layer-tag">${m.layer}</div>
+          <div class="module-layer-tag">${m.category || m.layer || 'Core Module'}</div>
         </div>
       `).join('');
     }
