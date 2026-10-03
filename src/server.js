@@ -112,20 +112,27 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
+const isLocalhost = (req) => {
+  const ip = req.ip || req.connection?.remoteAddress || '';
+  return process.env.NODE_ENV !== 'production' || ip === '127.0.0.1' || ip === '::1' || ip.includes('127.0.0.1');
+};
+
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 600,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: isLocalhost,
   message: { error: 'Too many requests from this IP, please retry after 15 minutes.' }
 });
 app.use(globalLimiter);
 
 const webhookLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 60,
+  max: 120,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: isLocalhost,
   message: { error: 'Webhook rate limit exceeded. Please throttle payload delivery.' }
 });
 app.use('/webhook/', webhookLimiter);

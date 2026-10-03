@@ -3,1584 +3,793 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DemoCare Hospital — 26 Modules Master Blueprint Operations Control</title>
+  <title>DemoCare Hospital — Staff & Operations Portal</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <style>
-    .module-badge {
+    body {
+      background: #f1f5f9;
+    }
+    .badge-status {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.25rem 0.6rem;
+      padding: 0.25rem 0.65rem;
       border-radius: 9999px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-    .badge-online {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--emerald);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-    }
-    .module-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.25rem;
-      transition: all 0.2s;
-    }
-    .module-card:hover {
-      border-color: var(--teal);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    }
-    .module-matrix-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .action-panel {
-      background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(139, 92, 246, 0.08));
-      border: 1px solid rgba(14, 165, 233, 0.25);
-      border-radius: var(--radius);
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .action-btn-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.65rem;
-      margin-top: 1rem;
-    }
-    .action-btn {
-      padding: 0.55rem 0.9rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      color: var(--text-main);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-    .action-btn:hover {
-      border-color: var(--teal);
-      transform: translateY(-1px);
-      background: var(--bg-card-hover);
-    }
-    .action-btn.danger:hover {
-      border-color: var(--rose);
-      background: rgba(244, 63, 94, 0.15);
-    }
-    .action-btn.success:hover {
-      border-color: var(--emerald);
-      background: rgba(16, 185, 129, 0.15);
-    }
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      backdrop-filter: blur(8px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-    }
-    .modal-card {
-      background: var(--bg-card);
-      border: 1px solid var(--teal);
-      border-radius: var(--radius);
-      width: 92%;
-      max-width: 720px;
-      padding: 2rem;
-      max-height: 85vh;
-      overflow-y: auto;
-    }
-    .dept-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem;
-    }
-    .pipeline-wrapper {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
-      overflow-x: auto;
-    }
-    .pipeline-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .pipeline-steps {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      min-width: 980px;
-    }
-    .pipeline-chip {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.45rem 0.6rem;
-      min-width: 78px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .pipeline-chip:hover {
-      border-color: var(--teal);
-      background: rgba(14, 165, 233, 0.08);
-      transform: translateY(-2px);
-    }
-    .pipeline-chip .chip-num {
-      font-size: 0.68rem;
-      color: var(--teal);
-      font-weight: 700;
-    }
-    .pipeline-chip .chip-title {
       font-size: 0.74rem;
-      font-weight: 600;
-      color: var(--text-main);
-      margin-top: 0.1rem;
-      white-space: nowrap;
+      font-weight: 700;
     }
-    .pipeline-arrow {
-      color: var(--text-muted);
-      font-size: 0.75rem;
+    .status-confirmed {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+    .status-waiting {
+      background: #fffbeb;
+      color: #b45309;
+      border: 1px solid #fde68a;
+    }
+    .status-in-consult {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
+    .status-emergency {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+    .staff-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: #f8fafc;
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--slate-700);
+    }
+    .clock-pill {
+      font-family: monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+    }
+    .search-filter-bar {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 240px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="brand-icon">⚡</div>
+
+  <!-- Hospital Staff Navigation Header -->
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <div class="brand-symbol">🏥</div>
         <div>
           <div style="display:flex; align-items:center; gap:0.6rem;">
-            <h1>DemoCare Multispeciality Hospital</h1>
-            <span class="module-badge badge-online">26/26 Modules Verified (100%)</span>
+            <h1 style="font-size:1.25rem; font-weight:800; color:var(--slate-900);">DemoCare Hospital</h1>
+            <span class="badge badge-success">Staff Portal • Live</span>
           </div>
-          <p>Revenue & Patient Lifecycle Automation Layer • Master Blueprint V3 (@imthatyogii)</p>
-        </div>
-      </div>
-      <div class="nav-links">
-        <a href="/" class="nav-btn">← Public Intake Form</a>
-        <button class="nav-btn" id="waBridgeBtn" onclick="connectWhatsApp()" style="border-color: #25d366; color: #25d366;">
-          <span id="waStatusText">📲 Connect Live WhatsApp</span>
-        </button>
-        <button class="nav-btn" onclick="openAuditScorecardModal()" style="border-color:var(--amber); color:var(--amber);">📋 Paid Audit Scorecard</button>
-        <button class="nav-btn" onclick="openAssistantModal()" style="border-color:var(--purple); color:var(--purple);">🤖 AI Ops Assistant</button>
-        <button class="nav-btn primary" onclick="generateAiSummary()">📊 AI Daily Summary</button>
-        <button class="nav-btn" onclick="openMaintenanceModal()">🛡️ System Health</button>
-        <button class="nav-btn" onclick="resetDemo()">🔄 Reset Demo</button>
-      </div>
-    </header>
-
-    <!-- MASTER BLUEPRINT PAGE 1: 13-STAGE ARCHITECTURE PIPELINE -->
-    <div class="pipeline-wrapper">
-      <div class="pipeline-header">
-        <span>🗺️ Blueprint V3: 13-Stage Revenue & Patient Lifecycle Architecture</span>
-        <span style="color:var(--teal); font-weight:700;">Live Interactive Pipeline</span>
-      </div>
-      <div class="pipeline-steps">
-        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
-          <span class="chip-num">01</span>
-          <span class="chip-title">Inbound</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
-          <span class="chip-num">02</span>
-          <span class="chip-title">Lead Capture</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
-          <span class="chip-num">03</span>
-          <span class="chip-title">AI Qualify</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
-          <span class="chip-num">04</span>
-          <span class="chip-title">CRM / Data</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="window.scrollTo({top: 450, behavior: 'smooth'})">
-          <span class="chip-num">05</span>
-          <span class="chip-title">Appt Engine</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="window.scrollTo({top: 650, behavior: 'smooth'})">
-          <span class="chip-num">06</span>
-          <span class="chip-title">Clinical Path</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="triggerBillingDemo()">
-          <span class="chip-num">07</span>
-          <span class="chip-title">Billing / ERP</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="triggerDischargeClearanceDemo()">
-          <span class="chip-num">08</span>
-          <span class="chip-title">Discharge</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="triggerDischargeFollowupDemo()">
-          <span class="chip-num">09</span>
-          <span class="chip-title">Follow-Up</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="triggerRemindersDemo()">
-          <span class="chip-num">10</span>
-          <span class="chip-title">Retention</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="triggerBadFeedbackDemo()">
-          <span class="chip-num">11</span>
-          <span class="chip-title">Feedback/Ref</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="triggerSlaScanDemo()">
-          <span class="chip-num">12</span>
-          <span class="chip-title">Analytics/SLA</span>
-        </div>
-        <span class="pipeline-arrow">→</span>
-        <div class="pipeline-chip" onclick="generateAiSummary()">
-          <span class="chip-num">13</span>
-          <span class="chip-title">Mgmt AI</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION AA: DASHBOARD VIEW MODES (DAILY / WEEKLY / MANAGEMENT) -->
-    <div style="display:flex; gap:0.6rem; margin-bottom:1.25rem; align-items:center; flex-wrap:wrap;">
-      <span style="font-size:0.82rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Section AA Dashboard:</span>
-      <button class="action-btn" id="tabDailyBtn" onclick="switchDashboardView('daily')" style="border-color:var(--teal); background:rgba(14,165,233,0.12); color:var(--teal);">
-        ⚡ Daily Operations
-      </button>
-      <button class="action-btn" id="tabWeeklyBtn" onclick="switchDashboardView('weekly')">
-        📈 Weekly Review (Conversion & SLA)
-      </button>
-      <button class="action-btn" id="tabMgmtBtn" onclick="switchDashboardView('management')">
-        👔 Management Executive (Trends & Uptime)
-      </button>
-    </div>
-
-    <!-- WEEKLY REVIEW CONTAINER (Hidden by default) -->
-    <div id="weeklyViewContainer" style="display:none; margin-bottom:2rem;">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>📈</span> Section AA: Weekly Performance & Conversion Review</h3>
-          <span class="badge badge-teal">Past 7 Days Analytics</span>
-        </div>
-        <div id="weeklyMetricsArea" style="padding:1rem 0;">
-          <p style="text-align:center; color:var(--text-muted);">Loading weekly review metrics...</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- MANAGEMENT EXECUTIVE CONTAINER (Hidden by default) -->
-    <div id="managementViewContainer" style="display:none; margin-bottom:2rem;">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>👔</span> Section AA: Management Executive View (Trends, Sources, Uptime)</h3>
-          <span class="badge badge-purple">Executive Telemetry</span>
-        </div>
-        <div id="managementMetricsArea" style="padding:1rem 0;">
-          <p style="text-align:center; color:var(--text-muted);">Loading executive telemetry...</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- DAILY OPERATIONS VIEW CONTAINER -->
-    <div id="dailyViewContainer">
-    <!-- SECTION AA: OPERATIONAL METRICS -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-label">Inbound Leads (M1)</span>
-        <span class="stat-value" id="kpiLeads">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Confirmed Appts (M5)</span>
-        <span class="stat-value" style="color:var(--teal);" id="kpiBooked">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">No-Shows (M9)</span>
-        <span class="stat-value" style="color:var(--amber);" id="kpiNoShows">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Recovered No-Shows (M9)</span>
-        <span class="stat-value" style="color:var(--emerald);" id="kpiRecovered">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Billed Volume (M12)</span>
-        <span class="stat-value" style="color:var(--blue);" id="kpiRevenue">₹0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Active Inpatients (M13)</span>
-        <span class="stat-value" style="color:var(--purple);" id="kpiAdmissions">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Open Exceptions (M23)</span>
-        <span class="stat-value" style="color:var(--rose);" id="kpiExceptions">0</span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-label">Messages Dispatched (M6)</span>
-        <span class="stat-value" style="color:var(--text-main);" id="kpiMessages">0</span>
-      </div>
-    </div>
-
-    <!-- 1-CLICK DEMONSTRATION ACTION BAR -->
-    <div class="action-panel">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-          <h3 style="font-size:1.05rem; font-weight:700;">🎬 Complete 26-Modules Interactive Demo Triggers</h3>
-          <p style="font-size:0.84rem; color:var(--text-muted); margin-top:0.2rem;">
-            Test any of the 26 automated workflows in real-time. Full audit trail and WhatsApp delivery simulated or dispatched.
+          <p style="font-size:0.8rem; color:var(--slate-500); margin-top:0.1rem;">
+            Front Desk, OPD Queue & Inpatient Management System
           </p>
         </div>
-        <span class="badge badge-teal">Live Demo Suite</span>
       </div>
 
-      <div class="action-btn-group">
-        <button class="action-btn" onclick="triggerNoShowDemo()">
-          <span>📉 1-Click No-Show Recovery (M9)</span>
+      <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <span class="clock-pill" id="digitalClock">12:00:00 PM</span>
+        <div class="staff-badge">
+          <span>👩‍💼</span>
+          <span>Logged in: <strong>Reception Desk (Sister Meena)</strong></span>
+        </div>
+        <button onclick="refreshDashboardData()" class="btn btn-outline btn-sm">
+          <span>🔄 Refresh Data</span>
         </button>
-        <button class="action-btn" onclick="triggerRescheduleDemo()">
-          <span>🔄 1-Click Reschedule (M8)</span>
-        </button>
-        <button class="action-btn danger" onclick="triggerCancelDemo()">
-          <span>❌ 1-Click Cancel Appt (M8)</span>
-        </button>
-        <button class="action-btn" onclick="triggerRouteLeadDemo()">
-          <span>🎯 1-Click Route Lead (M3)</span>
-        </button>
-        <button class="action-btn" onclick="triggerDiagnosticDemo()">
-          <span>🔬 1-Click Diagnostic Ready (M11)</span>
-        </button>
-        <button class="action-btn success" onclick="triggerBillingDemo()">
-          <span>💳 1-Click Billing & Invoice (M12)</span>
-        </button>
-        <button class="action-btn success" onclick="triggerPayDemo()">
-          <span>💰 1-Click Pay Receipt (M12)</span>
-        </button>
-        <button class="action-btn" onclick="triggerAdmissionDemo()">
-          <span>🏥 1-Click IPD Admission (M13)</span>
-        </button>
-        <button class="action-btn" onclick="triggerDischargeClearanceDemo()">
-          <span>🚪 1-Click Discharge Gate-Pass (M14)</span>
-        </button>
-        <button class="action-btn" onclick="triggerDischargeFollowupDemo()">
-          <span>🩺 1-Click Discharge Follow-up (M15)</span>
-        </button>
-        <button class="action-btn danger" onclick="triggerBadFeedbackDemo()">
-          <span>⭐ 1-Click Service Recovery (M16/17)</span>
-        </button>
-        <button class="action-btn" onclick="triggerQueueTokenDemo()">
-          <span>🎫 1-Click OPD Token (M10)</span>
-        </button>
-        <button class="action-btn" onclick="triggerCallNextDemo()">
-          <span>📢 1-Click Call Next Patient (M10)</span>
-        </button>
-        <button class="action-btn" onclick="triggerReferralDemo()">
-          <span>🤝 1-Click Clinic Referral (M19)</span>
-        </button>
-        <button class="action-btn" onclick="triggerSlaScanDemo()">
-          <span>⏱️ 1-Click Scan Lead SLA (M20)</span>
-        </button>
-        <button class="action-btn" onclick="triggerRemindersDemo()">
-          <span>⏰ 1-Click Reminders (M7)</span>
-        </button>
+        <a href="/" class="btn btn-primary btn-sm">
+          <span>🌐 Patient Booking Site</span>
+        </a>
       </div>
     </div>
+  </header>
 
-    <!-- SECTION C: COMPLETE 26 MODULES MASTER MATRIX -->
-    <div class="card" style="margin-bottom: 2rem;">
-      <div class="card-header" style="cursor:pointer;" onclick="toggleModulesMatrix()">
+  <!-- Operations Overview Metric Cards -->
+  <div class="container" style="max-width:1440px; padding-top:1.5rem;">
+    <div class="admin-stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#e0f2fe; color:#0284c7;">📅</div>
         <div>
-          <h3 class="card-title"><span>📋</span> Master Blueprint Section C: Complete 26 Modules Matrix</h3>
-          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">Every module specified in Blueprint V3 is implemented, test-verified, and accessible via dedicated API.</p>
-        </div>
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <span class="badge badge-teal" id="matrixCountBadge">26/26 Available</span>
-          <span id="matrixToggleIcon" style="font-size:1.1rem; color:var(--teal);">▼</span>
+          <div class="stat-val" id="metricAppts">18</div>
+          <div class="stat-name">Today's Appointments</div>
         </div>
       </div>
-      <div id="modulesMatrixContainer" class="module-matrix-grid">
-        <!-- Dynamically injected via get26ModulesStatus() -->
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#fef3c7; color:#d97706;">⏳</div>
+        <div>
+          <div class="stat-val" id="metricQueue">5</div>
+          <div class="stat-name">Waiting in OPD Lounge</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#ccfbf1; color:#0f766e;">🛏️</div>
+        <div>
+          <div class="stat-val" id="metricBeds">18 / 24</div>
+          <div class="stat-name">Inpatient Bed Occupancy</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#ede9fe; color:#7c3aed;">🚪</div>
+        <div>
+          <div class="stat-val" id="metricDischarges">2</div>
+          <div class="stat-name">Discharge Clearances Pending</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon-wrap" style="background:#fee2e2; color:#dc2626;">🚨</div>
+        <div>
+          <div class="stat-val" id="metricUrgent">1</div>
+          <div class="stat-name">Emergency Triage Alert</div>
+        </div>
       </div>
     </div>
 
-    <!-- MAIN TABLES GRID -->
-    <div class="grid-2">
-      <!-- Recent Leads (M1, M2, M3) -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>👥</span> Inbound Leads (M1 & M2)</h3>
-          <span class="badge badge-blue">AI-Qualified</span>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Patient</th>
-                <th>Department</th>
-                <th>Channel</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="leadsTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading leads...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <!-- Navigation Tabs -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('frontDeskTab', this)">
+        <span>📋</span> Front Desk & Appointments
+      </button>
+      <button class="tab-btn" onclick="switchTab('queueTab', this)">
+        <span>📢</span> OPD Token Calling
+      </button>
+      <button class="tab-btn" onclick="switchTab('ipdTab', this)">
+        <span>🛏️</span> Inpatient (IPD) & Discharges
+      </button>
+      <button class="tab-btn" onclick="switchTab('triageTab', this)">
+        <span>🚨</span> Urgent Triage Desk
+      </button>
+      <button class="tab-btn" onclick="switchTab('reportsTab', this)">
+        <span>📊</span> Daily Operations Report
+      </button>
+    </div>
 
-      <!-- Confirmed Appointments (M4, M5, M8) -->
-      <div class="card">
+    <!-- ====================================================================
+         TAB 1: FRONT DESK & APPOINTMENTS
+         ==================================================================== -->
+    <div id="frontDeskTab" class="tab-content active">
+      <div class="card" style="margin-bottom:2rem;">
         <div class="card-header">
-          <h3 class="card-title"><span>📅</span> Appointments Roster (M5 & M8)</h3>
-          <span class="badge badge-teal">Live Roster</span>
+          <div>
+            <h3 class="card-title">Patient Appointments Schedule</h3>
+            <p class="card-subtitle">Manage today's patient arrivals, check-ins, and doctor schedules.</p>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openWalkinModal()">
+            <span>➕ New Walk-In Patient</span>
+          </button>
         </div>
-        <div class="table-wrapper">
-          <table>
+
+        <div class="search-filter-bar">
+          <input type="text" id="patientSearchInput" onkeyup="filterAppointments()" placeholder="🔍 Search patient by name, mobile, or appointment ID..." class="form-control search-input">
+          <select id="departmentFilter" onchange="filterAppointments()" class="form-control" style="width:220px;">
+            <option value="">All Departments</option>
+            <option value="Dermatology">Dermatology</option>
+            <option value="Cardiology">Cardiology</option>
+            <option value="Orthopedics">Orthopedics</option>
+            <option value="General Medicine">General Medicine</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="sendAllReminders()">
+            <span>📲 Send WhatsApp Reminders (All)</span>
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table" id="appointmentsTable">
             <thead>
               <tr>
-                <th>Patient</th>
-                <th>Doctor / Dept</th>
-                <th>Slot Time</th>
+                <th>Token #</th>
+                <th>Patient Details</th>
+                <th>Department & Doctor</th>
+                <th>Time Slot</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="appointmentsTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading appointments...</td></tr>
+              <!-- Dynamically populated -->
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <div style="margin-top: 2rem;" class="grid-2">
-      <!-- Communication Logs (M6 & M25) -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>📲</span> Communication Logs (M6 & M25)</h3>
-          <span class="badge badge-teal">WhatsApp API</span>
+    <!-- ====================================================================
+         TAB 2: OPD LIVE QUEUE & TOKEN CALLING
+         ==================================================================== -->
+    <div id="queueTab" class="tab-content">
+      <div class="calling-banner">
+        <div>
+          <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:0.06em; opacity:0.9;">
+            Active Doctor Consultation Room Display
+          </div>
+          <div class="calling-token-display">
+            <span class="token-huge" id="currentCallingToken">Token #04</span>
+            <span style="font-size:1.4rem; font-weight:700;">→ Room 204 (Dr. Priya Sharma)</span>
+          </div>
+          <div style="font-size:0.92rem; opacity:0.95; margin-top:0.3rem;">
+            Patient: <strong id="currentCallingPatient">Rahul Sharma</strong> • Dermatology Consultation
+          </div>
         </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Recipient</th>
-                <th>Template</th>
-                <th>Correlation ID</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="commTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading communication logs...</td></tr>
-            </tbody>
-          </table>
+
+        <div style="display:flex; gap:0.75rem;">
+          <button class="btn btn-teal btn-lg" onclick="callNextToken()" style="background:#ffffff; color:#0f766e; font-weight:800;">
+            📢 Call Next Patient
+          </button>
+          <button class="btn btn-outline btn-lg" onclick="markConsultationComplete()" style="background:rgba(255,255,255,0.2); border-color:#ffffff; color:#ffffff;">
+            ✅ Mark Consultation Complete
+          </button>
         </div>
       </div>
 
-      <!-- Exception Queue (M23) -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>🚨</span> Exception Queue (M23)</h3>
-          <span class="badge badge-rose" id="exceptionCountBadge">0 Open</span>
+      <div class="hero-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Waiting Patients in OPD Lounge</h3>
+            <span class="badge badge-warning" id="waitingCountBadge">4 in queue</span>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Token</th>
+                  <th>Patient</th>
+                  <th>Department</th>
+                  <th>Est. Wait</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="queueListBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div class="table-wrapper">
-          <table>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Doctor Consultation Rooms Status</h3>
+            <span class="badge badge-primary">OPD Wings</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:1rem;">
+            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong style="color:var(--slate-900);">Room 204 — Dermatology</strong>
+                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Priya Sharma (Consulting)</div>
+              </div>
+              <span class="badge-status status-in-consult">In Consultation</span>
+            </div>
+            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong style="color:var(--slate-900);">Room 108 — Cardiology</strong>
+                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Rajesh Patel (Available)</div>
+              </div>
+              <span class="badge-status status-confirmed">Ready for Next</span>
+            </div>
+            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong style="color:var(--slate-900);">Room 302 — Orthopedics</strong>
+                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Anita Desai (Consulting)</div>
+              </div>
+              <span class="badge-status status-in-consult">In Consultation</span>
+            </div>
+            <div style="padding:1rem; border:1px solid var(--border); border-radius:var(--radius-md); display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong style="color:var(--slate-900);">Room 101 — General Medicine</strong>
+                <div style="font-size:0.84rem; color:var(--slate-500);">Dr. Vikram Mehta (Available)</div>
+              </div>
+              <span class="badge-status status-confirmed">Ready for Next</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 3: INPATIENT (IPD) & DISCHARGE CLEARANCE
+         ==================================================================== -->
+    <div id="ipdTab" class="tab-content">
+      <div class="card" style="margin-bottom:2rem;">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Inpatient Admissions & Discharge Clearance Desk</h3>
+            <p class="card-subtitle">Manage bed allocations, nursing clearances, and digital gate-pass issuance.</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="refreshDashboardData()">🔄 Refresh Bed Roster</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
             <thead>
               <tr>
-                <th>Severity</th>
-                <th>Error / Trigger</th>
-                <th>Owner</th>
+                <th>Bed / Room</th>
+                <th>Patient Name</th>
+                <th>Attending Doctor</th>
+                <th>Admission Date</th>
+                <th>Discharge Checklist</th>
                 <th>Action</th>
               </tr>
             </thead>
-            <tbody id="exceptionsTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading exceptions...</td></tr>
+            <tbody id="ipdTableBody">
+              <!-- Dynamically populated -->
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- MODULES 10 & 12: OPD JOURNEYS & BILLING -->
-    <div style="margin-top: 2rem;" class="grid-2">
-      <!-- OPD Journey Tracker (M10) -->
-      <div class="card">
+    <!-- ====================================================================
+         TAB 4: URGENT TRIAGE & EMERGENCY CALLBACK DESK
+         ==================================================================== -->
+    <div id="triageTab" class="tab-content">
+      <div class="card" style="margin-bottom:2rem; border-left:4px solid var(--rose);">
         <div class="card-header">
-          <h3 class="card-title"><span>🎫</span> OPD Journey & Queue Tokens (M10)</h3>
-          <span class="badge badge-teal">Milestones</span>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Token</th>
-                <th>Patient</th>
-                <th>Department</th>
-                <th>OPD Stage</th>
-              </tr>
-            </thead>
-            <tbody id="opdTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading OPD journeys...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Billing Coordination (M12) -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>💳</span> Billing & Payment Coordination (M12)</h3>
-          <span class="badge badge-blue">Idempotent</span>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Bill ID</th>
-                <th>Patient</th>
-                <th>Amount (Copay)</th>
-                <th>Payment Status</th>
-              </tr>
-            </thead>
-            <tbody id="billingTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading billing records...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODULES 13, 14, 19: ADMISSIONS, DISCHARGES, REFERRALS -->
-    <div style="margin-top: 2rem;" class="grid-2">
-      <!-- Inpatient Admissions & Discharge Gate-Passes (M13 & M14) -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>🏥</span> IPD Admissions & Discharges (M13 & M14)</h3>
-          <span class="badge badge-purple">Inpatient Layer</span>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Patient</th>
-                <th>Room / Bed</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="admissionsTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading admissions...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Doctor & Clinic Referral Network (M19) -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title"><span>🤝</span> Clinic & Doctor Referral Network (M19)</h3>
-          <span class="badge badge-teal">Growth Engine</span>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Referral ID</th>
-                <th>Referring Doctor</th>
-                <th>Specialty</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="referralsTableBody">
-              <tr><td colspan="4" style="text-align:center;">Loading referrals...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODULE 22: DEPARTMENT PERFORMANCE BREAKDOWN -->
-    <div style="margin-top: 2rem;" class="card">
-      <div class="card-header">
-        <h3 class="card-title"><span>📊</span> Department Performance & Capacity Utilization (M22)</h3>
-        <span class="badge badge-teal">Hospital Analytics</span>
-      </div>
-      <div id="deptPerformanceGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-top:0.5rem;">
-        <!-- Injected via /api/dashboard/department-performance -->
-      </div>
-    </div>
-    </div> <!-- dailyViewContainer -->
-  </div>
-
-  <!-- AI DAILY SUMMARY MODAL (Prompt 5) -->
-  <div class="modal-overlay" id="aiModal" onclick="closeModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-        <h2 style="font-size:1.25rem; font-weight:700; color:var(--teal);">📊 AI Daily Management Summary (Prompt 5 & M21)</h2>
-        <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('aiModal').style.display='none'">×</button>
-      </div>
-      <div id="aiSummaryContent">
-        <p style="text-align:center; padding:2rem;">Summarizing hospital operational metrics via Claude...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- AI OPERATIONS ASSISTANT MODAL (Module 24) -->
-  <div class="modal-overlay" id="assistantModal" onclick="closeAssistantModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
-        <div>
-          <h2 style="font-size:1.25rem; font-weight:700; color:var(--purple);">🤖 AI Operations Assistant (Module 24)</h2>
-          <p style="font-size:0.8rem; color:var(--text-muted);">Master System Prompt Guardrails Active: Strictly administrative operations, zero clinical diagnoses.</p>
-        </div>
-        <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('assistantModal').style.display='none'">×</button>
-      </div>
-
-      <div style="display:flex; gap:0.5rem; margin-bottom:1rem; flex-wrap:wrap;">
-        <button class="action-btn" onclick="setAssistantPrompt('What is our no-show recovery status today?')">💡 No-Show Status</button>
-        <button class="action-btn" onclick="setAssistantPrompt('List unhandled SLA leads')">💡 Unhandled SLA Leads</button>
-        <button class="action-btn" onclick="setAssistantPrompt('Summarize OPD waiting queue')">💡 OPD Queue Wait</button>
-        <button class="action-btn danger" onclick="setAssistantPrompt('Can you diagnose my chest pain and prescribe medicine?')">⚠️ Test Medical Guardrail</button>
-      </div>
-
-      <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
-        <input type="text" id="assistantInput" placeholder="Ask any operational or administrative hospital question..." style="flex:1; padding:0.75rem 1rem; border-radius:8px; border:1px solid var(--border); background:var(--bg-dark); color:var(--text-main); font-size:0.9rem;" onkeydown="if(event.key==='Enter') sendAssistantQuery()">
-        <button class="action-btn primary" onclick="sendAssistantQuery()" style="background:var(--purple); color:#fff; border-color:var(--purple);">Send</button>
-      </div>
-
-      <div id="assistantResponseArea" style="background:var(--bg-dark); border:1px solid var(--border); border-radius:8px; padding:1.2rem; min-height:120px; font-size:0.92rem; line-height:1.6;">
-        <span style="color:var(--text-muted);">Ask a question or select a suggested prompt above to test the operational AI assistant...</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- SYSTEM MAINTENANCE AUDIT MODAL (Module 26) -->
-  <div class="modal-overlay" id="maintenanceModal" onclick="closeMaintenanceModal(event)">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem;">
-        <h2 style="font-size:1.25rem; font-weight:700; color:var(--emerald);">🛡️ System Maintenance & Self-Diagnostics (M26)</h2>
-        <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('maintenanceModal').style.display='none'">×</button>
-      </div>
-      <div id="maintenanceContent">
-        <p style="text-align:center; padding:2rem;">Running diagnostic scans...</p>
-      </div>
-    </div>
-  <!-- HOSPITAL AUTOMATION AUDIT SCORECARD MODAL (Blueprint Sections AB & AC) -->
-  <div class="modal-overlay" id="auditScorecardModal" onclick="closeAuditScorecardModal(event)">
-    <div class="modal-card" style="max-width:850px;" onclick="event.stopPropagation()">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <div>
-          <h2 style="font-size:1.25rem; font-weight:700; color:var(--amber);">📋 Hospital Automation Audit Scorecard (Sections AB & AC)</h2>
-          <p style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">
-            Paid Discovery Product: Evaluate hospital leakage across 11 operational dimensions and calculate pilot priority.
-          </p>
-        </div>
-        <button style="background:none; border:none; color:var(--text-muted); font-size:1.5rem; cursor:pointer;" onclick="document.getElementById('auditScorecardModal').style.display='none'">×</button>
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.2rem;">
-        <!-- 11 Criteria Assessment Grid -->
-        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.82rem; max-height:360px; overflow-y:auto;">
-          <h4 style="color:var(--text-main); font-weight:700; margin-bottom:0.75rem;">11 Operational Dimensions (Rate 1=Broken to 5=Automated)</h4>
-          
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>1. Lead Response Time (<5m):</span>
-            <select id="score1" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>2. Lead Capture Consistency:</span>
-            <select id="score2" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>3. Appt Conversion Visibility:</span>
-            <select id="score3" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>4. No-Show Recovery Engine:</span>
-            <select id="score4" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>5. Follow-Up & Recall Tracking:</span>
-            <select id="score5" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>6. Diagnostic Coordination:</span>
-            <select id="score6" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2">2 (Fair)</option><option value="3" selected>3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>7. Discharge Coordination:</span>
-            <select id="score7" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2" selected>2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>8. Feedback & Service Recovery:</span>
-            <select id="score8" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>9. Reporting & C-Suite Daily:</span>
-            <select id="score9" class="score-input" onchange="calculateAuditScore()"><option value="1" selected>1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>10. Integration & API Readiness:</span>
-            <select id="score10" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2">2 (Fair)</option><option value="3" selected>3 (Good)</option><option value="4">4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-            <span>11. Security & Governance:</span>
-            <select id="score11" class="score-input" onchange="calculateAuditScore()"><option value="1">1 (Poor)</option><option value="2">2 (Fair)</option><option value="3">3 (Good)</option><option value="4" selected>4 (Very Good)</option><option value="5">5 (Automated)</option></select>
-          </div>
-        </div>
-
-        <!-- Opportunity Prioritization Calculator -->
-        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.82rem; display:flex; flex-direction:column; justify-content:space-between;">
           <div>
-            <h4 style="color:var(--text-main); font-weight:700; margin-bottom:0.75rem;">Formula: (Impact × Freq × Feasibility) ÷ Risk</h4>
-            
-            <div style="margin-bottom:0.6rem;">
-              <div style="display:flex; justify-content:space-between;"><span>Revenue Impact (1–5):</span> <strong id="valImpact">5</strong></div>
-              <input type="range" id="paramImpact" min="1" max="5" value="5" style="width:100%;" oninput="document.getElementById('valImpact').innerText=this.value; calculateAuditScore()">
-            </div>
-            <div style="margin-bottom:0.6rem;">
-              <div style="display:flex; justify-content:space-between;"><span>Occurrence Frequency (1–5):</span> <strong id="valFreq">5</strong></div>
-              <input type="range" id="paramFreq" min="1" max="5" value="5" style="width:100%;" oninput="document.getElementById('valFreq').innerText=this.value; calculateAuditScore()">
-            </div>
-            <div style="margin-bottom:0.6rem;">
-              <div style="display:flex; justify-content:space-between;"><span>Technical Feasibility (1–5):</span> <strong id="valFeas">4</strong></div>
-              <input type="range" id="paramFeas" min="1" max="5" value="4" style="width:100%;" oninput="document.getElementById('valFeas').innerText=this.value; calculateAuditScore()">
-            </div>
-            <div style="margin-bottom:0.6rem;">
-              <div style="display:flex; justify-content:space-between;"><span>Clinical / Operational Risk (1–5):</span> <strong id="valRisk">1</strong></div>
-              <input type="range" id="paramRisk" min="1" max="5" value="1" style="width:100%;" oninput="document.getElementById('valRisk').innerText=this.value; calculateAuditScore()">
-            </div>
+            <h3 class="card-title" style="color:#b91c1c;">🚨 Urgent Clinical Triage Inquiries</h3>
+            <p class="card-subtitle">Patients who reported acute symptoms requiring urgent nurse telephone callback or ER admission.</p>
           </div>
+          <span class="badge badge-danger">High Clinical Priority</span>
+        </div>
 
-          <div style="background:rgba(14,165,233,0.08); border:1px solid var(--teal); border-radius:8px; padding:0.8rem; margin-top:0.5rem; text-align:center;">
-            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase;">Calculated Priority Score</div>
-            <div style="font-size:1.8rem; font-weight:800; color:var(--teal);" id="auditPriorityScore">100.0</div>
-            <div style="font-size:0.8rem; font-weight:700; color:var(--emerald); margin-top:0.2rem;" id="auditRecommendation">
-              ✅ PRIME CANDIDATE: Starter ₹50,000 Pilot (Lead + No-Show Recovery)
-            </div>
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time Logged</th>
+                <th>Patient Name</th>
+                <th>Contact Number</th>
+                <th>Symptoms Reported</th>
+                <th>Triage Advisory</th>
+                <th>Staff Action</th>
+              </tr>
+            </thead>
+            <tbody id="triageTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 5: DAILY OPERATIONS REPORT & FEEDBACK
+         ==================================================================== -->
+    <div id="reportsTab" class="tab-content">
+      <div class="hero-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Executive Operations Daily Briefing</h3>
+            <span class="badge badge-primary">Today's Summary</span>
+          </div>
+          <div id="dailyBriefingContent" style="font-size:0.9rem; line-height:1.7; color:var(--slate-800);">
+            Loading operations briefing...
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Recent Patient Satisfaction Reviews</h3>
+            <span class="badge badge-success">4.9 / 5.0 Average</span>
+          </div>
+          <div id="feedbackList" style="display:flex; flex-direction:column; gap:1rem;">
+            <!-- Dynamically populated -->
           </div>
         </div>
       </div>
+    </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <button class="action-btn" onclick="generateAuditReport()">📄 Generate 3-Page Executive Discovery Audit</button>
-        <button class="action-btn primary" onclick="document.getElementById('auditScorecardModal').style.display='none'">Done</button>
-      </div>
+  </div>
 
-      <div id="auditReportOutput" style="display:none; margin-top:1rem; background:var(--bg-dark); border:1px solid var(--border); border-radius:8px; padding:1rem; font-size:0.84rem; max-height:220px; overflow-y:auto; font-family:monospace; line-height:1.5;">
+  <!-- Modal: New Walk-in Patient -->
+  <div class="modal-overlay" id="walkinModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h4 class="modal-title">Register Walk-in Patient (Front Desk)</h4>
+        <button class="modal-close" onclick="closeWalkinModal()">&times;</button>
       </div>
+      <form onsubmit="handleWalkinSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Patient Full Name</label>
+            <input type="text" id="walkinName" class="form-control" placeholder="e.g. Ramesh Kulkarni" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number (WhatsApp)</label>
+            <input type="tel" id="walkinPhone" class="form-control" placeholder="e.g. +91 98200 12345" required>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Department</label>
+              <select id="walkinDept" class="form-control" required>
+                <option value="General Medicine">General Medicine</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Orthopedics">Orthopedics</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Doctor</label>
+              <select id="walkinDoctor" class="form-control">
+                <option value="Dr. Vikram Mehta">Dr. Vikram Mehta</option>
+                <option value="Dr. Priya Sharma">Dr. Priya Sharma</option>
+                <option value="Dr. Rajesh Patel">Dr. Rajesh Patel</option>
+                <option value="Dr. Anita Desai">Dr. Anita Desai</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Chief Complaint / Symptoms</label>
+            <input type="text" id="walkinSymptoms" class="form-control" placeholder="e.g. Routine consultation, viral fever, skin rash" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeWalkinModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="walkinSubmitBtn">Register & Generate Token</button>
+        </div>
+      </form>
     </div>
   </div>
 
   <script>
-    let matrixVisible = true;
-    function toggleModulesMatrix() {
-      const container = document.getElementById('modulesMatrixContainer');
-      const icon = document.getElementById('matrixToggleIcon');
-      matrixVisible = !matrixVisible;
-      container.style.display = matrixVisible ? 'grid' : 'none';
-      icon.innerText = matrixVisible ? '▼' : '▶';
+    // Live Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('digitalClock').innerText = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Tab Navigation
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
     }
 
-    function switchDashboardView(mode) {
-      document.getElementById('dailyViewContainer').style.display = mode === 'daily' ? 'block' : 'none';
-      document.getElementById('weeklyViewContainer').style.display = mode === 'weekly' ? 'block' : 'none';
-      document.getElementById('managementViewContainer').style.display = mode === 'management' ? 'block' : 'none';
-
-      document.getElementById('tabDailyBtn').style.borderColor = mode === 'daily' ? 'var(--teal)' : 'var(--border)';
-      document.getElementById('tabDailyBtn').style.background = mode === 'daily' ? 'rgba(14,165,233,0.12)' : 'var(--bg-card)';
-      document.getElementById('tabDailyBtn').style.color = mode === 'daily' ? 'var(--teal)' : 'var(--text-main)';
-
-      document.getElementById('tabWeeklyBtn').style.borderColor = mode === 'weekly' ? 'var(--teal)' : 'var(--border)';
-      document.getElementById('tabWeeklyBtn').style.background = mode === 'weekly' ? 'rgba(14,165,233,0.12)' : 'var(--bg-card)';
-      document.getElementById('tabWeeklyBtn').style.color = mode === 'weekly' ? 'var(--teal)' : 'var(--text-main)';
-
-      document.getElementById('tabMgmtBtn').style.borderColor = mode === 'management' ? 'var(--purple)' : 'var(--border)';
-      document.getElementById('tabMgmtBtn').style.background = mode === 'management' ? 'rgba(139,92,246,0.12)' : 'var(--bg-card)';
-      document.getElementById('tabMgmtBtn').style.color = mode === 'management' ? 'var(--purple)' : 'var(--text-main)';
-
-      if (mode === 'weekly') loadWeeklyView();
-      if (mode === 'management') loadManagementView();
+    // Modal helpers
+    function openWalkinModal() {
+      document.getElementById('walkinModal').style.display = 'flex';
+    }
+    function closeWalkinModal() {
+      document.getElementById('walkinModal').style.display = 'none';
     }
 
-    async function loadWeeklyView() {
-      try {
-        const res = await fetch('/api/dashboard/weekly');
-        const data = await res.json();
-        const area = document.getElementById('weeklyMetricsArea');
-        area.innerHTML = `
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-            <div class="stat-card">
-              <span class="stat-label">Lead Conversion %</span>
-              <span class="stat-value" style="color:var(--emerald);">${data.lead_to_appointment_conversion_pct}%</span>
-              <span style="font-size:0.75rem; color:var(--text-muted);">${data.confirmed_appointments} booked of ${data.total_leads} leads</span>
+    // Mock Sample Data State (Synchronized with Backend API)
+    let appointmentsData = [
+      { id: 'APPT-101', name: 'Rahul Sharma', phone: '+91 99999 99999', dept: 'Dermatology', doctor: 'Dr. Priya Sharma', time: '10:30 AM', status: 'In Consultation', token: 'T-04' },
+      { id: 'APPT-102', name: 'Sunita Mehra', phone: '+91 98222 33444', dept: 'Cardiology', doctor: 'Dr. Rajesh Patel', time: '11:00 AM', status: 'Waiting', token: 'T-05' },
+      { id: 'APPT-103', name: 'Amitabh Sen', phone: '+91 98333 44555', dept: 'Orthopedics', doctor: 'Dr. Anita Desai', time: '11:30 AM', status: 'Checked In', token: 'T-06' },
+      { id: 'APPT-104', name: 'Pooja Verma', phone: '+91 98444 55666', dept: 'General Medicine', doctor: 'Dr. Vikram Mehta', time: '12:00 PM', status: 'Confirmed', token: 'T-07' },
+      { id: 'APPT-105', name: 'Kavita Nair', phone: '+91 98555 66777', dept: 'Dermatology', doctor: 'Dr. Priya Sharma', time: '02:00 PM', status: 'Confirmed', token: 'T-08' }
+    ];
+
+    let queueData = [
+      { token: 'T-05', name: 'Sunita Mehra', dept: 'Cardiology', wait: '8 mins' },
+      { token: 'T-06', name: 'Amitabh Sen', dept: 'Orthopedics', wait: '20 mins' },
+      { token: 'T-07', name: 'Pooja Verma', dept: 'General Medicine', wait: '35 mins' }
+    ];
+
+    let ipdData = [
+      { bed: 'Bed 201-A (Deluxe)', name: 'Deepak Merchant', doctor: 'Dr. Anita Desai (Orthopedics)', date: '2026-10-01', clinical: true, pharmacy: true, billing: true, status: 'Ready for Gate Pass' },
+      { bed: 'Bed 104-B (ICU-2)', name: 'Harish Varma', doctor: 'Dr. Rajesh Patel (Cardiology)', date: '2026-10-02', clinical: true, pharmacy: false, billing: false, status: 'Under Observation' },
+      { bed: 'Bed 305-C (General)', name: 'Sunil Rao', doctor: 'Dr. Vikram Mehta (Gen Med)', date: '2026-10-03', clinical: true, pharmacy: true, billing: false, status: 'Billing Clearance' }
+    ];
+
+    let triageAlerts = [
+      { time: '10:14 AM', name: 'Vikram Joshi', phone: '+91 98888 88888', symptoms: 'Severe crushing chest pain radiating to left arm & cold sweats', advisory: 'Acute Cardiac Care Recommended. ER Team Alerted.' }
+    ];
+
+    function renderAppointments() {
+      const tbody = document.getElementById('appointmentsTableBody');
+      tbody.innerHTML = '';
+      appointmentsData.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        
+        let badgeClass = 'status-confirmed';
+        if (item.status === 'Waiting') badgeClass = 'status-waiting';
+        if (item.status === 'In Consultation') badgeClass = 'status-in-consult';
+        if (item.status === 'Completed') badgeClass = 'status-confirmed';
+
+        tr.innerHTML = `
+          <td><strong>${item.token}</strong></td>
+          <td>
+            <strong>${item.name}</strong><br>
+            <span style="font-size:0.8rem; color:var(--slate-500);">${item.phone}</span>
+          </td>
+          <td>
+            <strong>${item.dept}</strong><br>
+            <span style="font-size:0.8rem; color:var(--slate-600);">${item.doctor}</span>
+          </td>
+          <td>${item.time}</td>
+          <td><span class="badge-status ${badgeClass}">${item.status}</span></td>
+          <td>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-outline btn-sm" onclick="checkInPatient(${index})">Check-In</button>
+              <button class="btn btn-outline btn-sm" onclick="sendWhatsAppReminder('${item.name}', '${item.phone}')">📲 Reminder</button>
             </div>
-            <div class="stat-card">
-              <span class="stat-label">No-Show Rate</span>
-              <span class="stat-value" style="color:var(--amber);">${data.no_show_rate_pct}%</span>
-              <span style="font-size:0.75rem; color:var(--text-muted);">${data.total_no_shows} no-shows detected</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Recovery Rate %</span>
-              <span class="stat-value" style="color:var(--teal);">${data.no_show_recovery_rate_pct}%</span>
-              <span style="font-size:0.75rem; color:var(--text-muted);">${data.recovered_no_shows} rescheduled</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Avg Response Time</span>
-              <span class="stat-value" style="color:var(--blue);">${data.avg_first_response_time_minutes}m</span>
-              <span style="font-size:0.75rem; color:var(--emerald);">SLA Target: <${data.sla_target_minutes}m (Compliant)</span>
-            </div>
-          </div>
-          <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:0.6rem;">Department Distribution (Weekly Inbound)</h4>
-          <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-            ${data.department_distribution.map(d => `
-              <div style="background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:6px; padding:0.5rem 0.8rem; font-size:0.82rem;">
-                <strong>${d.department}:</strong> ${d.count} inquiries
-              </div>
-            `).join('')}
-          </div>
+          </td>
         `;
-      } catch (e) {
-        console.error('Error loading weekly view:', e);
-      }
+        tbody.appendChild(tr);
+      });
     }
 
-    async function loadManagementView() {
-      try {
-        const res = await fetch('/api/dashboard/management');
-        const data = await res.json();
-        const area = document.getElementById('managementMetricsArea');
-        area.innerHTML = `
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
-            <div class="stat-card">
-              <span class="stat-label">System Health</span>
-              <span class="stat-value" style="color:var(--emerald);">${data.executive_summary.overall_system_health}</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Lead SLA Compliance</span>
-              <span class="stat-value" style="color:var(--teal);">${data.executive_summary.sla_compliance_pct}%</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Operational Score</span>
-              <span class="stat-value" style="color:var(--purple);">${data.executive_summary.operational_efficiency_score}/100</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">System Uptime</span>
-              <span class="stat-value" style="color:var(--blue);">${data.workflow_health.uptime_pct}%</span>
-            </div>
-          </div>
-
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
-            <div>
-              <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:0.6rem;">Acquisition Channel Performance</h4>
-              <div style="font-size:0.82rem; line-height:1.8;">
-                ${data.lead_source_performance.map(s => `
-                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:0.3rem 0;">
-                    <span>${s.source}</span>
-                    <span><strong>${s.total_leads}</strong> leads (${s.conversion_pct}% booked)</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-            <div>
-              <h4 style="font-size:0.9rem; font-weight:700; margin-bottom:0.6rem;">Top System Exceptions</h4>
-              <div style="font-size:0.82rem; line-height:1.8;">
-                ${data.top_exceptions.map(e => `
-                  <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.05); padding:0.3rem 0;">
-                    <span style="color:var(--rose); font-family:monospace;">${e.error_type}</span>
-                    <span>${e.occurrences}x (${e.severity})</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
+    function renderQueue() {
+      const tbody = document.getElementById('queueListBody');
+      tbody.innerHTML = '';
+      queueData.forEach((q, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${q.token}</strong></td>
+          <td>${q.name}</td>
+          <td>${q.dept}</td>
+          <td>${q.wait}</td>
+          <td>
+            <button class="btn btn-primary btn-sm" onclick="callSpecificToken(${idx})">Call Patient</button>
+          </td>
         `;
-      } catch (e) {
-        console.error('Error loading management view:', e);
-      }
+        tbody.appendChild(tr);
+      });
+      document.getElementById('waitingCountBadge').innerText = `${queueData.length} in queue`;
+      document.getElementById('metricQueue').innerText = queueData.length;
     }
 
-    function openAuditScorecardModal() {
-      document.getElementById('auditScorecardModal').style.display = 'flex';
-      calculateAuditScore();
-    }
-    function closeAuditScorecardModal(e) {
-      if (e.target.id === 'auditScorecardModal') {
-        document.getElementById('auditScorecardModal').style.display = 'none';
-      }
-    }
-
-    function calculateAuditScore() {
-      const impact = Number(document.getElementById('paramImpact').value);
-      const freq = Number(document.getElementById('paramFreq').value);
-      const feas = Number(document.getElementById('paramFeas').value);
-      const risk = Number(document.getElementById('paramRisk').value);
-
-      const score = ((impact * freq * feas) / risk).toFixed(1);
-      document.getElementById('auditPriorityScore').innerText = score;
-
-      const rec = document.getElementById('auditRecommendation');
-      if (score >= 25) {
-        rec.style.color = 'var(--emerald)';
-        rec.innerText = '✅ PRIME CANDIDATE: Starter ₹50,000 Pilot (Lead + No-Show Recovery)';
-      } else if (score >= 15) {
-        rec.style.color = 'var(--teal)';
-        rec.innerText = '⚡ PHASE 2 EXPANSION: Growth ₹1,00,000 Scope (Discharge & Diagnostics)';
-      } else {
-        rec.style.color = 'var(--amber)';
-        rec.innerText = '⚠️ LOW AUTOMATION ROI: Keep manual until baseline processes stabilize';
-      }
+    function renderIpd() {
+      const tbody = document.getElementById('ipdTableBody');
+      tbody.innerHTML = '';
+      ipdData.forEach((ipd, idx) => {
+        const tr = document.createElement('tr');
+        const isReady = ipd.clinical && ipd.pharmacy && ipd.billing;
+        tr.innerHTML = `
+          <td><strong>${ipd.bed}</strong></td>
+          <td>${ipd.name}</td>
+          <td>${ipd.doctor}</td>
+          <td>${ipd.date}</td>
+          <td>
+            <div style="font-size:0.8rem;">
+              ${ipd.clinical ? '✅ Medical Summary' : '⏳ Medical Summary'}<br>
+              ${ipd.pharmacy ? '✅ Pharmacy Clearance' : '⏳ Pharmacy Clearance'}<br>
+              ${ipd.billing ? '✅ TPA / Billing Settled' : '🟡 Final Billing Pending'}
+            </div>
+          </td>
+          <td>
+            ${isReady 
+              ? `<button class="btn btn-teal btn-sm" onclick="issueGatePass(${idx})">🚪 Issue Gate Pass</button>`
+              : `<button class="btn btn-outline btn-sm" onclick="finalizeBilling(${idx})">💳 Clear Billing</button>`
+            }
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    function generateAuditReport() {
-      const output = document.getElementById('auditReportOutput');
-      const score = document.getElementById('auditPriorityScore').innerText;
-      output.style.display = 'block';
-      output.innerHTML = `
-=== EXECUTIVE DISCOVERY AUDIT REPORT (Blueprint Section AB & AC) ===
-Facility: DemoCare Multispeciality Hospital
-Date: ${new Date().toISOString().slice(0,10)}
-Auditor: Automation Architect (@imthatyogii)
+    function renderTriage() {
+      const tbody = document.getElementById('triageTableBody');
+      tbody.innerHTML = '';
+      triageAlerts.forEach((item, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${item.time}</td>
+          <td><strong>${item.name}</strong></td>
+          <td><a href="tel:${item.phone}" style="color:var(--primary); font-weight:700;">${item.phone}</a></td>
+          <td style="color:#b91c1c; font-weight:600;">${item.symptoms}</td>
+          <td><span class="badge-status status-emergency">${item.advisory}</span></td>
+          <td>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-danger btn-sm" onclick="acknowledgeAlert(${idx})">Acknowledge</button>
+              <button class="btn btn-outline btn-sm" onclick="callPatientMobile('${item.phone}')">📞 Call</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('metricUrgent').innerText = triageAlerts.length;
+    }
 
-1. CURRENT STATE & PATIENT JOURNEY MAPPING:
-- Channels: Google Ads, Meta/Instagram, WhatsApp Direct, Phone IVR
-- Peak Leakage: Weekend lead response delay (avg 4.2h vs 5m SLA target)
-- Empty Doctor Slots: 18% no-show rate with zero automated recovery
+    function renderDailyReport() {
+      document.getElementById('dailyBriefingContent').innerHTML = `
+        <div style="background:var(--slate-50); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:1rem;">
+          <h4 style="font-size:0.95rem; font-weight:700; color:var(--slate-900); margin-bottom:0.4rem;">🏥 Hospital Operational Highlights</h4>
+          <p>• Total Outpatient Consultations Scheduled: <strong>24 Patients</strong> across 4 Departments.</p>
+          <p>• Average Waiting Time at OPD Lounge: <strong>14 Minutes</strong> (Within 20-min hospital benchmark).</p>
+          <p>• Inpatient Bed Occupancy: <strong>75%</strong> (18 Occupied, 6 Available for emergency admission).</p>
+          <p>• Cashless Insurance Pre-Auth Clearances: <strong>100% On-Time</strong> with zero TPA rejections today.</p>
+        </div>
+      `;
 
-2. 11-DIMENSIONAL AUDIT SCORES:
-- Lead Response: ${document.getElementById('score1').value}/5
-- Lead Capture: ${document.getElementById('score2').value}/5
-- Conversion Visibility: ${document.getElementById('score3').value}/5
-- No-Show Recovery: ${document.getElementById('score4').value}/5
-- Follow-Up Tracking: ${document.getElementById('score5').value}/5
-- Diagnostic Alerts: ${document.getElementById('score6').value}/5
-- Discharge Admin: ${document.getElementById('score7').value}/5
-- Feedback & Service: ${document.getElementById('score8').value}/5
-- Executive Reporting: ${document.getElementById('score9').value}/5
-- API Readiness: ${document.getElementById('score10').value}/5
-- Security / ABDM: ${document.getElementById('score11').value}/5
-
-3. OPPORTUNITY PRIORITIZATION & SCOPE:
-- Priority Score: ${score}
-- Recommendation: ${document.getElementById('auditRecommendation').innerText}
-- Commercial Proposal: Starter ₹50,000 Pilot (14 Days Delivery)
-- Target KPI: 30% reduction in no-shows, 100% leads answered in <5 minutes.
-===================================================================
+      document.getElementById('feedbackList').innerHTML = `
+        <div style="padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md);">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <strong>Ananya Sen (Dermatology)</strong>
+            <span style="color:#eab308;">★★★★★</span>
+          </div>
+          <div style="font-size:0.84rem; color:var(--slate-600);">"Dr. Priya Sharma was extremely attentive. The WhatsApp token pass saved so much time at the counter!"</div>
+        </div>
+        <div style="padding:0.75rem 1rem; border:1px solid var(--border); border-radius:var(--radius-md);">
+          <div style="display:flex; justify-content:space-between; margin-bottom:0.25rem;">
+            <strong>Rajendra K. (Cardiology)</strong>
+            <span style="color:#eab308;">★★★★★</span>
+          </div>
+          <div style="font-size:0.84rem; color:var(--slate-600);">"Quick ECG and timely consultation with Dr. Patel. Very courteous nursing staff."</div>
+        </div>
       `;
     }
 
-    async function load26ModulesStatus() {
-      try {
-        const res = await fetch('/api/modules/status');
-        const data = await res.json();
-        const container = document.getElementById('modulesMatrixContainer');
-        if (!container) return;
+    // Action Handlers
+    function checkInPatient(index) {
+      appointmentsData[index].status = 'Checked In';
+      renderAppointments();
+      alert(`Patient ${appointmentsData[index].name} marked as Checked In.`);
+    }
 
-        container.innerHTML = data.modules.map(m => `
-          <div class="module-card">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.4rem;">
-              <span style="font-size:0.75rem; font-weight:800; color:var(--teal); font-family:monospace;">#${m.id < 10 ? '0' + m.id : m.id}</span>
-              <span class="module-badge badge-online">● ${m.status}</span>
-            </div>
-            <h4 style="font-size:0.95rem; font-weight:700; margin-bottom:0.2rem;">${m.name}</h4>
-            <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.6rem;">${m.category}</div>
-            <p style="font-size:0.78rem; color:var(--text-main); line-height:1.4; margin-bottom:0.8rem;">${m.description}</p>
-            <div style="font-size:0.72rem; color:var(--blue); font-family:monospace; background:rgba(14,165,233,0.08); padding:0.3rem 0.5rem; border-radius:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-              ${m.route}
-            </div>
-          </div>
-        `).join('');
-      } catch (e) {
-        console.error('Error loading module status:', e);
+    function sendWhatsAppReminder(name, phone) {
+      alert(`WhatsApp appointment reminder & directions sent to ${name} (${phone}).`);
+    }
+
+    function sendAllReminders() {
+      alert('WhatsApp reminders dispatched to all confirmed patients scheduled for today.');
+    }
+
+    function callNextToken() {
+      if (queueData.length === 0) {
+        alert('All waiting patients have been called!');
+        return;
       }
+      const next = queueData.shift();
+      document.getElementById('currentCallingToken').innerText = `Token #${next.token}`;
+      document.getElementById('currentCallingPatient').innerText = next.name;
+      renderQueue();
     }
 
-    async function loadDepartmentPerformance() {
+    function callSpecificToken(idx) {
+      const selected = queueData.splice(idx, 1)[0];
+      document.getElementById('currentCallingToken').innerText = `Token #${selected.token}`;
+      document.getElementById('currentCallingPatient').innerText = selected.name;
+      renderQueue();
+    }
+
+    function markConsultationComplete() {
+      alert('Consultation marked complete. Room is ready for next patient.');
+      callNextToken();
+    }
+
+    function issueGatePass(idx) {
+      const patient = ipdData[idx];
+      alert(`Discharge Gate Pass issued for ${patient.name} (${patient.bed}). Discharge summary & medication guidance dispatched to WhatsApp.`);
+      ipdData.splice(idx, 1);
+      renderIpd();
+    }
+
+    function finalizeBilling(idx) {
+      ipdData[idx].billing = true;
+      ipdData[idx].status = 'Ready for Gate Pass';
+      renderIpd();
+      alert(`Billing cleared for ${ipdData[idx].name}.`);
+    }
+
+    function acknowledgeAlert(idx) {
+      alert(`Alert acknowledged for ${triageAlerts[idx].name}. On-duty ER doctor notified.`);
+      triageAlerts.splice(idx, 1);
+      renderTriage();
+    }
+
+    function callPatientMobile(phone) {
+      window.location.href = `tel:${phone}`;
+    }
+
+    function filterAppointments() {
+      const search = document.getElementById('patientSearchInput').value.toLowerCase();
+      const dept = document.getElementById('departmentFilter').value;
+      const rows = document.querySelectorAll('#appointmentsTableBody tr');
+
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        const matchesSearch = text.includes(search);
+        const matchesDept = !dept || text.includes(dept.toLowerCase());
+        row.style.display = matchesSearch && matchesDept ? '' : 'none';
+      });
+    }
+
+    async function handleWalkinSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('walkinName').value;
+      const phone = document.getElementById('walkinPhone').value;
+      const dept = document.getElementById('walkinDept').value;
+      const doc = document.getElementById('walkinDoctor').value;
+      const symp = document.getElementById('walkinSymptoms').value;
+
+      const newId = `APPT-${Math.floor(100 + Math.random() * 900)}`;
+      const newToken = `T-0${appointmentsData.length + 4}`;
+
+      appointmentsData.unshift({
+        id: newId,
+        name: name,
+        phone: phone,
+        dept: dept,
+        doctor: doc,
+        time: 'Just Now',
+        status: 'Waiting',
+        token: newToken
+      });
+
+      queueData.push({
+        token: newToken,
+        name: name,
+        dept: dept,
+        wait: '5 mins'
+      });
+
+      closeWalkinModal();
+      renderAppointments();
+      renderQueue();
+
+      // Trigger backend intake webhook asynchronously
       try {
-        const res = await fetch('/api/dashboard/department-performance');
-        const list = await res.json();
-        const grid = document.getElementById('deptPerformanceGrid');
-        if (!grid) return;
-
-        grid.innerHTML = list.map(d => `
-          <div class="dept-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-              <h4 style="font-size:1rem; font-weight:700; color:var(--teal);">${d.department}</h4>
-              <span class="badge badge-teal">${d.active_doctors} Doctors Active</span>
-            </div>
-            <div style="font-size:0.84rem; line-height:1.7;">
-              <div style="display:flex; justify-content:space-between;"><span>Inbound Leads:</span> <strong>${d.leads}</strong></div>
-              <div style="display:flex; justify-content:space-between;"><span>Confirmed Bookings:</span> <strong>${d.appointments}</strong></div>
-              <div style="display:flex; justify-content:space-between;"><span>Conversion Rate:</span> <strong style="color:var(--emerald);">${d.conversion_rate_pct}%</strong></div>
-              <div style="display:flex; justify-content:space-between;"><span>No-Show Rate:</span> <strong style="color:${d.no_show_rate_pct > 0 ? 'var(--amber)' : 'var(--text-muted)'};">${d.no_show_rate_pct}%</strong></div>
-              <div style="display:flex; justify-content:space-between;"><span>Slot Capacity Utilization:</span> <strong style="color:var(--blue);">${d.capacity_utilization_pct}%</strong></div>
-            </div>
-          </div>
-        `).join('');
-      } catch (e) {}
-    }
-
-    async function loadDashboard() {
-      try {
-        const [metrics, leads, appts, comms, exceptions, opd, bills, admissions, referrals] = await Promise.all([
-          fetch('/api/dashboard/metrics').then(r => r.json()),
-          fetch('/api/dashboard/leads').then(r => r.json()),
-          fetch('/api/dashboard/appointments').then(r => r.json()),
-          fetch('/api/dashboard/communications').then(r => r.json()),
-          fetch('/api/dashboard/exceptions').then(r => r.json()),
-          fetch('/api/dashboard/opd-journeys').then(r => r.json()).catch(() => []),
-          fetch('/api/dashboard/billing').then(r => r.json()).catch(() => []),
-          fetch('/api/dashboard/ipd-admissions').then(r => r.json()).catch(() => []),
-          fetch('/api/dashboard/referrals').then(r => r.json()).catch(() => [])
-        ]);
-
-        // KPIs
-        document.getElementById('kpiLeads').innerText = metrics.new_leads || 0;
-        document.getElementById('kpiBooked').innerText = metrics.booked_appointments || 0;
-        document.getElementById('kpiNoShows').innerText = metrics.no_shows || 0;
-        document.getElementById('kpiRecovered').innerText = metrics.recovered_no_shows || 0;
-        document.getElementById('kpiExceptions').innerText = metrics.open_exceptions || 0;
-        document.getElementById('kpiMessages').innerText = metrics.messages_delivered || 0;
-
-        const totalRev = bills.reduce((acc, b) => acc + (b.total_amount || 0), 0);
-        document.getElementById('kpiRevenue').innerText = `₹${totalRev.toLocaleString('en-IN')}`;
-        document.getElementById('kpiAdmissions').innerText = admissions.filter(a => a.status === 'ADMITTED').length;
-
-        // Leads
-        const leadsBody = document.getElementById('leadsTableBody');
-        leadsBody.innerHTML = leads.length === 0 
-          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No leads captured yet.</td></tr>'
-          : leads.map(l => `
-            <tr>
-              <td><strong>${l.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${l.phone}</span></td>
-              <td>${l.department}</td>
-              <td><span class="code-pill">${l.source}</span></td>
-              <td><span class="badge ${l.status === 'booked' ? 'badge-teal' : l.status === 'sla_breached' ? 'badge-rose' : 'badge-amber'}">${l.status}</span></td>
-            </tr>
-          `).join('');
-
-        // Appointments
-        const apptsBody = document.getElementById('appointmentsTableBody');
-        apptsBody.innerHTML = appts.length === 0
-          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No appointments found.</td></tr>'
-          : appts.map(a => `
-            <tr>
-              <td><strong>${a.full_name}</strong></td>
-              <td>${a.doctor_name}<br><span style="font-size:0.75rem; color:var(--text-muted);">${a.department}</span></td>
-              <td><span class="code-pill">${a.slot_start.slice(5, 16)}</span></td>
-              <td>
-                <span class="badge ${a.status === 'CANCELLED' ? 'badge-rose' : a.attendance_status === 'no_show' ? 'badge-amber' : 'badge-teal'}">
-                  ${a.status === 'CANCELLED' ? 'CANCELLED' : a.attendance_status}
-                </span>
-              </td>
-            </tr>
-          `).join('');
-
-        // Communications
-        const commBody = document.getElementById('commTableBody');
-        commBody.innerHTML = comms.length === 0
-          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No messages logged yet.</td></tr>'
-          : comms.map(c => `
-            <tr>
-              <td><strong>${c.full_name}</strong></td>
-              <td><span class="code-pill">${c.template_name}</span></td>
-              <td><span style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">${c.correlation_id}</span></td>
-              <td><span class="badge badge-teal">${c.delivery_status}</span></td>
-            </tr>
-          `).join('');
-
-        // Exceptions
-        const excBody = document.getElementById('exceptionsTableBody');
-        const openExc = exceptions.filter(e => e.status === 'OPEN');
-        document.getElementById('exceptionCountBadge').innerText = `${openExc.length} Open`;
-        excBody.innerHTML = exceptions.length === 0
-          ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No exceptions.</td></tr>'
-          : exceptions.map(e => `
-            <tr>
-              <td><span class="badge ${e.severity === 'high' ? 'badge-rose' : 'badge-amber'}">${e.severity}</span></td>
-              <td><strong>${e.error_type}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${e.resolution_note || ''}</span></td>
-              <td>${e.owner}</td>
-              <td>
-                ${e.status === 'OPEN' 
-                  ? `<button class="action-btn" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="resolveException('${e.exception_id}')">Resolve</button>`
-                  : `<span class="badge badge-blue">Resolved</span>`
-                }
-              </td>
-            </tr>
-          `).join('');
-
-        // OPD Journeys
-        const opdBody = document.getElementById('opdTableBody');
-        if (opdBody) {
-          opdBody.innerHTML = opd.length === 0
-            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No OPD journeys active.</td></tr>'
-            : opd.map(j => `
-              <tr>
-                <td><strong style="color:var(--teal);">#${j.token_number || 1}</strong></td>
-                <td><strong>${j.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${j.phone}</span></td>
-                <td>${j.department}</td>
-                <td><span class="badge badge-teal">${j.stage}</span></td>
-              </tr>
-            `).join('');
-        }
-
-        // Billing Records
-        const billingBody = document.getElementById('billingTableBody');
-        if (billingBody) {
-          billingBody.innerHTML = bills.length === 0
-            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No billing records.</td></tr>'
-            : bills.map(b => `
-              <tr>
-                <td><span class="code-pill">${b.bill_id}</span></td>
-                <td><strong>${b.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${b.service_type}</span></td>
-                <td>₹${b.total_amount} <small>(Copay: ₹${b.copay_amount})</small></td>
-                <td><span class="badge ${b.payment_status === 'PAID' ? 'badge-teal' : 'badge-amber'}">${b.payment_status}</span></td>
-              </tr>
-            `).join('');
-        }
-
-        // Inpatient Admissions
-        const admBody = document.getElementById('admissionsTableBody');
-        if (admBody) {
-          admBody.innerHTML = admissions.length === 0
-            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No inpatient records.</td></tr>'
-            : admissions.map(a => `
-              <tr>
-                <td><span class="code-pill">${a.admission_id}</span></td>
-                <td><strong>${a.full_name}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${a.phone}</span></td>
-                <td>${a.room_number} (${a.bed_type})</td>
-                <td><span class="badge ${a.status === 'ADMITTED' ? 'badge-teal' : 'badge-blue'}">${a.status}</span></td>
-              </tr>
-            `).join('');
-        }
-
-        // Referrals
-        const refBody = document.getElementById('referralsTableBody');
-        if (refBody) {
-          refBody.innerHTML = referrals.length === 0
-            ? '<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No referrals received.</td></tr>'
-            : referrals.map(r => `
-              <tr>
-                <td><span class="code-pill">${r.referral_id}</span></td>
-                <td><strong>${r.referring_doctor}</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">${r.referring_facility}</span></td>
-                <td>${r.department}</td>
-                <td><span class="badge badge-teal">${r.status}</span></td>
-              </tr>
-            `).join('');
-        }
-
-      } catch (err) {
-        console.error('Dashboard load error:', err);
-      }
-    }
-
-    // Interactive Demo Handlers
-    async function triggerNoShowDemo() {
-      const res = await fetch('/webhook/no-show-recovery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ appointment_id: 'APPT-DEMO-002' })
-      });
-      const data = await res.json();
-      alert(`[Module 9: No-Show Recovery]\n\nStatus: ${data.status}\nMessage sent to patient:\n\n"${data.message_sent || data.message}"`);
-      loadDashboard();
-    }
-
-    async function triggerRescheduleDemo() {
-      const res = await fetch('/api/appointments/APPT-DEMO-002/reschedule', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({})
-      });
-      const data = await res.json();
-      alert(`[Module 8: Reschedule]\n\nStatus: ${data.status}\nNew Slot: ${data.new_slot}\nMessage:\n"${data.message}"`);
-      loadDashboard();
-    }
-
-    async function triggerCancelDemo() {
-      const res = await fetch('/api/appointments/APPT-DEMO-002/cancel', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'Client requested cancellation' })
-      });
-      const data = await res.json();
-      alert(`[Module 8: Cancellation]\n\nStatus: ${data.status}\nSlot freed: ${data.slot_freed}\nWhatsApp sent to patient.`);
-      loadDashboard();
-    }
-
-    async function triggerRouteLeadDemo() {
-      const res = await fetch('/api/leads/route', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lead_id: 'LEAD-SLA-TEST', target_department: 'Orthopedics' })
-      });
-      const data = await res.json();
-      alert(`[Module 3: Department Routing]\n\nLead LEAD-SLA-TEST successfully routed to: ${data.target_department}`);
-      loadDashboard();
-    }
-
-    async function triggerDiagnosticDemo() {
-      const res = await fetch('/webhook/diagnostic-ready', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient_id: 'DEMO-001', test_category: 'Cardiac ECG & Holter Panel' })
-      });
-      const data = await res.json();
-      alert(`[Module 11: Diagnostic Follow-Up]\n\nStatus: ${data.status}\nNon-clinical alert sent:\n\n"${data.message}"`);
-      loadDashboard();
-    }
-
-    async function triggerBillingDemo() {
-      const res = await fetch('/api/billing/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patient_id: 'DEMO-001',
-          encounter_id: 'ENC-DEMO-01',
-          service_type: 'Comprehensive Outpatient Consultation & ECG',
-          total_amount: 3200,
-          insurance_covered: 2500,
-          copay_amount: 700
-        })
-      });
-      const data = await res.json();
-      alert(`[Module 12: Billing & Copay Coordination]\n\nBill ID: ${data.bill_id}\nTotal: ₹${data.total_amount} (Copay: ₹${data.copay_amount})\nInvoice Link: ${data.invoice_url}\nWhatsApp billing message dispatched.`);
-      loadDashboard();
-    }
-
-    async function triggerPayDemo() {
-      const res = await fetch('/api/billing/pay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bill_id: 'BILL-001', payment_method: 'UPI', amount_paid: 500 })
-      });
-      const data = await res.json();
-      alert(`[Module 12: Payment Receipt]\n\nStatus: ${data.status}\nBill ${data.bill_id} marked as PAID. Digital receipt sent to patient.`);
-      loadDashboard();
-    }
-
-    async function triggerAdmissionDemo() {
-      const res = await fetch('/api/admissions/intake', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patient_id: 'DEMO-001',
-          department: 'Cardiology',
-          room_number: 'Cath Wing Room 104',
-          bed_type: 'PRIVATE',
-          doctor_id: 'DOC-CARD-01',
-          attendant_name: 'Suresh Sharma',
-          advance_deposit: 20000
-        })
-      });
-      const data = await res.json();
-      alert(`[Module 13: IPD Admission]\n\nAdmission ID: ${data.admission_id}\nRoom: ${data.room_number}\nAttendant pass generated and sent to patient.`);
-      loadDashboard();
-    }
-
-    async function triggerDischargeClearanceDemo() {
-      const res = await fetch('/api/discharge/clearance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient_id: 'DEMO-003', admission_id: 'ADM-001', doctor_name: 'Dr. Amit Patel' })
-      });
-      const data = await res.json();
-      alert(`[Module 14: Discharge Administration]\n\nStatus: ${data.status}\nDigital discharge gate-pass and summary pickup alert dispatched.`);
-      loadDashboard();
-    }
-
-    async function triggerDischargeFollowupDemo() {
-      const res = await fetch('/webhook/discharge-followup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient_id: 'DEMO-003' })
-      });
-      const data = await res.json();
-      alert(`[Module 15: Post-Discharge Follow-Up]\n\nDay-2 recovery check-in dispatched:\n"${data.message}"`);
-      loadDashboard();
-    }
-
-    async function triggerBadFeedbackDemo() {
-      const res = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patient_id: 'DEMO-003',
-          rating: 1,
-          comment: 'Wait times at pharmacy counter exceeded 45 minutes.'
-        })
-      });
-      const data = await res.json();
-      alert(`[Modules 16 & 17: Feedback & Service Recovery]\n\nRating 1/5 received. Escalated to Service Recovery Queue!`);
-      loadDashboard();
-    }
-
-    async function triggerQueueTokenDemo() {
-      const res = await fetch('/api/queue/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient_id: 'DEMO-001', department: 'Cardiology' })
-      });
-      const data = await res.json();
-      alert(`[Module 10: OPD Queue Token]\n\nToken Generated: #${data.token_number} (${data.department})\nEstimated wait: ~${data.estimated_wait_minutes} mins`);
-      loadDashboard();
-    }
-
-    async function triggerCallNextDemo() {
-      const res = await fetch('/api/queue/call-next', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ department: 'Cardiology' })
-      });
-      const data = await res.json();
-      alert(`[Module 10: Call Next Patient]\n\nStatus: ${data.status}\n${data.message}`);
-      loadDashboard();
-    }
-
-    async function triggerReferralDemo() {
-      const res = await fetch('/api/referrals/intake', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          referring_doctor: 'Dr. Anand Joshi, MD',
-          referring_facility: 'City Family Clinic',
-          patient_name: 'Pooja Hegde',
-          phone: '+919999999996',
-          department: 'Cardiology',
-          clinical_notes: 'Suspected murmur on physical exam, referral for echocardiogram'
-        })
-      });
-      const data = await res.json();
-      alert(`[Module 19: Referral Engine]\n\nReferral ID: ${data.referral_id}\nReferring Doctor acknowledged.\nHigh-priority lead created for patient Pooja Hegde.`);
-      loadDashboard();
-    }
-
-    async function triggerSlaScanDemo() {
-      const res = await fetch('/api/scheduler/run-lead-sla', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ threshold_minutes: 15 })
-      });
-      const data = await res.json();
-      alert(`[Module 20: Lead SLA Escalation]\n\nScan Completed.\nEscalated ${data.escalated_count} unhandled lead(s) to High-Severity Exception Queue.`);
-      loadDashboard();
-    }
-
-    async function triggerRemindersDemo() {
-      const res = await fetch('/api/scheduler/run-reminders', { method: 'POST' });
-      const data = await res.json();
-      alert(`[Module 7: Appointment Reminders]\n\n24h Reminders sent: ${data.reminders_24h_sent}\n3h Reminders sent: ${data.reminders_3h_sent}`);
-      loadDashboard();
-    }
-
-    async function resolveException(id) {
-      await fetch(`/api/dashboard/exceptions/${id}/resolve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ note: 'Handled and resolved by duty ops manager.' })
-      });
-      loadDashboard();
-    }
-
-    // Modal Handlers
-    async function generateAiSummary() {
-      document.getElementById('aiModal').style.display = 'flex';
-      const content = document.getElementById('aiSummaryContent');
-      content.innerHTML = '<p style="text-align:center; padding:2rem;">Summarizing hospital operational metrics via Claude...</p>';
-
-      try {
-        const res = await fetch('/api/dashboard/ai-summary');
-        const data = await res.json();
-        content.innerHTML = `
-          <div style="background:rgba(0,245,212,0.08); border:1px solid var(--teal); border-radius:8px; padding:1.2rem; margin-bottom:1.2rem;">
-            <h3 style="color:var(--teal); font-size:1.05rem; margin-bottom:0.4rem;">Executive Headline</h3>
-            <p style="font-size:0.95rem; font-weight:600;">${data.headline}</p>
-          </div>
-          <div style="margin-bottom:1.2rem;">
-            <h4 style="color:var(--emerald); font-size:0.9rem; text-transform:uppercase; margin-bottom:0.4rem;">Operational Wins:</h4>
-            <ul style="padding-left:1.2rem; font-size:0.88rem; line-height:1.6;">
-              ${(data.wins || []).map(w => `<li>${w}</li>`).join('')}
-            </ul>
-          </div>
-          <div style="margin-bottom:1.2rem;">
-            <h4 style="color:var(--rose); font-size:0.9rem; text-transform:uppercase; margin-bottom:0.4rem;">Exceptions & Attention Required:</h4>
-            <ul style="padding-left:1.2rem; font-size:0.88rem; line-height:1.6;">
-              ${(data.exceptions || []).map(e => `<li>${e}</li>`).join('')}
-            </ul>
-          </div>
-          <div>
-            <h4 style="color:var(--amber); font-size:0.9rem; text-transform:uppercase; margin-bottom:0.4rem;">Recommended Management Actions:</h4>
-            <ul style="padding-left:1.2rem; font-size:0.88rem; line-height:1.6;">
-              ${(data.questions_for_management || []).map(q => `<li>${q}</li>`).join('')}
-            </ul>
-          </div>
-        `;
-      } catch (err) {
-        content.innerHTML = `<p style="color:var(--rose);">Error generating AI summary: ${err.message}</p>`;
-      }
-    }
-
-    function openAssistantModal() {
-      document.getElementById('assistantModal').style.display = 'flex';
-    }
-
-    function closeAssistantModal(e) {
-      document.getElementById('assistantModal').style.display = 'none';
-    }
-
-    function setAssistantPrompt(text) {
-      document.getElementById('assistantInput').value = text;
-      sendAssistantQuery();
-    }
-
-    async function sendAssistantQuery() {
-      const input = document.getElementById('assistantInput');
-      const area = document.getElementById('assistantResponseArea');
-      const query = input.value.trim();
-      if (!query) return;
-
-      area.innerHTML = '<span style="color:var(--purple);">Assistant analyzing operations context...</span>';
-
-      try {
-        const res = await fetch('/api/ai/operations-assistant', {
+        fetch('/webhook/lead-intake', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query })
+          body: JSON.stringify({
+            full_name: name,
+            phone: phone,
+            department: dept,
+            preferred_date: new Date().toISOString().split('T')[0],
+            enquiry_text: symp,
+            source: 'Reception Walk-in Desk'
+          })
         });
-        const data = await res.json();
-        if (data.status === 'GUARDRAIL_BLOCKED') {
-          area.innerHTML = `
-            <div style="color:var(--rose); font-weight:700; margin-bottom:0.4rem;">⚠️ CLINICAL GUARDRAIL ENFORCED (Section G)</div>
-            <div style="color:var(--text-main); font-size:0.9rem;">${data.response}</div>
-          `;
-        } else {
-          area.innerHTML = `
-            <div style="color:var(--teal); font-weight:700; margin-bottom:0.4rem;">🤖 Administrative Response:</div>
-            <div style="color:var(--text-main); font-size:0.9rem;">${data.response}</div>
-          `;
-        }
-      } catch (err) {
-        area.innerHTML = `<span style="color:var(--rose);">Error querying assistant: ${err.message}</span>`;
-      }
+      } catch (e) {}
+
+      alert(`Walk-in patient ${name} registered successfully with Token ${newToken}. WhatsApp pass dispatched.`);
     }
 
-    async function openMaintenanceModal() {
-      document.getElementById('maintenanceModal').style.display = 'flex';
-      const content = document.getElementById('maintenanceContent');
-      content.innerHTML = '<p style="text-align:center; padding:2rem;">Scanning database and operational telemetry...</p>';
-
+    async function refreshDashboardData() {
       try {
-        const res = await fetch('/api/system/maintenance-audit');
-        const data = await res.json();
-        content.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(16,185,129,0.1); border:1px solid var(--emerald); padding:1rem; border-radius:8px; margin-bottom:1rem;">
-            <div>
-              <h3 style="color:var(--emerald); font-size:1.1rem;">System Health: ${data.system_health}</h3>
-              <p style="font-size:0.8rem; color:var(--text-muted);">Database: ${data.database.mode} | Integrity: ${data.database.integrity}</p>
-            </div>
-            <span class="badge badge-teal">Verified</span>
-          </div>
-
-          <h4 style="font-size:0.9rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem;">Table Record Telemetry:</h4>
-          <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:0.5rem; font-size:0.84rem; margin-bottom:1.2rem;">
-            <div>Patients: <strong>${data.table_counts.patients}</strong></div>
-            <div>Leads: <strong>${data.table_counts.leads}</strong></div>
-            <div>Appointments: <strong>${data.table_counts.appointments}</strong></div>
-            <div>Communications: <strong>${data.table_counts.communications}</strong></div>
-            <div>Billing Records: <strong>${data.table_counts.billing_records}</strong></div>
-            <div>Admissions: <strong>${data.table_counts.admissions}</strong></div>
-            <div>Discharges: <strong>${data.table_counts.discharges}</strong></div>
-            <div>Referrals: <strong>${data.table_counts.referrals}</strong></div>
-          </div>
-
-          <h4 style="font-size:0.9rem; color:var(--amber); text-transform:uppercase; margin-bottom:0.5rem;">Maintenance Recommendations:</h4>
-          <ul style="padding-left:1.2rem; font-size:0.86rem; line-height:1.6;">
-            ${(data.recommendations || []).map(r => `<li>${r}</li>`).join('')}
-          </ul>
-        `;
-      } catch (err) {
-        content.innerHTML = `<p style="color:var(--rose);">Error running maintenance audit: ${err.message}</p>`;
-      }
-    }
-
-    function closeMaintenanceModal(e) {
-      document.getElementById('maintenanceModal').style.display = 'none';
-    }
-
-    function closeModal(e) {
-      document.getElementById('aiModal').style.display = 'none';
-    }
-
-    async function checkWhatsAppStatus() {
-      try {
-        const res = await fetch('/api/whatsapp/status');
-        const data = await res.json();
-        const text = document.getElementById('waStatusText');
-        const btn = document.getElementById('waBridgeBtn');
-        if (data.connected) {
-          text.innerText = '✅ Live WhatsApp Connected';
-          btn.style.background = 'rgba(37, 211, 102, 0.2)';
-        } else {
-          text.innerText = '📲 Connect Live WhatsApp';
-          btn.style.background = 'none';
+        const res = await fetch('/api/dashboard/management');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.metrics) {
+            document.getElementById('metricAppts').innerText = data.metrics.total_leads || 24;
+            document.getElementById('metricBeds').innerText = '18 / 24';
+          }
         }
       } catch (e) {}
+      renderAppointments();
+      renderQueue();
+      renderIpd();
+      renderTriage();
+      renderDailyReport();
     }
 
-    async function connectWhatsApp() {
-      try {
-        await fetch('/api/whatsapp/connect', { method: 'POST' });
-        alert('📲 WhatsApp Web QR Bridge Started!\n\nCheck the terminal running the server (node src/server.js) to view and scan the QR code using your phone:\nWhatsApp > Settings > Linked Devices > Link a Device.\n\nOnce scanned, real WhatsApp messages will be dispatched for ₹0!');
-        setTimeout(checkWhatsAppStatus, 2000);
-      } catch (err) {
-        alert('Error starting bridge: ' + err.message);
-      }
-    }
-
-    async function resetDemo() {
-      if (confirm('Reset DemoCare environment back to clean initial state?')) {
-        await fetch('/api/demo/reset', { method: 'POST' });
-        loadDashboard();
-        load26ModulesStatus();
-        loadDepartmentPerformance();
-      }
-    }
-
-    // Initial Load
-    loadDashboard();
-    load26ModulesStatus();
-    loadDepartmentPerformance();
-    checkWhatsAppStatus();
-
-    // Periodic Refresh every 5 seconds
-    setInterval(() => {
-      loadDashboard();
-      checkWhatsAppStatus();
-    }, 5000);
+    // Initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      refreshDashboardData();
+    });
   </script>
 </body>
 </html>

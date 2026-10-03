@@ -3,278 +3,572 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DemoCare Multispeciality Hospital — Patient Inbound Automation & OPD Booking</title>
-  <meta name="description" content="DemoCare Multispeciality Hospital automated patient intake, emergency clinical triage, and OPD consultation booking portal.">
-  <link rel="canonical" href="https://democare.hospital/">
+  <title>DemoCare Multispeciality Hospital — Doctor Consultations & Patient Care</title>
+  <meta name="description" content="DemoCare Multispeciality Hospital provides 24/7 emergency care, specialized OPD doctor consultations, and advanced healthcare services in Mumbai. Book your appointment online.">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
-  <!-- Open Graph / Social Sharing -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://democare.hospital/">
-  <meta property="og:title" content="DemoCare Multispeciality Hospital — Patient Inbound & Healthcare Automation">
-  <meta property="og:description" content="NABH-compliant automated patient triage, live OPD queue management, and WhatsApp healthcare lifecycle automation.">
-  <meta property="og:image" content="https://democare.hospital/favicon.svg">
-
-  <!-- Twitter Meta -->
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="DemoCare Multispeciality Hospital — Healthcare Automation">
-  <meta name="twitter:description" content="Automated patient triage, WhatsApp reminders, and OPD consultations at DemoCare Hospital.">
-
-  <!-- Structured Data: Hospital / LocalBusiness -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Hospital",
-    "name": "DemoCare Multispeciality Hospital",
-    "url": "https://democare.hospital/",
-    "logo": "https://democare.hospital/favicon.svg",
-    "description": "Multispeciality hospital providing automated patient triage, OPD appointments, diagnostics, and 24/7 emergency care.",
-    "telephone": "+91 22 5550 1234",
-    "emergencyTelephone": "112",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Central Healthcare Corridor, Worli",
-      "addressLocality": "Mumbai",
-      "addressRegion": "Maharashtra",
-      "postalCode": "400018",
-      "addressCountry": "IN"
-    },
-    "medicalSpecialty": [
-      "Cardiology",
-      "Orthopedics",
-      "Dermatology",
-      "General Medicine"
-    ],
-    "openingHoursSpecification": [
-      {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        "opens": "00:00",
-        "closes": "23:59"
-      }
-    ]
-  }
-  </script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
-        <div class="brand-icon">🏥</div>
-        <div>
-          <h1>DemoCare Multispeciality Hospital</h1>
-          <p>Revenue & Patient Lifecycle Automation Layer (Master Blueprint V3)</p>
-        </div>
+
+  <!-- Top 24/7 Emergency Helpline -->
+  <div class="emergency-topbar">
+    <div class="container topbar-info">
+      <div>
+        <span>🚨 24/7 Emergency & Cardiac Care Helpline: </span>
+        <a href="tel:+912255501234">+91 22 5550 1234</a> / <strong>112</strong>
       </div>
-      <div class="nav-links">
-        <a href="/" class="nav-btn primary">Patient Form</a>
-        <a href="/admin" class="nav-btn">Operations Dashboard ⚡</a>
-      </div>
-    </header>
-
-    <div class="grid-2">
-      <!-- Left: Inbound Lead Form -->
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title"><span>📝</span> Patient Inbound Consultation Form</h2>
-          <span class="badge badge-teal">Live Webhook</span>
-        </div>
-
-        <div class="demo-presets">
-          <label style="margin-bottom:0.2rem;">Quick Demo Fillers for Video Recording:</label>
-          <button type="button" class="preset-btn" onclick="fillPreset('normal')">
-            <span>✨ <strong>Rahul Sharma</strong> — Dermatology (Normal Flow)</span>
-            <span class="badge badge-teal">Auto-Book</span>
-          </button>
-          <button type="button" class="preset-btn" onclick="fillPreset('emergency')">
-            <span>🚨 <strong>Vikram Joshi</strong> — Severe Chest Pain (Emergency Test)</span>
-            <span class="badge badge-rose">AI Guardrail</span>
-          </button>
-        </div>
-
-        <form id="leadForm" onsubmit="submitLead(event)">
-          <div class="form-group">
-            <label for="fullName">Full Name</label>
-            <input type="text" id="fullName" required placeholder="e.g. Rahul Sharma">
-          </div>
-
-          <div class="form-group">
-            <label for="phone">WhatsApp Phone Number</label>
-            <input type="text" id="phone" required placeholder="e.g. +91 99999 99999">
-          </div>
-
-          <div class="form-group">
-            <label for="department">Preferred Department</label>
-            <select id="department">
-              <option value="">Let AI Classify From Symptoms</option>
-              <option value="Dermatology">Dermatology (Skin, Hair, Acne)</option>
-              <option value="Cardiology">Cardiology (Heart, BP, ECG)</option>
-              <option value="Orthopedics">Orthopedics (Bones, Joints, Spine)</option>
-              <option value="General Medicine">General Medicine (Fever, General OPD)</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="preferredDate">Preferred Date</label>
-            <input type="date" id="preferredDate" value="2026-10-04">
-          </div>
-
-          <div class="form-group">
-            <label for="enquiryText">Symptoms / Enquiry Description</label>
-            <textarea id="enquiryText" required placeholder="Please describe what you are experiencing..."></textarea>
-          </div>
-
-          <div class="form-group">
-            <label for="source">Acquisition Channel</label>
-            <select id="source">
-              <option value="Instagram">Instagram DM / Ad</option>
-              <option value="Google Ads">Google Search / Ads</option>
-              <option value="Website Form">Hospital Website</option>
-              <option value="WhatsApp Direct">WhatsApp Inbound</option>
-            </select>
-          </div>
-
-          <button type="submit" class="btn-submit" id="submitBtn">
-            <span>⚡ Submit Enquiry to Automation Layer</span>
-          </button>
-        </form>
-      </div>
-
-      <!-- Right: Real-time Execution Inspector -->
-      <div class="card" id="resultCard">
-        <div class="card-header">
-          <h2 class="card-title"><span>🔍</span> Automation Execution Trace</h2>
-          <span class="badge badge-blue" id="statusBadge">Awaiting Submission</span>
-        </div>
-
-        <div id="emptyState" style="text-align: center; padding: 3rem 1rem; color: var(--text-muted);">
-          <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚡</div>
-          <p>Submit the form on the left or click a demo preset to see the entire AI Qualification, Calendar Match, and WhatsApp messaging trigger live.</p>
-        </div>
-
-        <div id="responseDetails" style="display: none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid var(--border);">
-            <span style="font-size:0.8rem; color:var(--text-muted);">Correlation ID:</span>
-            <span class="code-pill" id="traceCorrelation"></span>
-          </div>
-
-          <!-- Normal Success Flow -->
-          <div id="successFlow" style="display:none;">
-            <div style="background: rgba(0, 245, 212, 0.08); border: 1px solid rgba(0, 245, 212, 0.25); border-radius: 8px; padding: 1rem; margin-bottom: 1.2rem;">
-              <h4 style="color: var(--teal); margin-bottom: 0.4rem; font-size: 0.95rem;">✅ Lead Qualified & Appointment Confirmed</h4>
-              <p style="font-size: 0.85rem; color: var(--text-main);" id="appointmentDetails"></p>
-            </div>
-
-            <label>📲 Simulated Patient WhatsApp Delivery:</label>
-            <div class="whatsapp-preview">
-              <div style="font-size: 0.72rem; color: #8696a0; margin-bottom: 0.4rem; font-weight: 600;">
-                DemoCare Hospital Verified Business Account
-              </div>
-              <div class="whatsapp-bubble" id="whatsappMessage"></div>
-              <div class="whatsapp-meta">
-                <span id="msgTimestamp">Just now</span>
-                <span style="color:#53bdeb;">✓✓</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Emergency / Human Escalation Flow -->
-          <div id="escalationFlow" style="display:none;">
-            <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 8px; padding: 1.25rem;">
-              <h4 style="color: var(--rose); margin-bottom: 0.5rem; font-size: 1rem; display:flex; align-items:center; gap:0.5rem;">
-                <span>🚨</span> Human Review Required (AI Guardrail Active)
-              </h4>
-              <p style="font-size: 0.85rem; line-height: 1.5; color: #fecdd3;" id="escalationReason"></p>
-              <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 6px; font-size: 0.8rem;">
-                <strong>Guardrail Enforced:</strong> Section G & Master System Prompt — Clinical triage/emergencies are never processed autonomously. Record routed to ER / Triage Staff Exception Queue.
-              </div>
-            </div>
-          </div>
-
-          <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-            <a href="/admin" class="nav-btn primary" style="flex:1; text-align:center;">
-              View in Operations Dashboard →
-            </a>
-          </div>
-        </div>
+      <div>
+        <span>📍 Worli Healthcare Corridor, Mumbai | 🕒 OPD Timings: Mon-Sun 08:00 AM – 08:00 PM</span>
       </div>
     </div>
   </div>
 
+  <!-- Hospital Main Navigation -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="/" class="brand-link">
+        <div class="brand-symbol">🏥</div>
+        <div class="brand-text">
+          <h1>DemoCare Hospital</h1>
+          <p>NABH & NABL ACCREDITED MULTISPECIALITY</p>
+        </div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="#bookingSection">Book Appointment</a></li>
+          <li><a href="#specialtiesSection">Specialties</a></li>
+          <li><a href="#doctorsSection">Our Doctors</a></li>
+          <li><a href="#facilitiesSection">Hospital Facilities</a></li>
+          <li><a href="#contactSection">Contact & Location</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="#bookingSection" class="btn btn-primary btn-sm">Book Consultation</a>
+        <a href="/admin" class="btn btn-outline btn-sm">Staff & Reception Portal</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <h2>Compassionate Care.<br><span>Trusted Medical Specialists.</span></h2>
+        <p class="hero-lead">
+          Experience world-class healthcare with top doctors across Cardiology, Dermatology, Orthopedics, and General Medicine. Book outpatient appointments online with instant confirmation on your phone.
+        </p>
+
+        <div class="trust-badges">
+          <div class="trust-item">
+            <span class="icon">🛡️</span>
+            <span>NABH Accredited Hospital</span>
+          </div>
+          <div class="trust-item">
+            <span class="icon">👨‍⚕️</span>
+            <span>40+ Senior Specialists</span>
+          </div>
+          <div class="trust-item">
+            <span class="icon">📲</span>
+            <span>WhatsApp Appointment Pass</span>
+          </div>
+          <div class="trust-item">
+            <span class="icon">💳</span>
+            <span>100% Cashless Insurance Desk</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Emergency Callout Card -->
+      <div class="card" style="background:#ffffff; border-top: 4px solid var(--primary);">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+          <div style="font-size:2rem;">🚑</div>
+          <div>
+            <h3 style="font-size:1.1rem; color:var(--slate-900); font-weight:700;">Need Immediate Medical Attention?</h3>
+            <p style="font-size:0.84rem; color:var(--slate-500);">Our trauma and acute care center is fully staffed 24/7.</p>
+          </div>
+        </div>
+        <div style="background:var(--rose-bg); border:1px solid var(--rose-border); border-radius:var(--radius-md); padding:0.85rem 1rem; margin-bottom:1rem;">
+          <div style="font-size:0.85rem; color:#991b1b; font-weight:600;">
+            For chest pain, severe breathlessness, head trauma, or accidents:
+          </div>
+          <div style="font-size:1.2rem; font-weight:800; color:#b91c1c; margin-top:0.25rem;">
+            Call +91 22 5550 1234
+          </div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; color:var(--slate-600);">
+          <span>⏱️ Average ER Triage: &lt; 5 mins</span>
+          <span style="color:var(--emerald); font-weight:700;">● Active 24x7</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Appointment Booking Section -->
+  <section class="container" id="bookingSection" style="padding-top: 3.5rem; padding-bottom: 3.5rem;">
+    <div class="section-title-wrap">
+      <div class="section-tag">Online Outpatient Booking</div>
+      <h2 class="section-title">Schedule Doctor Consultation</h2>
+      <p class="section-subtitle">Select your department, doctor, and preferred time. Your digital appointment pass will be delivered via WhatsApp.</p>
+    </div>
+
+    <div class="hero-grid">
+      <!-- Left: Booking Form -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Patient Consultation Details</h3>
+            <p class="card-subtitle">Fill in the details below to reserve your consultation slot.</p>
+          </div>
+          <span class="badge badge-primary">OPD Booking</span>
+        </div>
+
+        <!-- Quick Demo Fillers for Testing -->
+        <div class="quick-fill-bar">
+          <div class="quick-fill-label">Quick Patient Sample Fillers:</div>
+          <div class="quick-buttons">
+            <button type="button" class="quick-btn" onclick="fillPatientSample('normal')">
+              👤 Rahul Sharma (Dermatology Consultation)
+            </button>
+            <button type="button" class="quick-btn" onclick="fillPatientSample('emergency')">
+              🚨 Vikram Joshi (Acute Chest Pain Advisory)
+            </button>
+          </div>
+        </div>
+
+        <form id="appointmentForm" onsubmit="handleAppointmentBooking(event)">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="patientName">Patient Full Name <small>*</small></label>
+              <input type="text" id="patientName" class="form-control" placeholder="e.g. Rahul Sharma" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="patientPhone">Mobile Number (WhatsApp) <small>*</small></label>
+              <input type="tel" id="patientPhone" class="form-control" placeholder="e.g. +91 99999 99999" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="deptSelect">Speciality / Department <small>*</small></label>
+              <select id="deptSelect" class="form-control" required onchange="updateDoctorDropdown()">
+                <option value="">Select Department</option>
+                <option value="Dermatology">Dermatology (Skin, Hair, Nails)</option>
+                <option value="Cardiology">Cardiology (Heart, BP, ECG)</option>
+                <option value="Orthopedics">Orthopedics (Bones, Joints, Spine)</option>
+                <option value="General Medicine">General Medicine (Fever, Diabetes, General OPD)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="doctorSelect">Preferred Doctor</label>
+              <select id="doctorSelect" class="form-control">
+                <option value="">First Available Senior Specialist</option>
+                <option value="Dr. Priya Sharma">Dr. Priya Sharma (Dermatology)</option>
+                <option value="Dr. Rajesh Patel">Dr. Rajesh Patel (Cardiology)</option>
+                <option value="Dr. Anita Desai">Dr. Anita Desai (Orthopedics)</option>
+                <option value="Dr. Vikram Mehta">Dr. Vikram Mehta (General Medicine)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="bookingDate">Preferred Date <small>*</small></label>
+              <input type="date" id="bookingDate" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="preferredTime">Preferred Time Slot</label>
+              <select id="preferredTime" class="form-control">
+                <option value="Morning">Morning (09:00 AM – 12:00 PM)</option>
+                <option value="Afternoon">Afternoon (12:00 PM – 04:00 PM)</option>
+                <option value="Evening">Evening (04:00 PM – 08:00 PM)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="symptomsText">Symptoms / Health Concern <small>*</small></label>
+            <textarea id="symptomsText" class="form-control" placeholder="Please describe your symptoms, how long you've had them, or reason for visit..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg" id="submitBookingBtn" style="width: 100%;">
+            <span>Confirm Appointment</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Right: Booking Confirmation & WhatsApp Pass Display -->
+      <div class="card" id="statusCard">
+        <div class="card-header">
+          <h3 class="card-title">Appointment Confirmation</h3>
+          <span class="badge badge-neutral" id="bookingStatusBadge">Awaiting Details</span>
+        </div>
+
+        <div id="bookingEmptyState" style="text-align:center; padding:3rem 1.5rem; color:var(--slate-500);">
+          <div style="font-size:3rem; margin-bottom:1rem;">🗓️</div>
+          <h4 style="font-size:1.05rem; color:var(--slate-800); margin-bottom:0.5rem; font-weight:700;">Ready to Book Your Visit</h4>
+          <p style="font-size:0.88rem; line-height:1.6; max-width:380px; margin:0 auto;">
+            Fill out the consultation form on the left. Upon booking, your appointment pass and OPD queue instructions will appear here and be dispatched directly to your WhatsApp.
+          </p>
+          <div style="margin-top:1.5rem; padding:1rem; background:var(--slate-50); border-radius:var(--radius-md); text-align:left; font-size:0.82rem; color:var(--slate-600);">
+            <div style="font-weight:700; color:var(--slate-800); margin-bottom:0.3rem;">What to expect:</div>
+            <div>✓ Instant Doctor slot allocation</div>
+            <div>✓ WhatsApp appointment token & room guidance</div>
+            <div>✓ Zero waiting in reception billing queues</div>
+          </div>
+        </div>
+
+        <!-- Confirmed State -->
+        <div id="bookingSuccessBox" style="display:none;">
+          <div class="result-success-card">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.5rem;">
+              <span style="font-size:1.4rem;">🎉</span>
+              <h4 style="color:var(--emerald); font-size:1.15rem; font-weight:800;">Appointment Confirmed!</h4>
+            </div>
+            <p style="font-size:0.88rem; color:var(--slate-700); margin-bottom:1rem;">
+              Your consultation has been reserved in our hospital schedule.
+            </p>
+            <div style="background:#ffffff; padding:1rem; border-radius:var(--radius-md); border:1px solid var(--emerald-border); font-size:0.86rem; line-height:1.7;" id="confirmedDetailsText">
+            </div>
+          </div>
+
+          <div style="margin-top:1.25rem;">
+            <div style="font-size:0.84rem; font-weight:700; color:var(--slate-700); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem;">
+              <span>📲</span> Digital Pass Dispatched to Patient WhatsApp:
+            </div>
+            <div class="whatsapp-mock-card">
+              <div style="font-size:0.75rem; font-weight:700; color:#0f766e; margin-bottom:0.4rem;">
+                DemoCare Hospital Verified Business Desk
+              </div>
+              <div class="whatsapp-bubble" id="whatsappMessageText"></div>
+              <div class="whatsapp-meta">
+                <span id="msgTimestamp">Just now</span>
+                <span style="color:#0284c7;">✓✓ Delivered</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:1.5rem; display:flex; gap:0.75rem;">
+            <button onclick="window.print()" class="btn btn-outline btn-sm" style="flex:1;">🖨️ Print Pass</button>
+            <a href="/admin" class="btn btn-primary btn-sm" style="flex:1;">View on Reception Screen →</a>
+          </div>
+        </div>
+
+        <!-- Emergency / Urgent Triage State -->
+        <div id="bookingEmergencyBox" style="display:none;">
+          <div class="result-emergency-card">
+            <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem;">
+              <span style="font-size:1.6rem;">🚨</span>
+              <h4 style="color:#b91c1c; font-size:1.15rem; font-weight:800;">Immediate Medical Advisory</h4>
+            </div>
+            <p style="font-size:0.9rem; color:#7f1d1d; line-height:1.6; margin-bottom:1rem;" id="emergencyReasonText">
+              Based on the symptoms you reported, please do not wait for an OPD scheduled consultation.
+            </p>
+            <div style="background:#ffffff; border:1px solid var(--rose-border); border-radius:var(--radius-md); padding:1rem; font-size:0.88rem; color:#991c1c;">
+              <strong>Immediate Actions:</strong>
+              <ul style="margin-top:0.4rem; padding-left:1.2rem; line-height:1.6;">
+                <li>Proceed directly to our <strong>24/7 Emergency & Trauma Center</strong> (Ground Floor, West Wing).</li>
+                <li>Call our Emergency Ambulance dispatch at <a href="tel:+912255501234" style="color:#b91c1c; font-weight:800;">+91 22 5550 1234</a>.</li>
+                <li>Our on-duty Emergency Medical Officer has been notified of your inquiry.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Specialties Section -->
+  <section class="container" id="specialtiesSection" style="padding-bottom:3.5rem;">
+    <div class="section-title-wrap">
+      <div class="section-tag">Clinical Excellence</div>
+      <h2 class="section-title">Specialized Clinical Departments</h2>
+      <p class="section-subtitle">Dedicated centers of excellence offering comprehensive diagnostic, medical, and surgical therapies.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="feature-icon">❤️</div>
+        <h3 class="feature-title">Cardiology & Heart Center</h3>
+        <p class="feature-desc">ECG, 2D Echo, TMT, coronary interventions, hypertension management, and preventive heart screenings.</p>
+        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('Cardiology')">Book Cardiology</button>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon">✨</div>
+        <h3 class="feature-title">Dermatology & Cosmetology</h3>
+        <p class="feature-desc">Comprehensive treatment for acne, eczema, psoriasis, hair restoration, allergies, and clinical dermatology.</p>
+        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('Dermatology')">Book Dermatology</button>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon">🦴</div>
+        <h3 class="feature-title">Orthopedics & Joint Care</h3>
+        <p class="feature-desc">Minimally invasive joint replacements, sports injuries, spine care, fractures, and advanced rehabilitation.</p>
+        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('Orthopedics')">Book Orthopedics</button>
+      </div>
+
+      <div class="feature-box">
+        <div class="feature-icon">🩺</div>
+        <h3 class="feature-title">General Medicine</h3>
+        <p class="feature-desc">Diagnosis and management of fever, infectious diseases, diabetes, thyroid disorders, and preventive health.</p>
+        <button class="btn btn-outline btn-sm" style="margin-top:1rem;" onclick="selectDepartment('General Medicine')">Book Medicine</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Senior Doctors Section -->
+  <section class="container" id="doctorsSection" style="padding-bottom:3.5rem;">
+    <div class="section-title-wrap">
+      <div class="section-tag">Our Medical Faculty</div>
+      <h2 class="section-title">Senior Consultant Physicians & Surgeons</h2>
+      <p class="section-subtitle">Experienced doctors committed to providing personalized, evidence-based patient care.</p>
+    </div>
+
+    <div class="doctors-grid">
+      <div class="doctor-card">
+        <div class="doctor-avatar-wrap">👩‍⚕️</div>
+        <h4 class="doctor-name">Dr. Priya Sharma</h4>
+        <div class="doctor-dept">Chief Consultant — Dermatology</div>
+        <div class="doctor-exp">MD (Dermatology), AIIMS • 14+ Years Experience</div>
+        <div class="doctor-timings">
+          🕒 Mon, Wed, Fri: 10:00 AM – 02:00 PM<br>
+          📍 Room 204, OPD Block B
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Priya Sharma', 'Dermatology')">Book with Dr. Priya</button>
+      </div>
+
+      <div class="doctor-card">
+        <div class="doctor-avatar-wrap">👨‍⚕️</div>
+        <h4 class="doctor-name">Dr. Rajesh Patel</h4>
+        <div class="doctor-dept">Head of Department — Cardiology</div>
+        <div class="doctor-exp">DM (Cardiology), KEM • 18+ Years Experience</div>
+        <div class="doctor-timings">
+          🕒 Tue, Thu, Sat: 09:00 AM – 01:00 PM<br>
+          📍 Room 108, Cardiac Center
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Rajesh Patel', 'Cardiology')">Book with Dr. Rajesh</button>
+      </div>
+
+      <div class="doctor-card">
+        <div class="doctor-avatar-wrap">👩‍⚕️</div>
+        <h4 class="doctor-name">Dr. Anita Desai</h4>
+        <div class="doctor-dept">Senior Surgeon — Orthopedics</div>
+        <div class="doctor-exp">MS (Ortho), MCh Joint Replacement • 16+ Years Experience</div>
+        <div class="doctor-timings">
+          🕒 Mon, Thu, Sat: 11:00 AM – 04:00 PM<br>
+          📍 Room 302, Ortho Suite
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Anita Desai', 'Orthopedics')">Book with Dr. Anita</button>
+      </div>
+
+      <div class="doctor-card">
+        <div class="doctor-avatar-wrap">👨‍⚕️</div>
+        <h4 class="doctor-name">Dr. Vikram Mehta</h4>
+        <div class="doctor-dept">Senior Consultant — General Medicine</div>
+        <div class="doctor-exp">MD (Internal Medicine) • 12+ Years Experience</div>
+        <div class="doctor-timings">
+          🕒 Daily: 08:30 AM – 01:30 PM<br>
+          📍 Room 101, Main OPD Wing
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="selectDoctor('Dr. Vikram Mehta', 'General Medicine')">Book with Dr. Vikram</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hospital Facilities Section -->
+  <section class="container" id="facilitiesSection" style="padding-bottom:3.5rem;">
+    <div class="section-title-wrap">
+      <div class="section-tag">Infrastructure & Patient Services</div>
+      <h2 class="section-title">Comprehensive Hospital Infrastructure</h2>
+      <p class="section-subtitle">Equipped with state-of-the-art diagnostic technology and patient-centric care facilities.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-box">
+        <div class="feature-icon">🔬</div>
+        <h4 class="feature-title">NABL Accredited Diagnostics</h4>
+        <p class="feature-desc">Fully automated pathology, biochemistry, 128-slice CT scan, digital X-ray, and 1.5T MRI diagnostics.</p>
+      </div>
+      <div class="feature-box">
+        <div class="feature-icon">🏥</div>
+        <h4 class="feature-title">Modular Operation Theaters</h4>
+        <p class="feature-desc">Ultra-clean laminar airflow surgical suites designed for orthopedic, cardiac, and general laparoscopic surgeries.</p>
+      </div>
+      <div class="feature-box">
+        <div class="feature-icon">💊</div>
+        <h4 class="feature-title">24/7 In-House Pharmacy</h4>
+        <p class="feature-desc">Round-the-clock dispensing of verified authentic medicines, surgical consumables, and critical injectables.</p>
+      </div>
+      <div class="feature-box">
+        <div class="feature-icon">🛡️</div>
+        <h4 class="feature-title">Cashless Insurance (TPA) Desk</h4>
+        <p class="feature-desc">Empaneled with all major insurance providers (Star Health, HDFC ERGO, ICICI Lombard, Care Health, Medi Assist, etc.).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hospital Footer -->
+  <footer class="hospital-footer" id="contactSection">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <h4>DemoCare Multispeciality Hospital</h4>
+          <p>
+            A premier healthcare institution dedicated to delivering compassionate, patient-first medical treatments with advanced technology.
+          </p>
+          <div style="margin-top:1rem; font-size:0.85rem; color:var(--teal-light);">
+            📍 Central Healthcare Corridor, Worli, Mumbai 400018
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Emergency & Help</h4>
+          <p><strong>Ambulance:</strong> 112 / +91 22 5550 1234</p>
+          <p><strong>OPD Appointment:</strong> +91 22 5550 1235</p>
+          <p><strong>General Inquiries:</strong> info@democare.hospital</p>
+          <p><strong>Visiting Hours:</strong> 04:00 PM – 07:00 PM</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Clinical Specialties</h4>
+          <p><a href="#specialtiesSection">Cardiology & Cardiac ICU</a></p>
+          <p><a href="#specialtiesSection">Dermatology & Cosmetology</a></p>
+          <p><a href="#specialtiesSection">Orthopedics & Joint Replacement</a></p>
+          <p><a href="#specialtiesSection">General Internal Medicine</a></p>
+          <p><a href="#specialtiesSection">24/7 Critical Care & Trauma</a></p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Hospital Staff</h4>
+          <p><a href="/admin">Front Desk & Reception Desk</a></p>
+          <p><a href="/admin">Doctor Consultation Queue</a></p>
+          <p><a href="/admin">IPD Bed & Discharge Management</a></p>
+          <p><a href="/health">System Status Probe</a></p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          © 2026 DemoCare Multispeciality Hospital. All Rights Reserved. NABH & NABL Accredited Healthcare Facility.
+        </div>
+        <div>
+          Medical Disclaimer: Online inquiries do not replace emergency clinical assessment. In case of acute emergencies, please dial 112 or visit the nearest emergency room.
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    function fillPreset(type) {
-      if (type === 'normal') {
-        document.getElementById('fullName').value = 'Rahul Sharma';
-        document.getElementById('phone').value = '+91 99999 99999';
-        document.getElementById('department').value = 'Dermatology';
-        document.getElementById('enquiryText').value = 'I want to book a consultation for severe acne and skin rash.';
-        document.getElementById('source').value = 'Instagram';
-      } else if (type === 'emergency') {
-        document.getElementById('fullName').value = 'Vikram Joshi';
-        document.getElementById('phone').value = '+91 98888 88888';
-        document.getElementById('department').value = 'Cardiology';
-        document.getElementById('enquiryText').value = 'Experiencing severe crushing chest pain radiating to left arm and breathing difficulty since 20 mins!';
-        document.getElementById('source').value = 'WhatsApp Direct';
+    // Initialize default booking date to tomorrow
+    document.addEventListener('DOMContentLoaded', () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const yyyy = tomorrow.getFullYear();
+      const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+      const dd = String(tomorrow.getDate()).padStart(2, '0');
+      document.getElementById('bookingDate').value = `${yyyy}-${mm}-${dd}`;
+    });
+
+    function selectDepartment(dept) {
+      document.getElementById('deptSelect').value = dept;
+      updateDoctorDropdown();
+      document.getElementById('bookingSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function selectDoctor(doctorName, dept) {
+      document.getElementById('deptSelect').value = dept;
+      updateDoctorDropdown();
+      document.getElementById('doctorSelect').value = doctorName;
+      document.getElementById('bookingSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function updateDoctorDropdown() {
+      const dept = document.getElementById('deptSelect').value;
+      const docSelect = document.getElementById('doctorSelect');
+      if (dept === 'Dermatology') {
+        docSelect.value = 'Dr. Priya Sharma';
+      } else if (dept === 'Cardiology') {
+        docSelect.value = 'Dr. Rajesh Patel';
+      } else if (dept === 'Orthopedics') {
+        docSelect.value = 'Dr. Anita Desai';
+      } else if (dept === 'General Medicine') {
+        docSelect.value = 'Dr. Vikram Mehta';
       }
     }
 
-    async function submitLead(e) {
+    function fillPatientSample(type) {
+      if (type === 'normal') {
+        document.getElementById('patientName').value = 'Rahul Sharma';
+        document.getElementById('patientPhone').value = '+91 99999 99999';
+        document.getElementById('deptSelect').value = 'Dermatology';
+        updateDoctorDropdown();
+        document.getElementById('symptomsText').value = 'Need consultation for persistent skin allergy and acne rash on face for the last 2 weeks.';
+      } else if (type === 'emergency') {
+        document.getElementById('patientName').value = 'Vikram Joshi';
+        document.getElementById('patientPhone').value = '+91 98888 88888';
+        document.getElementById('deptSelect').value = 'Cardiology';
+        updateDoctorDropdown();
+        document.getElementById('symptomsText').value = 'Severe crushing chest pain radiating to left shoulder, breathlessness, and cold sweating since 30 minutes!';
+      }
+    }
+
+    async function handleAppointmentBooking(e) {
       e.preventDefault();
-      const btn = document.getElementById('submitBtn');
+      const btn = document.getElementById('submitBookingBtn');
       btn.disabled = true;
-      btn.innerText = '⚡ Processing via AI Automation Layer...';
+      btn.innerHTML = '<span>⏳ Confirming Your Appointment...</span>';
 
       const payload = {
-        full_name: document.getElementById('fullName').value,
-        phone: document.getElementById('phone').value,
-        department: document.getElementById('department').value,
-        preferred_date: document.getElementById('preferredDate').value,
-        enquiry_text: document.getElementById('enquiryText').value,
-        source: document.getElementById('source').value
+        full_name: document.getElementById('patientName').value.trim(),
+        phone: document.getElementById('patientPhone').value.trim(),
+        department: document.getElementById('deptSelect').value,
+        preferred_date: document.getElementById('bookingDate').value,
+        enquiry_text: document.getElementById('symptomsText').value.trim(),
+        source: 'Website Appointment Desk'
       };
 
       try {
-        const res = await fetch('/webhook/lead-intake', {
+        const response = await fetch('/webhook/lead-intake', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
-        renderResult(data);
+        const data = await response.json();
+        renderBookingOutcome(data);
       } catch (err) {
-        alert('Error: ' + err.message);
+        alert('Unable to process appointment: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerText = '⚡ Submit Enquiry to Automation Layer';
+        btn.innerHTML = '<span>Confirm Appointment</span>';
       }
     }
 
-    function renderResult(data) {
-      document.getElementById('emptyState').style.display = 'none';
-      document.getElementById('responseDetails').style.display = 'block';
-      document.getElementById('traceCorrelation').innerText = data.correlation_id || 'N/A';
+    function renderBookingOutcome(data) {
+      document.getElementById('bookingEmptyState').style.display = 'none';
 
       if (data.status === 'SUCCESS') {
-        document.getElementById('statusBadge').className = 'badge badge-teal';
-        document.getElementById('statusBadge').innerText = 'Processed & Booked';
-        document.getElementById('successFlow').style.display = 'block';
-        document.getElementById('escalationFlow').style.display = 'none';
+        document.getElementById('bookingStatusBadge').className = 'badge badge-success';
+        document.getElementById('bookingStatusBadge').innerText = 'Confirmed';
+        document.getElementById('bookingEmergencyBox').style.display = 'none';
+        document.getElementById('bookingSuccessBox').style.display = 'block';
 
-        document.getElementById('appointmentDetails').innerHTML = `
+        document.getElementById('confirmedDetailsText').innerHTML = `
+          <strong>Patient Name:</strong> ${document.getElementById('patientName').value}<br>
           <strong>Department:</strong> ${data.department}<br>
-          <strong>Doctor:</strong> ${data.doctor}<br>
-          <strong>Confirmed Slot:</strong> ${data.slot}<br>
-          <strong>Appointment ID:</strong> <span class="code-pill">${data.appointment_id}</span>
+          <strong>Consulting Doctor:</strong> ${data.doctor}<br>
+          <strong>Appointment Time:</strong> ${data.slot}<br>
+          <strong>Appointment Pass ID:</strong> <span style="font-family:monospace; font-weight:700; color:var(--primary);">${data.appointment_id}</span>
         `;
-        document.getElementById('whatsappMessage').innerText = data.message_sent;
+        document.getElementById('whatsappMessageText').innerText = data.message_sent;
       } else if (data.status === 'ESCALATED_TO_HUMAN') {
-        document.getElementById('statusBadge').className = 'badge badge-rose';
-        document.getElementById('statusBadge').innerText = 'Guardrail Escalated';
-        document.getElementById('successFlow').style.display = 'none';
-        document.getElementById('escalationFlow').style.display = 'block';
-        document.getElementById('escalationReason').innerText = data.reason;
+        document.getElementById('bookingStatusBadge').className = 'badge badge-danger';
+        document.getElementById('bookingStatusBadge').innerText = 'Urgent Clinical Advisory';
+        document.getElementById('bookingSuccessBox').style.display = 'none';
+        document.getElementById('bookingEmergencyBox').style.display = 'block';
+        document.getElementById('emergencyReasonText').innerText = data.reason;
       }
     }
   </script>
