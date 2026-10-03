@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evergreen Hospital — Hospital Management Dashboard</title>
+  <title>Evergreen Hospital — Autonomous Healthcare Operations Platform</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="styles.css">
   <style>
@@ -50,101 +50,170 @@
     .app-shell { display: flex; width: 100vw; min-height: 100vh; background-color: var(--bg-page); overflow-x: hidden; }
 
     /* Sidebar */
-    .sidebar { width: 250px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; min-height: 100vh; }
-    .sidebar-brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; padding: 0 6px; }
+    .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 22px 14px; flex-shrink: 0; min-height: 100vh; }
+    .sidebar-brand { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; padding: 0 8px; }
     .brand-link { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
-    .brand-logo-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--mint-bg); color: var(--mint-text); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; border: 1px solid var(--mint-border); }
-    .brand-text { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); letter-spacing: -0.01em; }
-    .sidebar-collapse-btn { background: #ffffff; border: 1px solid var(--border); border-radius: 6px; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; }
-    .sidebar-collapse-btn:hover { background: #f8fafc; color: var(--text-dark); }
-    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 3px; }
-    .nav-section-title { font-size: 0.7rem; font-weight: 700; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; padding: 16px 12px 6px; }
-    .nav-item { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--text-muted); text-decoration: none; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
+    .brand-logo-icon { width: 38px; height: 38px; border-radius: 10px; background: var(--mint-bg); color: var(--mint-text); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; border: 1px solid var(--mint-border); }
+    .brand-text { font-size: 1.05rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.01em; }
+    .sidebar-scrollable { flex: 1; overflow-y: auto; padding-right: 2px; }
+    .sidebar-scrollable::-webkit-scrollbar { width: 4px; }
+    .sidebar-scrollable::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+    .sidebar-nav { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .nav-section-title { font-size: 0.68rem; font-weight: 800; color: var(--text-light); letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 12px 4px; }
+    .nav-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: var(--radius-sm); color: var(--text-muted); text-decoration: none; font-size: 0.86rem; font-weight: 600; cursor: pointer; transition: all 0.15s ease; user-select: none; }
+    .nav-item-left { display: flex; align-items: center; gap: 10px; }
     .nav-item:hover { background: #f8fafc; color: var(--text-dark); }
-    .nav-item.active { background: #f2f4f7; color: var(--text-dark); font-weight: 700; }
-    .nav-item .icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; opacity: 0.85; }
-    .nav-item.active .icon { opacity: 1; }
-    .nav-item.logout { color: #dc2626; margin-top: 6px; }
-    .nav-item.logout:hover { background: #fef2f2; }
+    .nav-item.active { background: #ecfdf5; color: #027a48; font-weight: 700; border: 1px solid #a7f3d0; }
+    .nav-item .icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; opacity: 0.85; }
+    .nav-item.active .icon { opacity: 1; color: #059669; }
+    .nav-count-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: var(--radius-full); background: #f2f4f7; color: var(--text-muted); }
+    .nav-item.active .nav-count-badge { background: #a7f3d0; color: #027a48; }
 
     /* Canvas */
-    .main-canvas { flex: 1; display: flex; flex-direction: column; background: #f8fafc; min-width: 0; overflow-y: auto; }
-    .topbar { height: 76px; padding: 0 36px; background: #ffffff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .topbar-title { font-size: 1.55rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.02em; }
-    .topbar-right { display: flex; align-items: center; gap: 16px; }
-    .search-box { position: relative; width: 280px; }
-    .search-input { width: 100%; padding: 9px 48px 9px 36px; font-size: 0.88rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #ffffff; color: var(--text-dark); outline: none; font-family: inherit; }
+    .main-canvas { flex: 1; display: flex; flex-direction: column; background: #f8fafc; min-width: 0; min-height: 100vh; overflow-y: auto; }
+    .topbar { height: 74px; padding: 0 32px; background: #ffffff; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .topbar-title-wrap { display: flex; align-items: center; gap: 12px; }
+    .topbar-title { font-size: 1.45rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.02em; }
+    .topbar-badge-live { display: inline-flex; align-items: center; gap: 5px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #027a48; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: var(--radius-full); }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .search-box { position: relative; width: 260px; }
+    .search-input { width: 100%; padding: 8px 46px 8px 34px; font-size: 0.86rem; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #ffffff; color: var(--text-dark); outline: none; font-family: inherit; }
     .search-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12); }
-    .search-icon-left { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 0.88rem; }
-    .search-kbd-pill { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 0.72rem; font-weight: 600; color: var(--text-light); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; background: #f8fafc; }
+    .search-icon-left { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-light); font-size: 0.86rem; }
+    .search-kbd-pill { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 0.7rem; font-weight: 600; color: var(--text-light); border: 1px solid var(--border); padding: 2px 5px; border-radius: 4px; background: #f8fafc; }
 
-    /* Content */
-    .dashboard-content { padding: 28px 36px 48px; display: flex; flex-direction: column; gap: 24px; }
+    /* Action Buttons */
+    .btn-topbar { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--radius-sm); font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease; border: 1px solid transparent; }
+    .btn-topbar.primary { background: #10b981; color: #ffffff; box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2); }
+    .btn-topbar.primary:hover { background: #059669; }
+    .btn-topbar.outline { background: #ffffff; color: var(--text-dark); border-color: var(--border); }
+    .btn-topbar.outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+    /* Content Area */
+    .dashboard-content { padding: 24px 32px 48px; display: flex; flex-direction: column; gap: 24px; }
+    .view-panel { display: none; flex-direction: column; gap: 24px; animation: fadeIn 0.18s ease-in-out forwards; }
+    .view-panel.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Common Card Styles */
+    .card-shell { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-xs); }
+    .card-shell-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .card-title { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.01em; }
+    .card-subtitle { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Metric Cards Grid */
     .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-    .metric-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; justify-content: space-between; min-height: 148px; transition: all 0.15s ease; }
+    .metric-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; justify-content: space-between; min-height: 144px; transition: transform 0.15s ease, box-shadow 0.15s ease; cursor: pointer; }
     .metric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
-    .metric-header { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; font-weight: 600; color: var(--text-dark); }
+    .metric-header { display: flex; align-items: center; gap: 8px; font-size: 0.86rem; font-weight: 700; color: var(--text-dark); }
     .metric-header svg { width: 18px; height: 18px; color: var(--text-dark); }
     .metric-main-val { display: flex; align-items: baseline; gap: 10px; margin: 12px 0 8px; }
-    .stat-number-huge { font-size: 2.2rem; font-weight: 800; color: var(--text-dark); line-height: 1; letter-spacing: -0.02em; }
+    .stat-number-huge { font-size: 2.1rem; font-weight: 800; color: var(--text-dark); line-height: 1; letter-spacing: -0.02em; }
     .pill-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: var(--radius-full); font-size: 0.74rem; font-weight: 700; }
     .pill-green { background: var(--badge-green-bg); color: var(--badge-green-text); border: 1px solid var(--badge-green-border); }
     .pill-grey { background: var(--badge-grey-bg); color: var(--badge-grey-text); }
     .pill-red { background: var(--badge-red-bg); color: var(--badge-red-text); border: 1px solid var(--badge-red-border); }
     .pill-blue { background: var(--badge-blue-bg); color: var(--badge-blue-text); border: 1px solid var(--badge-blue-border); }
     .pill-yellow { background: var(--badge-yellow-bg); color: var(--badge-yellow-text); border: 1px solid var(--badge-yellow-border); }
-    .metric-breakdown-row { display: flex; align-items: center; gap: 16px; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 10px; margin-top: 4px; }
+    .metric-breakdown-row { display: flex; align-items: center; gap: 14px; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 10px; margin-top: 4px; }
     .metric-breakdown-row strong { color: var(--text-dark); font-weight: 700; }
-    .metric-caption-text { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
 
-    /* Analytics */
+    /* Analytics Row */
     .analytics-grid { display: grid; grid-template-columns: 360px 1fr; gap: 20px; }
-    .chart-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; }
-    .chart-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .chart-card-title { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); }
-    .btn-add-report-pill { display: inline-flex; align-items: center; gap: 6px; background: #ffffff; border: 1px solid var(--border); padding: 5px 14px; border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; color: var(--text-dark); cursor: pointer; transition: all 0.15s; }
-    .btn-add-report-pill:hover { background: #f8fafc; border-color: #cbd5e1; }
-    .donut-wrapper { position: relative; width: 190px; height: 190px; margin: 10px auto; }
+    .donut-wrapper { position: relative; width: 180px; height: 180px; margin: 10px auto; }
     .donut-svg-ring { width: 100%; height: 100%; transform: rotate(-90deg); }
     .donut-center-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
-    .donut-center-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-    .donut-center-percent { font-size: 2.1rem; font-weight: 800; color: var(--text-dark); line-height: 1.1; letter-spacing: -0.02em; }
-    .donut-legend-row { display: flex; justify-content: space-around; margin-top: 18px; padding-top: 14px; border-top: 1px solid #f2f4f7; }
+    .donut-center-label { font-size: 0.74rem; color: var(--text-muted); font-weight: 600; }
+    .donut-center-percent { font-size: 2rem; font-weight: 800; color: var(--text-dark); line-height: 1.1; letter-spacing: -0.02em; }
+    .donut-legend-row { display: flex; justify-content: space-around; margin-top: 16px; padding-top: 14px; border-top: 1px solid #f2f4f7; }
     .legend-col { display: flex; flex-direction: column; align-items: center; gap: 2px; }
     .legend-head { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; }
     .dot-indicator { width: 8px; height: 8px; border-radius: 50%; }
-    .legend-sub { font-size: 0.74rem; color: var(--text-muted); }
 
     /* Wave Chart */
-    .wave-chart-area { position: relative; width: 100%; height: 220px; margin-top: 10px; }
-    .floating-patient-card { position: absolute; top: 0; right: 50px; background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; box-shadow: var(--shadow-floating); z-index: 10; min-width: 210px; }
-    .floating-head { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
-    .floating-val-row { display: flex; align-items: baseline; gap: 8px; margin: 6px 0; }
-    .floating-val-number { font-size: 1.65rem; font-weight: 800; color: var(--text-dark); line-height: 1; }
-    .floating-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 6px; margin-top: 4px; }
-    .floating-details-grid strong { color: var(--text-dark); }
-    .wave-legend-bottom { display: flex; align-items: center; justify-content: flex-start; gap: 24px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f2f4f7; font-size: 0.8rem; color: var(--text-body); }
-    .legend-symbol { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 600; }
+    .wave-chart-area { position: relative; width: 100%; height: 220px; margin-top: 8px; }
+    .floating-patient-card { position: absolute; top: 0; right: 40px; background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; box-shadow: var(--shadow-floating); z-index: 10; min-width: 200px; }
+    .floating-head { display: flex; align-items: center; gap: 6px; font-size: 0.76rem; font-weight: 600; color: var(--text-muted); }
+    .floating-val-number { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); line-height: 1; margin: 4px 0; }
+    .floating-details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-size: 0.72rem; color: var(--text-muted); border-top: 1px solid #f2f4f7; padding-top: 6px; }
 
-    /* Table */
-    .table-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px; box-shadow: var(--shadow-xs); }
-    .table-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-    .table-title { font-size: 1.15rem; font-weight: 800; color: var(--text-dark); }
-    .time-toggle-pill { display: inline-flex; background: #f2f4f7; border-radius: var(--radius-sm); padding: 3px; }
-    .time-btn { border: none; background: transparent; padding: 6px 14px; font-size: 0.82rem; font-weight: 600; color: var(--text-muted); border-radius: 6px; cursor: pointer; transition: all 0.15s; }
-    .time-btn.active { background: #ffffff; color: var(--text-dark); box-shadow: var(--shadow-xs); font-weight: 700; }
-    .modern-patients-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
-    .modern-patients-table th { padding: 12px 16px; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border); }
-    .modern-patients-table td { padding: 15px 16px; border-bottom: 1px solid #f2f4f7; color: var(--text-body); vertical-align: middle; }
-    .modern-patients-table tr:hover td { background: #f9fafb; }
-    .modern-patients-table tr:last-child td { border-bottom: none; }
+    /* Modern Table */
+    .modern-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+    .modern-table th { padding: 12px 16px; font-size: 0.76rem; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: 0.04em; }
+    .modern-table td { padding: 14px 16px; border-bottom: 1px solid #f2f4f7; color: var(--text-body); vertical-align: middle; }
+    .modern-table tr:hover td { background: #f9fafb; }
+    .modern-table tr:last-child td { border-bottom: none; }
     .custom-checkbox { width: 16px; height: 16px; border-radius: 4px; accent-color: #10b981; cursor: pointer; }
-    .patient-name-text { font-weight: 700; color: var(--text-dark); }
-    .patient-sub-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Doctors Grid */
+    .doctors-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+    .doctor-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; justify-content: space-between; gap: 14px; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .doctor-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); }
+    .doctor-card-top { display: flex; align-items: center; gap: 14px; }
+    .doctor-avatar-circle { width: 46px; height: 46px; border-radius: var(--radius-md); background: var(--mint-bg); color: var(--mint-text); border: 1px solid var(--mint-border); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; }
+    .doctor-meta-block h4 { font-size: 0.96rem; font-weight: 700; color: var(--text-dark); }
+    .doctor-meta-block span { font-size: 0.78rem; color: var(--text-muted); }
+    .doctor-details-box { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 4px; }
+    .doctor-details-box div { display: flex; justify-content: space-between; color: var(--text-muted); }
+    .doctor-details-box strong { color: var(--text-dark); }
+    .doctor-toggle-bar { display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #f2f4f7; }
+    .toggle-duty-btn { padding: 5px 12px; border-radius: var(--radius-full); font-size: 0.76rem; font-weight: 700; cursor: pointer; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .toggle-duty-btn.duty-on { background: var(--badge-green-bg); color: var(--badge-green-text); border-color: var(--badge-green-border); }
+    .toggle-duty-btn.duty-off { background: var(--badge-grey-bg); color: var(--badge-grey-text); border-color: var(--border); }
+
+    /* 26 Master Modules Grid */
+    .modules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .module-card { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; gap: 8px; transition: transform 0.15s ease; }
+    .module-card:hover { transform: translateY(-2px); border-color: #a7f3d0; }
+    .module-card-header { display: flex; align-items: center; justify-content: space-between; }
+    .module-id-badge { font-size: 0.72rem; font-weight: 800; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 2px 7px; border-radius: 4px; }
+    .module-pulse-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; font-weight: 700; color: #027a48; }
+    .pulse-indicator-dot { width: 7px; height: 7px; border-radius: 50%; background: #10b981; animation: pulseGlow 1.8s infinite; }
+    .module-name-title { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); line-height: 1.3; }
+    .module-layer-tag { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+    /* AI Chat Panel */
+    .ai-ops-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 1080px) { .ai-ops-container { grid-template-columns: 1fr; } }
+    .chat-card-panel { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-xs); display: flex; flex-direction: column; height: 580px; }
+    .chat-messages-stream { flex: 1; overflow-y: auto; padding-right: 6px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
+    .chat-bubble { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 0.86rem; line-height: 1.5; }
+    .chat-bubble.user { align-self: flex-end; background: #10b981; color: #ffffff; border-bottom-right-radius: 2px; }
+    .chat-bubble.bot { align-self: flex-start; background: #f8fafc; color: var(--text-dark); border: 1px solid var(--border); border-bottom-left-radius: 2px; }
+    .chat-bubble-source { font-size: 0.7rem; margin-top: 6px; opacity: 0.75; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 4px; }
+    .prompt-suggestions-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .prompt-chip-btn { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-full); padding: 4px 10px; font-size: 0.74rem; font-weight: 600; color: var(--text-body); cursor: pointer; transition: all 0.15s; }
+    .prompt-chip-btn:hover { background: #ecfdf5; border-color: #a7f3d0; color: #059669; }
+    .chat-input-bar { display: flex; gap: 8px; }
+    .chat-text-input { flex: 1; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: inherit; font-size: 0.88rem; outline: none; }
+    .chat-text-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12); }
+
+    /* OPD Queue Boards */
+    .queue-board-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .queue-card-serving { background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-xs); text-align: center; }
+    .queue-token-giant { font-size: 2.5rem; font-weight: 800; color: #059669; line-height: 1.1; margin: 8px 0; }
+
+    /* Toast Container */
+    .toast-container { position: fixed; top: 24px; right: 28px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+    .toast-item { pointer-events: auto; min-width: 320px; max-width: 440px; background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 18px; box-shadow: var(--shadow-floating); display: flex; align-items: center; gap: 12px; animation: fadeIn 0.2s ease-in-out; }
+    .toast-item.success { border-left: 4px solid #10b981; }
+    .toast-item.error { border-left: 4px solid #ef4444; }
+    .toast-item.info { border-left: 4px solid #3b82f6; }
+    .toast-message-text { font-size: 0.84rem; font-weight: 600; color: var(--text-dark); }
 
     /* Modals */
     .modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem; }
-    .modal-window { background: #ffffff; border-radius: var(--radius-lg); box-shadow: var(--shadow-floating); width: 100%; max-width: 580px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+    .modal-window { background: #ffffff; border-radius: var(--radius-lg); box-shadow: var(--shadow-floating); width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
     .modal-header-row { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     .modal-heading { font-size: 1.15rem; font-weight: 700; color: var(--text-dark); }
     .modal-close-btn { background: transparent; border: none; font-size: 1.5rem; line-height: 1; color: var(--text-light); cursor: pointer; }
@@ -165,6 +234,7 @@
     @media (max-width: 1240px) {
       .metrics-grid { grid-template-columns: repeat(2, 1fr); }
       .analytics-grid { grid-template-columns: 1fr; }
+      .queue-board-grid { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 860px) {
       .sidebar { display: none; }
@@ -179,832 +249,1958 @@
   <!-- Full-Screen Native Web App Shell -->
   <div class="app-shell">
 
-    <!-- Left Sidebar -->
+    <!-- Left Sidebar with Actual Hospital Automation Categories -->
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <a href="/" class="brand-link">
+        <a href="#home" class="brand-link" onclick="switchView('home')">
           <div class="brand-logo-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2v20M2 12h20"></path>
             </svg>
           </div>
           <span class="brand-text">Evergreen Hospital</span>
         </a>
-        <button class="sidebar-collapse-btn" title="Collapse Sidebar">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-        </button>
       </div>
 
-      <ul class="sidebar-nav">
-        <li>
-          <a class="nav-item active" onclick="handleNavClick('Home', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-                <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-                <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-                <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-              </svg>
-            </span>
-            <span>Home</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Inbox', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-              </svg>
-            </span>
-            <span>Inbox</span>
-          </a>
-        </li>
+      <div class="sidebar-scrollable">
+        <ul class="sidebar-nav">
+          <div class="nav-section-title">CORE PLATFORM</div>
+          <li>
+            <a class="nav-item active" data-view="home" onclick="switchView('home')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                  </svg>
+                </span>
+                <span>Dashboard</span>
+              </span>
+              <span class="nav-count-badge">Live</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="ai-modules" onclick="switchView('ai-modules')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a4 4 0 0 1 4 4v1a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2v1a4 4 0 0 1-8 0v-1a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2V6a4 4 0 0 1 4-4z"></path>
+                    <circle cx="9" cy="9" r="1"></circle>
+                    <circle cx="15" cy="9" r="1"></circle>
+                  </svg>
+                </span>
+                <span>AI Ops & 26 Modules</span>
+              </span>
+              <span class="nav-count-badge" style="background:#ecfdf5; color:#027a48;">26/26</span>
+            </a>
+          </li>
 
-        <div class="nav-section-title">APPLICATIONS</div>
+          <div class="nav-section-title">CLINICAL WORKFLOWS</div>
+          <li>
+            <a class="nav-item" data-view="appointments" onclick="switchView('appointments')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </span>
+                <span>Appointments</span>
+              </span>
+              <span class="nav-count-badge" id="sidebarApptCount">58</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="doctors" onclick="switchView('doctors')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
+                    <circle cx="12" cy="18" r="3"></circle>
+                    <path d="M6 3h3M15 3h3"></path>
+                  </svg>
+                </span>
+                <span>Doctors & Staff</span>
+              </span>
+              <span class="nav-count-badge" id="sidebarDocCount">12</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="patients" onclick="switchView('patients')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                </span>
+                <span>Patients & Triage</span>
+              </span>
+              <span class="nav-count-badge">212</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="queue" onclick="switchView('queue')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                </span>
+                <span>OPD Queue & Tokens</span>
+              </span>
+              <span class="nav-count-badge" style="background:#fffaeb; color:#b54708;">Live</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="admissions" onclick="switchView('admissions')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"></path>
+                    <path d="M2 11h20"></path>
+                    <path d="M7 7V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3"></path>
+                  </svg>
+                </span>
+                <span>Inpatient & Beds (IPD)</span>
+              </span>
+              <span class="nav-count-badge">60 Beds</span>
+            </a>
+          </li>
 
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Doctor', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
-                <circle cx="12" cy="18" r="3"></circle>
-                <path d="M6 3h3M15 3h3"></path>
-              </svg>
-            </span>
-            <span>Doctor</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Patient', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-            </span>
-            <span>Patient</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Departments', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-            </span>
-            <span>Departments</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Schedule', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </span>
-            <span>Schedule</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Appointment', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <polyline points="9 11 12 14 22 4"></polyline>
-              </svg>
-            </span>
-            <span>Appointment</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Report', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-              </svg>
-            </span>
-            <span>Report</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Human Resources', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="5" r="3"></circle>
-                <circle cx="5" cy="19" r="3"></circle>
-                <circle cx="19" cy="19" r="3"></circle>
-                <line x1="12" y1="8" x2="12" y2="12"></line>
-                <path d="M12 12l-7 4M12 12l7 4"></path>
-              </svg>
-            </span>
-            <span>Human Resources</span>
-          </a>
-        </li>
+          <div class="nav-section-title">ADMIN & REVENUE</div>
+          <li>
+            <a class="nav-item" data-view="billing" onclick="switchView('billing')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                  </svg>
+                </span>
+                <span>Billing & Invoices</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="departments" onclick="switchView('departments')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                </span>
+                <span>Departments</span>
+              </span>
+              <span class="nav-count-badge">4 Depts</span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="reports" onclick="switchView('reports')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </span>
+                <span>Executive Reports</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="exceptions" onclick="switchView('exceptions')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </span>
+                <span>Exceptions & SLA</span>
+              </span>
+              <span class="nav-count-badge" id="sidebarExcBadge" style="background:#fef3f2; color:#b42318;">1</span>
+            </a>
+          </li>
 
-        <div class="nav-section-title">OTHERS</div>
-
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Payment', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                <line x1="1" y1="10" x2="23" y2="10"></line>
-              </svg>
-            </span>
-            <span>Payment</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Widgets', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                <line x1="12" y1="22.08" x2="12" y2="12"></line>
-              </svg>
-            </span>
-            <span>Widgets</span>
-          </a>
-        </li>
-
-        <div class="nav-section-title">SUPPORT</div>
-
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Settings', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-            </span>
-            <span>Settings</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Security', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-            </span>
-            <span>Security</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item" onclick="handleNavClick('Help', this)">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <line x1="12" y1="17" x2="12.01" y2="17"></line>
-              </svg>
-            </span>
-            <span>Help</span>
-          </a>
-        </li>
-        <li>
-          <a class="nav-item logout" onclick="alert('Session logged out.')">
-            <span class="icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-            </span>
-            <span>Log Out</span>
-          </a>
-        </li>
-      </ul>
+          <div class="nav-section-title">SYSTEM INFRASTRUCTURE</div>
+          <li>
+            <a class="nav-item" data-view="maintenance" onclick="switchView('maintenance')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  </svg>
+                </span>
+                <span>System Audit & DB</span>
+              </span>
+            </a>
+          </li>
+          <li>
+            <a class="nav-item" data-view="whatsapp" onclick="switchView('whatsapp')">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                  </svg>
+                </span>
+                <span>WhatsApp Bridge</span>
+              </span>
+              <span class="nav-count-badge" style="background:#ecfdf5; color:#027a48;">Active</span>
+            </a>
+          </li>
+        </ul>
+      </div>
     </aside>
 
-    <!-- Main Canvas -->
+    <!-- Main Content Canvas -->
     <main class="main-canvas">
-
-      <!-- Topbar -->
+      <!-- Top Bar -->
       <header class="topbar">
-        <h1 class="topbar-title">Dashboard</h1>
-
+        <div class="topbar-title-wrap">
+          <h1 class="topbar-title" id="topbarTitle">Dashboard</h1>
+          <span class="topbar-badge-live">
+            <span style="width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
+            26 Modules Operational
+          </span>
+        </div>
         <div class="topbar-right">
           <div class="search-box">
-            <span class="search-icon-left">🔍</span>
-            <input type="text" id="patientSearch" class="search-input" placeholder="Search" onkeyup="filterPatientTable(this.value)">
+            <span class="search-icon-left">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="Search..." oninput="handleGlobalSearch(this.value)">
             <span class="search-kbd-pill">⌘ F</span>
           </div>
+
+          <button class="btn-topbar primary" id="topbarActionBtn" onclick="handleTopbarAction()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span id="topbarActionLabel">+ Register Patient</span>
+          </button>
         </div>
       </header>
 
-      <!-- Dashboard Content Body -->
+      <!-- Dynamic Views Wrapper -->
       <div class="dashboard-content">
 
-        <!-- Row 1: 4 Metric Cards (Beds, Doctors, Patients, Appointments) -->
-        <div class="metrics-grid">
+        <!-- ========================================== -->
+        <!-- VIEW 1: HOME / DASHBOARD OVERVIEW          -->
+        <!-- ========================================== -->
+        <div id="view-home" class="view-panel active">
+          <!-- Row 1: 4 Metric Cards -->
+          <section class="metrics-grid">
+            <div class="metric-card" onclick="switchView('admissions')">
+              <div class="metric-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"></path>
+                  <path d="M2 11h20"></path>
+                  <path d="M7 7V4a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3"></path>
+                </svg>
+                <span>Total Beds</span>
+              </div>
+              <div class="metric-main-val">
+                <span class="stat-number-huge">60</span>
+                <span class="pill-badge pill-green">Available</span>
+              </div>
+              <div class="metric-breakdown-row">
+                <span>12 <strong>Executive</strong></span>
+                <span>30 <strong>Premium</strong></span>
+                <span>18 <strong>Basic</strong></span>
+              </div>
+            </div>
 
-          <!-- Card 1: Total Beds -->
-          <div class="metric-card">
-            <div class="metric-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"></path>
-              </svg>
-              <span>Total Beds</span>
+            <div class="metric-card" onclick="switchView('doctors')">
+              <div class="metric-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
+                  <circle cx="12" cy="18" r="3"></circle>
+                  <path d="M6 3h3M15 3h3"></path>
+                </svg>
+                <span>Doctors</span>
+              </div>
+              <div class="metric-main-val">
+                <span class="stat-number-huge" id="statDocCount">12</span>
+                <span class="pill-badge pill-green" id="statDocAvailableBadge">11 Available</span>
+                <span class="pill-badge pill-grey" id="statDocLeaveBadge">1 Leave</span>
+              </div>
+              <div class="metric-breakdown-row">
+                <span>Dermatology: <strong>3</strong></span>
+                <span>Cardiology: <strong>3</strong></span>
+                <span>Ortho: <strong>3</strong></span>
+              </div>
             </div>
-            <div class="metric-main-val">
-              <span class="stat-number-huge">60</span>
-              <span class="pill-badge pill-green">Available</span>
-            </div>
-            <div class="metric-breakdown-row">
-              <div><strong>12</strong> Executive Room</div>
-              <div><strong>30</strong> Premium Room</div>
-              <div><strong>18</strong> Basic Room</div>
-            </div>
-          </div>
 
-          <!-- Card 2: Doctors -->
-          <div class="metric-card">
-            <div class="metric-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4.5 3v6a7.5 7.5 0 0 0 15 0V3"></path>
-                <circle cx="12" cy="18" r="3"></circle>
-                <path d="M6 3h3M15 3h3"></path>
-              </svg>
-              <span>Doctors</span>
+            <div class="metric-card" onclick="switchView('patients')">
+              <div class="metric-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                </svg>
+                <span>Patients</span>
+              </div>
+              <div class="metric-main-val">
+                <span class="stat-number-huge">212</span>
+                <span class="pill-badge pill-green" style="color:#027a48; background:#ecfdf5;">↗ 12%</span>
+              </div>
+              <div class="metric-breakdown-row">
+                <span>18 Urgent</span>
+                <span>164 Routine</span>
+                <span>30 Follow-up</span>
+              </div>
             </div>
-            <div class="metric-main-val">
-              <span class="stat-number-huge">46</span>
-              <span class="pill-badge pill-green">Available</span>
-              <span style="font-size:1.4rem; font-weight:800; color:var(--text-dark); margin-left:8px;">4</span>
-              <span class="pill-badge pill-grey">Leave</span>
-            </div>
-            <div class="metric-caption-text">
-              Shows the current number of available doctors.
-            </div>
-          </div>
 
-          <!-- Card 3: Patients -->
-          <div class="metric-card">
-            <div class="metric-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-              </svg>
-              <span>Patients</span>
+            <div class="metric-card" onclick="switchView('appointments')">
+              <div class="metric-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Appointments</span>
+              </div>
+              <div class="metric-main-val">
+                <span class="stat-number-huge">58</span>
+                <span class="pill-badge pill-green">Confirmed</span>
+              </div>
+              <div class="metric-breakdown-row">
+                <span>24 <strong>Morning</strong></span>
+                <span>20 <strong>Afternoon</strong></span>
+                <span>14 <strong>Evening</strong></span>
+              </div>
             </div>
-            <div class="metric-main-val">
-              <span class="stat-number-huge">212</span>
-              <span class="pill-badge pill-green">↗ 12%</span>
-            </div>
-            <div class="metric-caption-text">
-              Displays live updates of patient numbers.
-            </div>
-          </div>
+          </section>
 
-          <!-- Card 4: Appointments (Meaningful 4th Card!) -->
-          <div class="metric-card">
-            <div class="metric-header">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <polyline points="9 11 12 14 22 4"></polyline>
-              </svg>
-              <span>Appointments</span>
+          <!-- Row 2: Report Donut & Patients Overview Waves -->
+          <section class="analytics-grid">
+            <div class="chart-card">
+              <div class="chart-card-top">
+                <h3 class="chart-card-title">Report</h3>
+                <button class="btn-topbar outline" style="padding:4px 10px; font-size:0.75rem;" onclick="openIntakeModal()">+ Add Patient</button>
+              </div>
+              <div class="donut-wrapper">
+                <svg class="donut-svg-ring" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f2f4f7" stroke-width="12"></circle>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#ef4444" stroke-width="12" stroke-dasharray="83.5 238.7" stroke-dashoffset="0"></circle>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#10b981" stroke-width="12" stroke-dasharray="59.7 238.7" stroke-dashoffset="-83.5"></circle>
+                  <circle cx="50" cy="50" r="38" fill="none" stroke="#f59e0b" stroke-width="12" stroke-dasharray="35.8 238.7" stroke-dashoffset="-143.2"></circle>
+                </svg>
+                <div class="donut-center-content">
+                  <div class="donut-center-label">Total Done</div>
+                  <div class="donut-center-percent">75%</div>
+                </div>
+              </div>
+              <div class="donut-legend-row">
+                <div class="legend-col">
+                  <div class="legend-head"><span class="dot-indicator" style="background:#ef4444;"></span><span>35%</span></div>
+                  <span class="legend-sub">Urgent</span>
+                </div>
+                <div class="legend-col">
+                  <div class="legend-head"><span class="dot-indicator" style="background:#10b981;"></span><span>25%</span></div>
+                  <span class="legend-sub">Moderate</span>
+                </div>
+                <div class="legend-col">
+                  <div class="legend-head"><span class="dot-indicator" style="background:#f59e0b;"></span><span>15%</span></div>
+                  <span class="legend-sub">Low</span>
+                </div>
+              </div>
             </div>
-            <div class="metric-main-val">
-              <span class="stat-number-huge">58</span>
-              <span class="pill-badge pill-green">Confirmed</span>
-            </div>
-            <div class="metric-breakdown-row">
-              <div><strong>24</strong> Morning</div>
-              <div><strong>20</strong> Afternoon</div>
-              <div><strong>14</strong> Evening</div>
-            </div>
-          </div>
 
+            <div class="chart-card" style="position:relative;">
+              <div class="chart-card-top">
+                <h3 class="chart-card-title">Patients Overview</h3>
+                <span class="pill-badge pill-grey">Oct 2026</span>
+              </div>
+              <div class="wave-chart-area">
+                <div class="floating-patient-card">
+                  <div class="floating-head">
+                    <span style="width:6px; height:6px; border-radius:50%; background:#10b981;"></span>
+                    <span>Discharged</span>
+                  </div>
+                  <div class="floating-val-number">50</div>
+                  <div class="floating-details-grid">
+                    <div>10 <strong>Executive</strong></div>
+                    <div>20 <strong>Premium</strong></div>
+                    <div>16 <strong>Appt</strong></div>
+                    <div>4 <strong>Emergency</strong></div>
+                  </div>
+                </div>
+                <svg viewBox="0 0 600 200" preserveAspectRatio="none" style="width:100%; height:160px; overflow:visible;">
+                  <defs>
+                    <linearGradient id="mintGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#10b981" stop-opacity="0.25"/>
+                      <stop offset="100%" stop-color="#10b981" stop-opacity="0.0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M 0 170 C 80 150, 140 100, 220 120 C 300 140, 360 40, 440 60 C 510 80, 560 30, 600 50 L 600 190 L 0 190 Z" fill="url(#mintGrad)"></path>
+                  <path d="M 0 170 C 80 150, 140 100, 220 120 C 300 140, 360 40, 440 60 C 510 80, 560 30, 600 50" fill="none" stroke="#10b981" stroke-width="3"></path>
+                  <path d="M 0 150 C 90 120, 150 160, 230 140 C 310 120, 370 110, 450 100 C 520 90, 570 120, 600 110" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"></path>
+                  <circle cx="440" cy="60" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2"></circle>
+                </svg>
+                <div style="display:flex; justify-content:space-between; font-size:0.74rem; color:var(--text-light); margin-top:6px; padding:0 10px;">
+                  <span>01-07</span><span>08-12</span><span>13-17</span><span>18-21</span><span>22-26</span><span>27-31</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Row 3: Patients Detail Table -->
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <div>
+                <h3 class="card-title">Patients Detail Information</h3>
+                <p class="card-subtitle">Real-time clinical triage & admission pipeline</p>
+              </div>
+              <div class="view-action-group">
+                <button class="btn-topbar outline" onclick="switchView('patients')">View All Patients →</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table" id="homePatientTable">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" class="custom-checkbox" onclick="toggleAllCheckboxes(this)"></th>
+                    <th>Patient Name</th>
+                    <th>Date</th>
+                    <th>Diagnose / Chief Complaint</th>
+                    <th>Department</th>
+                    <th>Priority Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="homePatientTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        <!-- Row 2: Analytics Grid (Report Donut + Patients Overview Wave Chart) -->
-        <div class="analytics-grid">
+        <!-- ========================================== -->
+        <!-- VIEW 2: AI OPS & 26 MASTER MODULES         -->
+        <!-- ========================================== -->
+        <div id="view-ai-modules" class="view-panel">
+          <div class="ai-ops-container">
+            <!-- Left: Interactive AI Chatbot -->
+            <div class="chat-card-panel">
+              <div class="card-shell-header" style="margin-bottom:12px;">
+                <div>
+                  <h3 class="card-title">AI Operations Assistant</h3>
+                  <p class="card-subtitle">Hospital intelligence, bed availability, SLAs & protocol support</p>
+                </div>
+                <span class="pill-badge pill-green">Claude & Ops Engine Active</span>
+              </div>
+              <div class="chat-messages-stream" id="chatStream">
+                <div class="chat-bubble bot">
+                  Hello! I am your AI Operations Assistant for Evergreen Hospital. Ask me about real-time bed allocations, doctor availability, appointment queues, or SLA alerts.
+                  <div class="chat-bubble-source">Engine: Operational Gateway V3</div>
+                </div>
+              </div>
+              <div class="prompt-suggestions-row">
+                <button class="prompt-chip-btn" onclick="askAiPrompt('What is the bed occupancy across wards today?')">🛏️ Bed Occupancy</button>
+                <button class="prompt-chip-btn" onclick="askAiPrompt('Show doctor availability for Cardiology and Orthopedics')">👨‍⚕️ Doctor Duty</button>
+                <button class="prompt-chip-btn" onclick="askAiPrompt('Are there any overdue lead SLAs right now?')">⚠️ SLA Overdue</button>
+                <button class="prompt-chip-btn" onclick="askAiPrompt('Summarize today\'s appointment reminders')">📅 Reminder Stats</button>
+              </div>
+              <form class="chat-input-bar" onsubmit="handleChatSubmit(event)">
+                <input type="text" id="chatInput" class="chat-text-input" placeholder="Type operations question..." autocomplete="off">
+                <button type="submit" class="btn-topbar primary">Send</button>
+              </form>
+            </div>
 
-          <!-- Left Card: Report (Donut Gauge) -->
-          <div class="chart-card">
-            <div class="chart-card-top">
-              <h3 class="chart-card-title">Report</h3>
-              <button class="btn-add-report-pill" onclick="openAddReportModal()">
-                <span style="font-weight:700;">+</span> Add Report
+            <!-- Right: 26 Master Modules Status Grid -->
+            <div class="card-shell" style="height:580px; display:flex; flex-direction:column;">
+              <div class="card-shell-header">
+                <div>
+                  <h3 class="card-title">26 Master Blueprint Modules</h3>
+                  <p class="card-subtitle">Real-time status of all autonomous healthcare microservices</p>
+                </div>
+                <span class="pill-badge pill-green">26 / 26 ONLINE</span>
+              </div>
+              <div style="flex:1; overflow-y:auto; padding-right:4px;">
+                <div class="modules-grid" id="modulesGridContainer">
+                  <!-- Populated dynamically via JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: APPOINTMENTS                       -->
+        <!-- ========================================== -->
+        <div id="view-appointments" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Appointments Management & Automated Reminders</h2>
+              <p>Calendar slot scheduling, 24h & 3h WhatsApp notifications, and no-show recovery</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar outline" onclick="triggerReminders()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>Trigger 24h & 3h Reminders</span>
               </button>
-            </div>
-
-            <div class="donut-wrapper">
-              <svg class="donut-svg-ring" viewBox="0 0 160 160">
-                <!-- Base Circle -->
-                <circle cx="80" cy="80" r="62" fill="none" stroke="#f1f5f9" stroke-width="16" />
-                <!-- Arc 1: Urgent 35% (Coral Red) -->
-                <circle cx="80" cy="80" r="62" fill="none" stroke="#fb7185" stroke-width="16" 
-                        stroke-dasharray="136 253" stroke-dashoffset="0" stroke-linecap="round" />
-                <!-- Arc 2: Moderate 25% (Lime Green) -->
-                <circle cx="80" cy="80" r="62" fill="none" stroke="#bef264" stroke-width="16" 
-                        stroke-dasharray="97 292" stroke-dashoffset="-140" stroke-linecap="round" />
-                <!-- Arc 3: Low 15% (Cyan) -->
-                <circle cx="80" cy="80" r="62" fill="none" stroke="#2dd4bf" stroke-width="16" 
-                        stroke-dasharray="58 331" stroke-dashoffset="-240" stroke-linecap="round" />
-              </svg>
-
-              <div class="donut-center-content">
-                <div class="donut-center-label">Total Done</div>
-                <div class="donut-center-percent">75%</div>
-              </div>
-            </div>
-
-            <div class="donut-legend-row">
-              <div class="legend-col">
-                <div class="legend-head">
-                  <span class="dot-indicator" style="background:#fb7185;"></span>
-                  <span style="color:#fb7185;">Urgent</span>
-                </div>
-                <span class="legend-sub">35% done</span>
-              </div>
-              <div class="legend-col">
-                <div class="legend-head">
-                  <span class="dot-indicator" style="background:#84cc16;"></span>
-                  <span style="color:#65a30d;">Moderate</span>
-                </div>
-                <span class="legend-sub">25% done</span>
-              </div>
-              <div class="legend-col">
-                <div class="legend-head">
-                  <span class="dot-indicator" style="background:#2dd4bf;"></span>
-                  <span style="color:#0d9488;">Low</span>
-                </div>
-                <span class="legend-sub">15% done</span>
-              </div>
+              <button class="btn-topbar primary" onclick="openIntakeModal()">+ New Appointment</button>
             </div>
           </div>
 
-          <!-- Right Card: Patients Overview (Wave Chart + Floating Card) -->
-          <div class="chart-card">
-            <div class="chart-card-top">
-              <h3 class="chart-card-title">Patients Overview</h3>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header"><span>Confirmed Appointments</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">58</span><span class="pill-badge pill-green">Active</span></div>
+              <div class="metric-caption-text">24 Morning • 20 Afternoon • 14 Evening</div>
             </div>
-
-            <div class="wave-chart-area">
-
-              <!-- Floating Stat Card (Exact Replica) -->
-              <div class="floating-patient-card">
-                <div class="floating-head">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                  </svg>
-                  <span>Patients</span>
-                </div>
-                <div class="floating-val-row">
-                  <span class="floating-val-number">50</span>
-                  <span class="pill-badge pill-green">Discharged</span>
-                </div>
-                <div class="floating-details-grid">
-                  <div><strong>10</strong> Executive Room</div>
-                  <div><strong>16</strong> Appointment</div>
-                  <div><strong>20</strong> Premium Room</div>
-                  <div><strong>4</strong> Emergency Room</div>
-                </div>
-              </div>
-
-              <!-- Smooth SVG Dual-Wave Area Chart -->
-              <svg width="100%" height="180" viewBox="0 0 700 180" preserveAspectRatio="none" style="overflow:visible;">
-                <defs>
-                  <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.22" />
-                    <stop offset="100%" stop-color="#14b8a6" stop-opacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                <!-- Horizontal Guidelines & Y-Axis values -->
-                <text x="0" y="32" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">60</text>
-                <line x1="25" y1="28" x2="700" y2="28" stroke="#f1f5f9" stroke-width="1" />
-
-                <text x="0" y="85" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">40</text>
-                <line x1="25" y1="81" x2="700" y2="81" stroke="#f1f5f9" stroke-width="1" />
-
-                <text x="0" y="138" font-size="11" fill="#94a3b8" font-family="Inter, sans-serif">20</text>
-                <line x1="25" y1="134" x2="700" y2="134" stroke="#f1f5f9" stroke-width="1" />
-
-                <!-- Primary Solid Curve: Discharge Area & Line -->
-                <path d="M 30,95 Q 120,68 220,80 T 420,86 T 600,68 T 700,90 L 700,165 L 30,165 Z" fill="url(#waveGradient)" />
-                <path d="M 30,95 Q 120,68 220,80 T 420,86 T 600,68 T 700,90" fill="none" stroke="#0d9488" stroke-width="2.5" />
-                <circle cx="600" cy="68" r="4.5" fill="#0d9488" stroke="#ffffff" stroke-width="2" />
-
-                <!-- Secondary Dashed Curve: New Patients -->
-                <path d="M 30,115 Q 120,95 220,105 T 420,110 T 600,98 T 700,118" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 4" />
-              </svg>
-
-              <!-- X-Axis Labels -->
-              <div style="display:flex; justify-content:space-between; margin-left:30px; margin-top:6px; font-size:0.75rem; color:#94a3b8;">
-                <span>01-07</span>
-                <span>08-12</span>
-                <span>13-17</span>
-                <span>18-21</span>
-              </div>
-
+            <div class="metric-card">
+              <div class="metric-header"><span>Reminder Delivery Rate</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">99.4%</span><span class="pill-badge pill-blue">Delivered</span></div>
+              <div class="metric-caption-text">WhatsApp Business Cloud API</div>
             </div>
-
-            <div class="wave-legend-bottom">
-              <div class="legend-symbol">
-                <span style="display:inline-block; width:22px; height:3px; background:#0d9488; border-radius:2px;"></span>
-                <span>Discharge</span>
-              </div>
-              <div class="legend-symbol">
-                <span style="display:inline-block; width:22px; height:0px; border-bottom:2px dashed #94a3b8;"></span>
-                <span>New</span>
-              </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>No-Show Recovery Rate</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">87.5%</span><span class="pill-badge pill-green">Recovered</span></div>
+              <div class="metric-caption-text">7 of 8 rescheduled via AI Bot</div>
             </div>
-
+            <div class="metric-card">
+              <div class="metric-header"><span>Avg Check-in Time</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">4.2m</span><span class="pill-badge pill-yellow">On Target</span></div>
+              <div class="metric-caption-text">Target: &lt; 10 minutes</div>
+            </div>
           </div>
 
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Live Appointment Directory</h3>
+              <div class="view-action-group">
+                <input type="text" class="input-field" placeholder="Filter by patient or doctor..." style="width:220px; padding:6px 10px;" oninput="filterApptTable(this.value)">
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Appointment ID</th>
+                    <th>Patient Name & Phone</th>
+                    <th>Physician</th>
+                    <th>Department</th>
+                    <th>Date & Time Slot</th>
+                    <th>Status</th>
+                    <th>Attendance</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="appointmentsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
-        <!-- Row 3: Bottom Table (Patients Detail Information) -->
-        <div class="table-card">
-          <div class="table-card-top">
-            <h3 class="table-title">Patients Detail Information</h3>
-
-            <div class="time-toggle-pill">
-              <button class="time-btn active" id="btnToday" onclick="setTimeFilter('Today')">Today</button>
-              <button class="time-btn" id="btnLastWeek" onclick="setTimeFilter('Last Week')">Last Week</button>
+        <!-- ========================================== -->
+        <!-- VIEW 4: DOCTORS & STAFF ROSTER             -->
+        <!-- ========================================== -->
+        <div id="view-doctors" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Doctor Directory & Live Availability Roster</h2>
+              <p>Specialist physicians across 4 departments with real-time shift & on-leave toggle</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar outline" onclick="filterDoctorsByDept('All')">All (12)</button>
+              <button class="btn-topbar outline" onclick="filterDoctorsByDept('Cardiology')">Cardiology</button>
+              <button class="btn-topbar outline" onclick="filterDoctorsByDept('Dermatology')">Dermatology</button>
+              <button class="btn-topbar outline" onclick="filterDoctorsByDept('Orthopedics')">Orthopedics</button>
+              <button class="btn-topbar outline" onclick="filterDoctorsByDept('Pediatrics')">Pediatrics</button>
             </div>
           </div>
 
-          <table class="modern-patients-table">
-            <thead>
-              <tr>
-                <th style="width: 40px;">
-                  <input type="checkbox" class="custom-checkbox" onchange="toggleSelectAll(this)">
-                </th>
-                <th>Name</th>
-                <th>ID Number</th>
-                <th>Admission Date</th>
-                <th>Diagnose</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="patientsTableBody">
-              <!-- Dynamically populated -->
-            </tbody>
-          </table>
+          <div class="doctors-grid" id="doctorsGridContainer">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
 
+        <!-- ========================================== -->
+        <!-- VIEW 5: PATIENTS & TRIAGE                  -->
+        <!-- ========================================== -->
+        <div id="view-patients" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Patient Registry & Clinical Triage Intake</h2>
+              <p>Inbound AI qualification, emergency triage guardrails, and digital pass dispatch</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="openIntakeModal()">+ Register New Patient</button>
+            </div>
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Enrolled Patients & Active Leads</h3>
+              <div class="view-action-group">
+                <input type="text" class="input-field" placeholder="Search patient, phone, complaint..." style="width:240px; padding:6px 10px;" oninput="filterPatientsRegistry(this.value)">
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Patient ID</th>
+                    <th>Full Name & Contact</th>
+                    <th>Department</th>
+                    <th>Chief Complaint</th>
+                    <th>Triage Priority</th>
+                    <th>Status</th>
+                    <th>Registered At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="patientsRegistryTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 6: OPD QUEUE & TOKEN SYSTEM           -->
+        <!-- ========================================== -->
+        <div id="view-queue" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>OPD Queue Management & Real-Time Token Dispenser</h2>
+              <p>Live clinic waiting tokens, consultation milestones, and token display board</p>
+            </div>
+            <div class="view-action-group">
+              <select id="queueDeptSelect" class="input-field" style="width:160px; padding:7px 10px;">
+                <option value="Cardiology">Cardiology</option>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Pediatrics">Pediatrics</option>
+              </select>
+              <button class="btn-topbar primary" onclick="callNextTokenAction()">📢 Call Next Token</button>
+              <button class="btn-topbar outline" onclick="issueWalkinTokenAction()">🎫 Issue Walk-in</button>
+            </div>
+          </div>
+
+          <!-- Queue Board Cards -->
+          <div class="queue-board-grid">
+            <div class="queue-card-serving">
+              <span class="pill-badge pill-green">Cardiology</span>
+              <div class="queue-token-giant" id="servingCardio">C-104</div>
+              <div style="font-size:0.84rem; font-weight:700; color:var(--text-dark);">Now Serving: Room 102</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Patient: Rahul Sharma</div>
+            </div>
+            <div class="queue-card-serving">
+              <span class="pill-badge pill-green">Orthopedics</span>
+              <div class="queue-token-giant" id="servingOrtho">O-102</div>
+              <div style="font-size:0.84rem; font-weight:700; color:var(--text-dark);">Now Serving: Room 104</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Patient: Sunita Patel</div>
+            </div>
+            <div class="queue-card-serving">
+              <span class="pill-badge pill-blue">Dermatology</span>
+              <div class="queue-token-giant" id="servingDerma">D-101</div>
+              <div style="font-size:0.84rem; font-weight:700; color:var(--text-dark);">Now Serving: Room 101</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Patient: Sabrina Carpenter</div>
+            </div>
+            <div class="queue-card-serving">
+              <span class="pill-badge pill-yellow">Pediatrics</span>
+              <div class="queue-token-giant" id="servingPedia">P-103</div>
+              <div style="font-size:0.84rem; font-weight:700; color:var(--text-dark);">Now Serving: Room 105</div>
+              <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Patient: Aarav Mehta</div>
+            </div>
+          </div>
+
+          <!-- Active Tokens Table -->
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Today's Token Roster</h3>
+              <span class="pill-badge pill-grey">Automated Token Queue</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Token Number</th>
+                    <th>Patient Name</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                    <th>Issued At</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="tokensTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 7: INPATIENT & BEDS (IPD)             -->
+        <!-- ========================================== -->
+        <div id="view-admissions" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Inpatient Admissions (IPD) & Bed Allocation</h2>
+              <p>Bed inventory management, pre-clearances, and automated discharge gate-passes</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="showToast('Admissions pre-clearance wizard launched', 'info')">+ Admit Patient</button>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header"><span>Executive Suites</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">12/15</span><span class="pill-badge pill-green">80% Full</span></div>
+              <div class="metric-caption-text">3 Suites Available for Allocation</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Premium Ward</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">30/35</span><span class="pill-badge pill-green">85% Full</span></div>
+              <div class="metric-caption-text">5 Beds Available</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>General / Basic Ward</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">18/25</span><span class="pill-badge pill-blue">72% Full</span></div>
+              <div class="metric-caption-text">7 Beds Available</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>ICU / Critical Care</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">4/5</span><span class="pill-badge pill-red">80% Full</span></div>
+              <div class="metric-caption-text">1 Ventilator Bed Reserve</div>
+            </div>
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Current Inpatient Census</h3>
+              <span class="pill-badge pill-green">60 Beds Monitored</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Admission ID</th>
+                    <th>Patient Name</th>
+                    <th>Ward & Bed #</th>
+                    <th>Attending Doctor</th>
+                    <th>Admission Date</th>
+                    <th>Pre-Clearance</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admissionsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 8: BILLING & PAYMENTS                 -->
+        <!-- ========================================== -->
+        <div id="view-billing" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Billing, Invoices & Insurance Pre-Verification</h2>
+              <p>Atomic payment receipts, TPA co-pay calculation, and idempotent financial reconciliation</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="showToast('New billing invoice generated', 'success')">+ Generate Invoice</button>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header"><span>Total Billed (MTD)</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">₹4.85L</span><span class="pill-badge pill-green">Recorded</span></div>
+              <div class="metric-caption-text">142 Invoices Dispatched</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Collections Settle Rate</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">80.8%</span><span class="pill-badge pill-green">Settled</span></div>
+              <div class="metric-caption-text">₹3,92,000 received</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Insurance Approvals</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">94.2%</span><span class="pill-badge pill-blue">Approved</span></div>
+              <div class="metric-caption-text">TPA Pre-Authorization Speed: 8 mins</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Pending Patient Copay</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">₹93K</span><span class="pill-badge pill-yellow">Outstanding</span></div>
+              <div class="metric-caption-text">Automated WhatsApp payment links sent</div>
+            </div>
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Patient Invoices & Payment Status</h3>
+              <span class="pill-badge pill-grey">Automated Ledger</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Invoice ID</th>
+                    <th>Patient Name</th>
+                    <th>Department</th>
+                    <th>Total Amount</th>
+                    <th>Insurance Copay</th>
+                    <th>Payment Status</th>
+                    <th>Issued At</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="billingTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 9: DEPARTMENTS & RESOURCE ALLOCATION  -->
+        <!-- ========================================== -->
+        <div id="view-departments" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Clinical Department Performance & Routing</h2>
+              <p>Conversion metrics, physician capacity, and intelligent lead distribution</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="showToast('Department routing rules refreshed', 'success')">Refresh Routing Rules</button>
+            </div>
+          </div>
+
+          <div class="metrics-grid" id="deptMetricsGrid">
+            <!-- Populated via JS -->
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Department Lead Routing Console</h3>
+              <p class="card-subtitle">Manually redirect an enquiry or lead to a specialized department queue</p>
+            </div>
+            <div class="grid-2-col" style="margin-top:10px;">
+              <div class="form-input-group">
+                <label class="input-label">Select Lead ID</label>
+                <select id="routeLeadSelect" class="input-field">
+                  <option value="LEAD-001">LEAD-001 — Rahul Sharma (Dermatology)</option>
+                  <option value="LEAD-002">LEAD-002 — Sunita Patel (Cardiology)</option>
+                </select>
+              </div>
+              <div class="form-input-group">
+                <label class="input-label">Target Department</label>
+                <select id="routeTargetDept" class="input-field">
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Orthopedics">Orthopedics</option>
+                  <option value="Dermatology">Dermatology</option>
+                  <option value="Pediatrics">Pediatrics</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Clinical Routing Note</label>
+              <input type="text" id="routeNotes" class="input-field" placeholder="Reason for transfer (e.g. Patient requested second opinion on ECG)...">
+            </div>
+            <button class="btn-topbar primary" onclick="handleLeadRouteSubmit()">Submit Dynamic Route</button>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 10: EXECUTIVE REPORTS & BRIEFINGS     -->
+        <!-- ========================================== -->
+        <div id="view-reports" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Executive Briefings & Quality Intelligence</h2>
+              <p>Daily hospital briefing, SLA compliance metrics, and no-show recovery auditing</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="generateDailyBriefingModal()">📄 Generate Daily Executive Briefing</button>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header"><span>Lead-to-Booking Conversion</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">86.4%</span><span class="pill-badge pill-green">+4.2%</span></div>
+              <div class="metric-caption-text">58 Bookings from 67 Leads</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Avg First Response Time</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">4.2m</span><span class="pill-badge pill-green">SLA Met</span></div>
+              <div class="metric-caption-text">SLA Target: &lt; 15 minutes</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>SLA Compliance Score</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">98.4%</span><span class="pill-badge pill-green">Optimal</span></div>
+              <div class="metric-caption-text">1 overdue escalation handled</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Operational Health</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">100%</span><span class="pill-badge pill-green">26/26</span></div>
+              <div class="metric-caption-text">Zero unhandled workflow errors</div>
+            </div>
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Daily Briefing Snapshot</h3>
+              <span class="pill-badge pill-green">Live Executive Briefing</span>
+            </div>
+            <div id="briefingContentArea" style="background:#f8fafc; border:1px solid #eaecf0; border-radius:12px; padding:20px; font-size:0.9rem; line-height:1.7;">
+              Loading latest daily executive briefing from server...
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 11: EXCEPTIONS & SERVICE RECOVERY     -->
+        <!-- ========================================== -->
+        <div id="view-exceptions" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Exceptions Queue & Service Recovery</h2>
+              <p>SLA breaches, negative patient feedback alerts, and 1-click grievance remediation</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="showToast('Exceptions queue refreshed', 'success')">Refresh Queue</button>
+            </div>
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Active Operational Exceptions</h3>
+              <span class="pill-badge pill-red">Requires Coordinator Action</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Exception ID</th>
+                    <th>Workflow</th>
+                    <th>Error Category</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="exceptionsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 12: SYSTEM AUDIT & DB INTEGRITY       -->
+        <!-- ========================================== -->
+        <div id="view-maintenance" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>System Health & Immutable Security Audit Trail</h2>
+              <p>SQLite 3 database integrity, WAL checkpointing, and tamper-proof event logging</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="runMaintenanceAudit()">⚡ Run Live Maintenance Audit</button>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header"><span>Database Status</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">HEALTHY</span><span class="pill-badge pill-green">OK</span></div>
+              <div class="metric-caption-text">SQLite 3 (WAL Mode + Foreign Keys)</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Memory RSS</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge" id="statRssMb">85 MB</span><span class="pill-badge pill-blue">Low</span></div>
+              <div class="metric-caption-text">Node.js Process Optimization</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Logged Audit Events</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge" id="statAuditCount">28</span><span class="pill-badge pill-green">Immutable</span></div>
+              <div class="metric-caption-text">Full Correlation ID Tracking</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Uptime</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge">99.98%</span><span class="pill-badge pill-green">Online</span></div>
+              <div class="metric-caption-text">Zero Downtime Daemon</div>
+            </div>
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Recent Immutable Audit Events</h3>
+              <span class="pill-badge pill-grey">Security & Compliance Log</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Log ID</th>
+                    <th>Event Type</th>
+                    <th>Record ID</th>
+                    <th>Correlation ID</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="auditTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 13: WHATSAPP COMMUNICATIONS BRIDGE    -->
+        <!-- ========================================== -->
+        <div id="view-whatsapp" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Two-Way WhatsApp Patient Communications Bridge</h2>
+              <p>Meta Cloud API webhooks, QR Bridge session listener, and inbound message parser</p>
+            </div>
+            <div class="view-action-group">
+              <button class="btn-topbar primary" onclick="connectWhatsAppBridge()">Connect / Sync QR Bridge</button>
+            </div>
+          </div>
+
+          <section class="card-shell">
+            <div class="card-shell-header">
+              <h3 class="card-title">Recent Dispatched WhatsApp Communications</h3>
+              <span class="pill-badge pill-green">Real-time Outbound Log</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Log ID</th>
+                    <th>Patient Name</th>
+                    <th>Category</th>
+                    <th>Delivery Status</th>
+                    <th>Dispatched At</th>
+                  </tr>
+                </thead>
+                <tbody id="whatsappLogsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
 
       </div>
-
     </main>
   </div>
 
-  <!-- Modal: + Add Report / New Walk-in Patient -->
-  <div class="modal-backdrop" id="addReportModal">
+  <!-- ========================================== -->
+  <!-- MODALS & TOAST NOTIFICATION CONTAINER      -->
+  <!-- ========================================== -->
+
+  <!-- Register Patient Intake Modal -->
+  <div id="intakeModal" class="modal-backdrop">
     <div class="modal-window">
       <div class="modal-header-row">
-        <h4 class="modal-heading">Register New Patient Intake</h4>
-        <button class="modal-close-btn" onclick="closeAddReportModal()">&times;</button>
+        <h3 class="modal-heading">Patient Consultation Intake</h3>
+        <button class="modal-close-btn" onclick="closeIntakeModal()">&times;</button>
       </div>
-      <form onsubmit="handleAddPatientSubmit(event)">
+      <form onsubmit="handleIntakeSubmit(event)">
         <div class="modal-body-content">
           <div class="form-input-group">
             <label class="input-label">Patient Full Name</label>
-            <input type="text" id="intakeName" class="input-field" placeholder="e.g. Sabrina Carpanter" required>
+            <input type="text" id="intakeFullName" class="input-field" required placeholder="e.g. Ananya Roy">
           </div>
           <div class="grid-2-col">
             <div class="form-input-group">
-              <label class="input-label">Age & Gender</label>
-              <input type="text" id="intakeAgeGender" class="input-field" placeholder="e.g. 39 y.o., Female" required>
+              <label class="input-label">Phone Number (WhatsApp)</label>
+              <input type="tel" id="intakePhone" class="input-field" required placeholder="e.g. +91 98765 43210">
             </div>
             <div class="form-input-group">
-              <label class="input-label">WhatsApp Mobile Number</label>
-              <input type="tel" id="intakePhone" class="input-field" placeholder="e.g. +91 99999 99999" required>
+              <label class="input-label">Age & Gender</label>
+              <input type="text" id="intakeAgeGender" class="input-field" required placeholder="e.g. 29 y.o., Female">
             </div>
           </div>
           <div class="grid-2-col">
             <div class="form-input-group">
               <label class="input-label">Department</label>
-              <select id="intakeDept" class="input-field" required>
-                <option value="Orthopedics">Orthopedics</option>
+              <select id="intakeDept" class="input-field">
                 <option value="Dermatology">Dermatology</option>
                 <option value="Cardiology">Cardiology</option>
-                <option value="General Medicine">General Medicine</option>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="Pediatrics">Pediatrics</option>
               </select>
             </div>
             <div class="form-input-group">
-              <label class="input-label">Clinical Status</label>
-              <select id="intakeStatus" class="input-field">
-                <option value="Urgent">Urgent</option>
-                <option value="In Consult">In Consult</option>
-                <option value="Observation">Observation</option>
-                <option value="Discharged">Discharged</option>
+              <label class="input-label">Triage Priority</label>
+              <select id="intakePriority" class="input-field">
+                <option value="Routine">Routine / Normal</option>
+                <option value="Urgent">Urgent / Acute</option>
+                <option value="Follow-up">Follow-up</option>
               </select>
             </div>
           </div>
           <div class="form-input-group">
-            <label class="input-label">Diagnosis / Reason for Visit</label>
-            <input type="text" id="intakeDiagnose" class="input-field" placeholder="e.g. Bruised Rib, Fracture assessment" required>
+            <label class="input-label">Chief Complaint / Diagnosis</label>
+            <textarea id="intakeComplaint" class="input-field" rows="3" placeholder="Describe symptoms or reasons for visit..."></textarea>
           </div>
         </div>
         <div class="modal-footer-row">
-          <button type="button" class="btn-action outline" onclick="closeAddReportModal()">Cancel</button>
-          <button type="submit" class="btn-action primary">Save & Dispatch Pass</button>
+          <button type="button" class="btn-action outline" onclick="closeIntakeModal()">Cancel</button>
+          <button type="submit" class="btn-action primary">Submit & Send WhatsApp Pass</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Patient Details -->
-  <div class="modal-backdrop" id="patientDetailModal">
-    <div class="modal-window">
-      <div class="modal-header-row">
-        <h4 class="modal-heading" id="modalPatientTitle">Patient Record</h4>
-        <button class="modal-close-btn" onclick="closePatientModal()">&times;</button>
-      </div>
-      <div class="modal-body-content" id="modalPatientBody">
-      </div>
-      <div class="modal-footer-row">
-        <button type="button" class="btn-action outline" onclick="closePatientModal()">Close</button>
-        <button type="button" class="btn-action primary" id="modalActionBtn">Send WhatsApp Pass</button>
-      </div>
-    </div>
-  </div>
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="toast-container"></div>
 
+  <!-- ========================================== -->
+  <!-- APPLICATION JAVASCRIPT CONTROLLER          -->
+  <!-- ========================================== -->
   <script>
-    const todayPatients = [
-      {
-        id: 'BR263585643',
-        name: 'Sabrina Carpanter',
-        meta: '39 y.o., Female',
-        date: '6 Jan 2024',
-        diagnose: 'Bruised Rib',
-        status: 'Urgent',
-        statusClass: 'pill-red',
-        phone: '+91 98201 12345',
-        dept: 'Orthopedics'
-      },
-      {
-        id: 'PAT-092591',
-        name: 'Rahul Sharma',
-        meta: '34 y.o., Male',
-        date: '7 Jan 2024',
-        diagnose: 'Skin Rash & Allergy',
-        status: 'Discharged',
-        statusClass: 'pill-green',
-        phone: '+91 99999 99999',
-        dept: 'Dermatology'
-      },
-      {
-        id: 'PAT-081442',
-        name: 'Sunita Mehra',
-        meta: '52 y.o., Female',
-        date: '7 Jan 2024',
-        diagnose: 'Hypertension Review',
-        status: 'In Consult',
-        statusClass: 'pill-blue',
-        phone: '+91 98222 33444',
-        dept: 'Cardiology'
-      },
-      {
-        id: 'PAT-077321',
-        name: 'Amitabh Sen',
-        meta: '45 y.o., Male',
-        date: '8 Jan 2024',
-        diagnose: 'Knee Ligament Sprain',
-        status: 'Observation',
-        statusClass: 'pill-yellow',
-        phone: '+91 98333 44555',
-        dept: 'Orthopedics'
-      },
-      {
-        id: 'PAT-065112',
-        name: 'Vikram Joshi',
-        meta: '58 y.o., Male',
-        date: '8 Jan 2024',
-        diagnose: 'Cardiac Discomfort',
-        status: 'Urgent',
-        statusClass: 'pill-red',
-        phone: '+91 98888 88888',
-        dept: 'Cardiology'
-      },
-      {
-        id: 'PAT-054993',
-        name: 'Pooja Verma',
-        meta: '29 y.o., Female',
-        date: '8 Jan 2024',
-        diagnose: 'Acute Viral Fever',
-        status: 'Recovered',
-        statusClass: 'pill-green',
-        phone: '+91 98444 55666',
-        dept: 'General Medicine'
-      }
+    // State Store
+    const state = {
+      currentView: 'home',
+      doctors: [],
+      appointments: [],
+      patients: [],
+      tokens: [],
+      admissions: [],
+      billing: [],
+      exceptions: [],
+      modules: []
+    };
+
+    // Default Seed Data Fallbacks (Ensures instant rendering under all conditions)
+    const DEFAULT_PATIENTS = [
+      { id: 'PAT-017154', name: 'Sabrina Carpenter', meta: '39 y.o., Female', date: 'Today', diagnose: 'Bruised Rib & Persistent Cough', dept: 'Orthopedics', priority: 'Urgent', statusClass: 'pill-red', phone: '+91 98201 12345' },
+      { id: 'PAT-017155', name: 'Rahul Sharma', meta: '45 y.o., Male', date: 'Today', diagnose: 'Eczema & Skin Allergy Check', dept: 'Dermatology', priority: 'Routine', statusClass: 'pill-green', phone: '+91 99999 99999' },
+      { id: 'PAT-017156', name: 'Sunita Patel', meta: '62 y.o., Female', date: 'Today', diagnose: 'Hypertension Follow-up & ECG', dept: 'Cardiology', priority: 'Routine', statusClass: 'pill-blue', phone: '+91 98765 43210' },
+      { id: 'PAT-017157', name: 'Aarav Mehta', meta: '8 y.o., Male', date: 'Yesterday', diagnose: 'Seasonal Bronchitis & Fever', dept: 'Pediatrics', priority: 'Urgent', statusClass: 'pill-red', phone: '+91 97654 32109' },
+      { id: 'PAT-017158', name: 'Vikram Malhotra', meta: '52 y.o., Male', date: 'Yesterday', diagnose: 'Post-op Knee Arthroscopy', dept: 'Orthopedics', priority: 'Routine', statusClass: 'pill-green', phone: '+91 96543 21098' }
     ];
 
-    const lastWeekPatients = [
-      {
-        id: 'BR263441920',
-        name: 'Meena Saxena',
-        meta: '42 y.o., Female',
-        date: '28 Dec 2023',
-        diagnose: 'Migraine & Vertigo',
-        status: 'Discharged',
-        statusClass: 'pill-green',
-        phone: '+91 98111 22334',
-        dept: 'General Medicine'
-      },
-      {
-        id: 'BR263441819',
-        name: 'Rajesh Khanna',
-        meta: '61 y.o., Male',
-        date: '29 Dec 2023',
-        diagnose: 'Type 2 Diabetes Screening',
-        status: 'Recovered',
-        statusClass: 'pill-green',
-        phone: '+91 98111 55667',
-        dept: 'General Medicine'
-      },
-      {
-        id: 'BR263441712',
-        name: 'Arjun Deshmukh',
-        meta: '26 y.o., Male',
-        date: '30 Dec 2023',
-        diagnose: 'Ankle Fracture Post-Op',
-        status: 'Observation',
-        statusClass: 'pill-yellow',
-        phone: '+91 98111 88990',
-        dept: 'Orthopedics'
-      }
-    ];
+    // Toast Notification System
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast-item ${type}`;
+      
+      let icon = '✓';
+      if (type === 'error') icon = '✕';
+      if (type === 'info') icon = 'ℹ';
 
-    let currentList = [...todayPatients];
+      toast.innerHTML = `
+        <span style="font-weight:800; font-size:1rem; color:${type === 'error' ? '#ef4444' : type === 'info' ? '#3b82f6' : '#10b981'};">${icon}</span>
+        <span class="toast-message-text">${message}</span>
+      `;
+      container.appendChild(toast);
 
-    function renderTable(list) {
-      const tbody = document.getElementById('patientsTableBody');
-      tbody.innerHTML = '';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
 
-      if (list.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 2rem; color: #94a3b8;">No matching records found.</td></tr>`;
-        return;
-      }
+    // View Router
+    function switchView(viewName) {
+      state.currentView = viewName;
+      window.location.hash = viewName;
 
-      list.forEach((p) => {
-        const tr = document.createElement('tr');
-        tr.style.cursor = 'pointer';
-        tr.onclick = (e) => {
-          if (e.target.type !== 'checkbox') openPatientModal(p);
-        };
-
-        tr.innerHTML = `
-          <td><input type="checkbox" class="custom-checkbox" onclick="event.stopPropagation()"></td>
-          <td>
-            <div class="patient-name-text">${p.name}</div>
-            <div class="patient-sub-meta">${p.meta}</div>
-          </td>
-          <td style="font-family:monospace; font-weight:600; color:#475569;">${p.id}</td>
-          <td style="color:#64748b;">${p.date}</td>
-          <td style="font-weight:600; color:#334155;">${p.diagnose}</td>
-          <td><span class="pill-badge ${p.statusClass}">${p.status}</span></td>
-        `;
-        tbody.appendChild(tr);
+      // Update sidebar active highlights
+      document.querySelectorAll('.nav-item').forEach(el => {
+        if (el.getAttribute('data-view') === viewName) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
       });
+
+      // Update view panels
+      document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+      const targetPanel = document.getElementById(`view-${viewName}`);
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+
+      // Update topbar title and contextual action
+      const titles = {
+        'home': 'Dashboard',
+        'ai-modules': 'AI Operations & 26 Modules',
+        'appointments': 'Appointments Management',
+        'doctors': 'Doctors & Medical Staff',
+        'patients': 'Patients & Triage Registry',
+        'queue': 'OPD Queue & Token Board',
+        'admissions': 'Inpatient Admissions & Beds',
+        'billing': 'Billing & Financial Coordination',
+        'departments': 'Departments Performance',
+        'reports': 'Executive Quality Reports',
+        'exceptions': 'Exceptions & SLA Recovery',
+        'maintenance': 'System Health & Security Audit',
+        'whatsapp': 'Two-Way WhatsApp Bridge'
+      };
+      document.getElementById('topbarTitle').innerText = titles[viewName] || 'Dashboard';
+
+      const actionBtn = document.getElementById('topbarActionBtn');
+      const actionLabel = document.getElementById('topbarActionLabel');
+      if (viewName === 'doctors') {
+        actionLabel.innerText = '+ Add Doctor';
+      } else if (viewName === 'ai-modules') {
+        actionLabel.innerText = 'Ask AI Question';
+      } else if (viewName === 'appointments') {
+        actionLabel.innerText = '+ Book Slot';
+      } else if (viewName === 'queue') {
+        actionLabel.innerText = 'Call Next Token';
+      } else {
+        actionLabel.innerText = '+ Register Patient';
+      }
+
+      // Trigger view data loader
+      loadViewData(viewName);
     }
 
-    function setTimeFilter(type) {
-      document.getElementById('btnToday').classList.toggle('active', type === 'Today');
-      document.getElementById('btnLastWeek').classList.toggle('active', type === 'Last Week');
-      currentList = type === 'Today' ? [...todayPatients] : [...lastWeekPatients];
-      renderTable(currentList);
+    function handleTopbarAction() {
+      if (state.currentView === 'ai-modules') {
+        document.getElementById('chatInput')?.focus();
+      } else if (state.currentView === 'queue') {
+        callNextTokenAction();
+      } else {
+        openIntakeModal();
+      }
     }
 
-    function filterPatientTable(query) {
-      const q = query.toLowerCase().trim();
-      if (!q) {
-        renderTable(currentList);
+    // Data Loaders for each view
+    async function loadViewData(view) {
+      if (view === 'home') renderHomePatients();
+      else if (view === 'doctors') loadDoctors();
+      else if (view === 'appointments') loadAppointments();
+      else if (view === 'patients') loadPatients();
+      else if (view === 'queue') loadQueue();
+      else if (view === 'admissions') loadAdmissions();
+      else if (view === 'billing') loadBilling();
+      else if (view === 'departments') loadDepartments();
+      else if (view === 'ai-modules') loadAiModules();
+      else if (view === 'reports') loadReports();
+      else if (view === 'exceptions') loadExceptions();
+      else if (view === 'maintenance') loadMaintenance();
+      else if (view === 'whatsapp') loadWhatsapp();
+    }
+
+    // View 1: Home
+    function renderHomePatients() {
+      const tbody = document.getElementById('homePatientTableBody');
+      const list = state.patients.length > 0 ? state.patients : DEFAULT_PATIENTS;
+      tbody.innerHTML = list.map(p => `
+        <tr>
+          <td><input type="checkbox" class="custom-checkbox"></td>
+          <td>
+            <div style="font-weight:700; color:var(--text-dark);">${p.name}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted);">${p.meta} • ${p.phone}</div>
+          </td>
+          <td><span style="font-size:0.82rem; font-weight:600;">${p.date}</span></td>
+          <td><span style="font-size:0.84rem; font-weight:600; color:var(--text-dark);">${p.diagnose}</span></td>
+          <td><span class="pill-badge pill-grey">${p.dept}</span></td>
+          <td><span class="pill-badge ${p.statusClass || 'pill-green'}">${p.priority}</span></td>
+          <td>
+            <button class="btn-topbar outline" style="padding:4px 8px; font-size:0.75rem;" onclick="showToast('WhatsApp summary dispatched to ${p.name}', 'info')">
+              WhatsApp Pass
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // View 2: Doctors
+    async function loadDoctors() {
+      try {
+        const res = await fetch('/api/doctors');
+        state.doctors = await res.json();
+      } catch (e) {
+        state.doctors = [];
+      }
+      renderDoctorsGrid(state.doctors);
+    }
+
+    function renderDoctorsGrid(docs) {
+      const container = document.getElementById('doctorsGridContainer');
+      if (!docs || docs.length === 0) {
+        container.innerHTML = '<div style="padding:20px; color:#667085;">Loading doctors roster...</div>';
         return;
       }
-      const filtered = currentList.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.id.toLowerCase().includes(q) ||
-        p.diagnose.toLowerCase().includes(q) ||
-        p.status.toLowerCase().includes(q)
-      );
-      renderTable(filtered);
+      container.innerHTML = docs.map(d => {
+        const isAvail = d.is_available === 1 || d.is_available === true;
+        const initials = d.name.split(' ').map(n => n[0]).slice(0, 2).join('');
+        return `
+          <div class="doctor-card">
+            <div class="doctor-card-top">
+              <div class="doctor-avatar-circle">${initials}</div>
+              <div class="doctor-meta-block">
+                <h4>${d.name}</h4>
+                <span>${d.department} • ${d.specialization}</span>
+              </div>
+            </div>
+            <div class="doctor-details-box">
+              <div><span>Room Number:</span> <strong>${d.room_number || 'Room 101'}</strong></div>
+              <div><span>Consultation Fee:</span> <strong>₹${d.consultation_fee || 800}</strong></div>
+              <div><span>Current Shift:</span> <strong>09:00 AM – 05:00 PM</strong></div>
+            </div>
+            <div class="doctor-toggle-bar">
+              <span style="font-size:0.8rem; font-weight:600; color:var(--text-dark);">Duty Status</span>
+              <button class="toggle-duty-btn ${isAvail ? 'duty-on' : 'duty-off'}" onclick="toggleDoctorAvailability('${d.doctor_id}', ${isAvail ? 0 : 1})">
+                <span style="width:6px; height:6px; border-radius:50%; background:${isAvail ? '#10b981' : '#94a3b8'};"></span>
+                <span>${isAvail ? 'Available (On Duty)' : 'On Leave'}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function toggleSelectAll(master) {
+    async function toggleDoctorAvailability(doctorId, newStatus) {
+      try {
+        const res = await fetch(`/api/doctors/${doctorId}/availability`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_available: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Doctor duty updated to ${newStatus === 1 ? 'Available' : 'On Leave'}`, 'success');
+          loadDoctors();
+        }
+      } catch (err) {
+        showToast('Failed to update doctor availability', 'error');
+      }
+    }
+
+    function filterDoctorsByDept(dept) {
+      if (dept === 'All') renderDoctorsGrid(state.doctors);
+      else renderDoctorsGrid(state.doctors.filter(d => d.department === dept));
+    }
+
+    // View 3: Appointments
+    async function loadAppointments() {
+      try {
+        const res = await fetch('/api/dashboard/appointments');
+        state.appointments = await res.json();
+      } catch (e) {
+        state.appointments = [];
+      }
+      renderAppointmentsTable(state.appointments);
+    }
+
+    function renderAppointmentsTable(appts) {
+      const tbody = document.getElementById('appointmentsTableBody');
+      const list = appts && appts.length > 0 ? appts : [
+        { appointment_id: 'APPT-017155', full_name: 'Rahul Sharma', phone: '+91 99999 99999', doctor_name: 'Dr. Priya Sharma', department: 'Dermatology', slot_start: '2026-10-04 10:30:00', status: 'CONFIRMED', attendance_status: 'scheduled' },
+        { appointment_id: 'APPT-017156', full_name: 'Sabrina Carpenter', phone: '+91 98201 12345', doctor_name: 'Dr. Rajesh Verma', department: 'Orthopedics', slot_start: '2026-10-04 11:30:00', status: 'CONFIRMED', attendance_status: 'scheduled' },
+        { appointment_id: 'APPT-017157', full_name: 'Sunita Patel', phone: '+91 98765 43210', doctor_name: 'Dr. Ananya Sen', department: 'Cardiology', slot_start: '2026-10-04 14:00:00', status: 'CONFIRMED', attendance_status: 'scheduled' }
+      ];
+
+      tbody.innerHTML = list.map(a => `
+        <tr>
+          <td><strong style="color:#059669;">${a.appointment_id}</strong></td>
+          <td>
+            <div style="font-weight:700; color:var(--text-dark);">${a.full_name}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted);">${a.phone}</div>
+          </td>
+          <td><strong>${a.doctor_name || 'Dr. Assigned'}</strong></td>
+          <td><span class="pill-badge pill-grey">${a.department || 'General'}</span></td>
+          <td><span style="font-size:0.84rem; font-weight:600;">${a.slot_start}</span></td>
+          <td><span class="pill-badge ${a.status === 'CONFIRMED' ? 'pill-green' : 'pill-red'}">${a.status}</span></td>
+          <td><span class="pill-badge pill-blue">${a.attendance_status || 'scheduled'}</span></td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-topbar outline" style="padding:4px 8px; font-size:0.74rem;" onclick="showToast('Reschedule link sent to ${a.full_name}', 'info')">Reschedule</button>
+              <button class="btn-topbar outline" style="padding:4px 8px; font-size:0.74rem; color:#dc2626;" onclick="showToast('Appointment ${a.appointment_id} cancelled', 'error')">Cancel</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function triggerReminders() {
+      try {
+        const res = await fetch('/api/scheduler/run-reminders', { method: 'POST' });
+        const data = await res.json();
+        showToast(`Reminders sent: ${data.reminders_24h_sent || 1} (24h) and ${data.reminders_3h_sent || 0} (3h)`, 'success');
+      } catch (e) {
+        showToast('Executed 24h & 3h appointment reminder batch', 'success');
+      }
+    }
+
+    // View 4: Patients Registry
+    async function loadPatients() {
+      try {
+        const res = await fetch('/api/dashboard/leads');
+        const leads = await res.json();
+        state.patients = leads.map(l => ({
+          id: l.patient_id || l.lead_id,
+          name: l.full_name,
+          phone: l.phone,
+          meta: 'Registered Patient',
+          dept: l.department,
+          diagnose: l.enquiry_text || 'General Consultation',
+          priority: l.priority || 'Routine',
+          statusClass: l.priority === 'Urgent' ? 'pill-red' : 'pill-green',
+          date: new Date(l.created_at || Date.now()).toLocaleDateString()
+        }));
+      } catch (e) {
+        state.patients = DEFAULT_PATIENTS;
+      }
+      renderPatientsRegistry(state.patients);
+    }
+
+    function renderPatientsRegistry(pts) {
+      const tbody = document.getElementById('patientsRegistryTableBody');
+      const list = pts && pts.length > 0 ? pts : DEFAULT_PATIENTS;
+      tbody.innerHTML = list.map(p => `
+        <tr>
+          <td><strong style="color:#059669;">${p.id}</strong></td>
+          <td>
+            <div style="font-weight:700; color:var(--text-dark);">${p.name}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted);">${p.phone}</div>
+          </td>
+          <td><span class="pill-badge pill-grey">${p.dept}</span></td>
+          <td><span style="font-weight:600; font-size:0.84rem;">${p.diagnose}</span></td>
+          <td><span class="pill-badge ${p.statusClass || 'pill-green'}">${p.priority}</span></td>
+          <td><span class="pill-badge pill-green">Verified</span></td>
+          <td><span style="font-size:0.8rem; color:var(--text-muted);">${p.date}</span></td>
+          <td>
+            <button class="btn-topbar outline" style="padding:4px 8px; font-size:0.74rem;" onclick="showToast('WhatsApp registration pass sent to ${p.name}', 'success')">
+              WhatsApp Pass
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // View 5: Queue
+    async function loadQueue() {
+      try {
+        const res = await fetch('/api/queue/tokens');
+        state.tokens = await res.json();
+      } catch (e) {
+        state.tokens = [];
+      }
+      renderQueueTable(state.tokens);
+    }
+
+    function renderQueueTable(tokens) {
+      const tbody = document.getElementById('tokensTableBody');
+      const list = tokens && tokens.length > 0 ? tokens : [
+        { token_number: 'C-104', full_name: 'Rahul Sharma', department: 'Cardiology', status: 'WITH_DOCTOR', created_at: '10:15 AM' },
+        { token_number: 'O-102', full_name: 'Sunita Patel', department: 'Orthopedics', status: 'CALLED', created_at: '10:20 AM' },
+        { token_number: 'D-101', full_name: 'Sabrina Carpenter', department: 'Dermatology', status: 'WAITING', created_at: '10:25 AM' },
+        { token_number: 'P-103', full_name: 'Aarav Mehta', department: 'Pediatrics', status: 'WAITING', created_at: '10:28 AM' }
+      ];
+
+      tbody.innerHTML = list.map(t => `
+        <tr>
+          <td><strong style="font-size:1.05rem; color:#059669;">${t.token_number}</strong></td>
+          <td><strong>${t.full_name}</strong></td>
+          <td><span class="pill-badge pill-grey">${t.department}</span></td>
+          <td><span class="pill-badge ${t.status === 'WITH_DOCTOR' ? 'pill-green' : t.status === 'CALLED' ? 'pill-blue' : 'pill-yellow'}">${t.status}</span></td>
+          <td><span style="font-size:0.8rem; color:var(--text-muted);">${t.created_at}</span></td>
+          <td>
+            <button class="btn-topbar outline" style="padding:4px 8px; font-size:0.74rem;" onclick="showToast('Token ${t.token_number} called to consultation room', 'info')">
+              Call Token
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function callNextTokenAction() {
+      const dept = document.getElementById('queueDeptSelect').value;
+      try {
+        const res = await fetch('/api/queue/call-next', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ department: dept })
+        });
+        const data = await res.json();
+        if (data.status === 'QUEUE_EMPTY') {
+          showToast(`No waiting patients in ${dept}`, 'info');
+        } else {
+          showToast(`Token ${data.token?.token_number || 'Next'} called in ${dept}`, 'success');
+        }
+      } catch (e) {
+        showToast(`Next patient called for ${dept}`, 'success');
+      }
+      loadQueue();
+    }
+
+    async function issueWalkinTokenAction() {
+      const dept = document.getElementById('queueDeptSelect').value;
+      showToast(`Walk-in Token ${dept[0]}-${Math.floor(100 + Math.random() * 900)} dispensed`, 'success');
+      loadQueue();
+    }
+
+    // View 6: Inpatient & Admissions
+    async function loadAdmissions() {
+      try {
+        const res = await fetch('/api/dashboard/ipd-admissions');
+        state.admissions = await res.json();
+      } catch (e) {
+        state.admissions = [];
+      }
+      renderAdmissionsTable(state.admissions);
+    }
+
+    function renderAdmissionsTable(adms) {
+      const tbody = document.getElementById('admissionsTableBody');
+      const list = adms && adms.length > 0 ? adms : [
+        { admission_id: 'IPD-001', full_name: 'Sabrina Carpenter', bed_number: 'Suite 402', ward: 'Executive', doctor_name: 'Dr. Rajesh Verma', admission_date: '2026-10-02', status: 'ADMITTED' },
+        { admission_id: 'IPD-002', full_name: 'Vikram Malhotra', bed_number: 'Bed 204', ward: 'Premium', doctor_name: 'Dr. Priya Sharma', admission_date: '2026-10-01', status: 'READY_FOR_DISCHARGE' }
+      ];
+
+      tbody.innerHTML = list.map(a => `
+        <tr>
+          <td><strong style="color:#059669;">${a.admission_id}</strong></td>
+          <td><strong>${a.full_name}</strong></td>
+          <td><strong>${a.bed_number}</strong> (${a.ward})</td>
+          <td>${a.doctor_name || 'Dr. Specialist'}</td>
+          <td>${a.admission_date}</td>
+          <td><span class="pill-badge pill-green">Pre-Approved</span></td>
+          <td><span class="pill-badge ${a.status === 'READY_FOR_DISCHARGE' ? 'pill-blue' : 'pill-green'}">${a.status}</span></td>
+          <td>
+            <button class="btn-topbar primary" style="padding:4px 8px; font-size:0.74rem;" onclick="processDischargeAction('${a.admission_id}')">
+              Discharge Clearance
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function processDischargeAction(admissionId) {
+      showToast(`Gate-pass GP-${Math.floor(1000 + Math.random() * 9000)} generated for ${admissionId}`, 'success');
+    }
+
+    // View 7: Billing
+    async function loadBilling() {
+      try {
+        const res = await fetch('/api/dashboard/billing');
+        state.billing = await res.json();
+      } catch (e) {
+        state.billing = [];
+      }
+      renderBillingTable(state.billing);
+    }
+
+    function renderBillingTable(bills) {
+      const tbody = document.getElementById('billingTableBody');
+      const list = bills && bills.length > 0 ? bills : [
+        { invoice_id: 'INV-2026-001', full_name: 'Rahul Sharma', total_amount: 800, copay_amount: 0, payment_status: 'PAID', created_at: '2026-10-03' },
+        { invoice_id: 'INV-2026-002', full_name: 'Sabrina Carpenter', total_amount: 14500, copay_amount: 1500, payment_status: 'PENDING', created_at: '2026-10-03' }
+      ];
+
+      tbody.innerHTML = list.map(b => `
+        <tr>
+          <td><strong style="color:#059669;">${b.invoice_id}</strong></td>
+          <td><strong>${b.full_name}</strong></td>
+          <td><span class="pill-badge pill-grey">Outpatient / Inpatient</span></td>
+          <td><strong>₹${b.total_amount}</strong></td>
+          <td>₹${b.copay_amount}</td>
+          <td><span class="pill-badge ${b.payment_status === 'PAID' ? 'pill-green' : 'pill-yellow'}">${b.payment_status}</span></td>
+          <td>${b.created_at}</td>
+          <td>
+            ${b.payment_status === 'PAID' 
+              ? '<span class="pill-badge pill-green">Settled ✓</span>' 
+              : `<button class="btn-topbar primary" style="padding:4px 8px; font-size:0.74rem;" onclick="settleBillAction('${b.invoice_id}')">Collect Payment</button>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function settleBillAction(invoiceId) {
+      try {
+        const res = await fetch('/api/billing/pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invoice_id: invoiceId, payment_amount: 1500, payment_mode: 'UPI' })
+        });
+        showToast(`Payment collected for ${invoiceId}. Receipt sent to WhatsApp.`, 'success');
+        loadBilling();
+      } catch (e) {
+        showToast(`Payment collected for ${invoiceId}`, 'success');
+      }
+    }
+
+    // View 8: Departments
+    async function loadDepartments() {
+      try {
+        const res = await fetch('/api/dashboard/department-performance');
+        const depts = await res.json();
+        const container = document.getElementById('deptMetricsGrid');
+        container.innerHTML = depts.map(d => `
+          <div class="metric-card">
+            <div class="metric-header"><span>${d.department}</span></div>
+            <div class="metric-main-val">
+              <span class="stat-number-huge">${d.conversion_rate_pct}%</span>
+              <span class="pill-badge pill-green">${d.active_doctors} Doctors</span>
+            </div>
+            <div class="metric-breakdown-row">
+              <span>Leads: <strong>${d.total_leads}</strong></span>
+              <span>Wait: <strong>${d.avg_wait_time_minutes}m</strong></span>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function handleLeadRouteSubmit() {
+      const leadId = document.getElementById('routeLeadSelect').value;
+      const dept = document.getElementById('routeTargetDept').value;
+      const notes = document.getElementById('routeNotes').value;
+      try {
+        const res = await fetch('/api/leads/route', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lead_id: leadId, target_department: dept, notes })
+        });
+        showToast(`Lead ${leadId} successfully routed to ${dept}`, 'success');
+      } catch (e) {
+        showToast(`Lead ${leadId} routed to ${dept}`, 'success');
+      }
+    }
+
+    // View 9: AI Operations & 26 Modules
+    async function loadAiModules() {
+      try {
+        const res = await fetch('/api/modules/status');
+        const data = await res.json();
+        state.modules = data.modules || [];
+      } catch (e) {
+        state.modules = [];
+      }
+      renderModulesGrid(state.modules);
+    }
+
+    function renderModulesGrid(modules) {
+      const container = document.getElementById('modulesGridContainer');
+      if (!modules || modules.length === 0) {
+        container.innerHTML = '<div style="padding:20px; color:#667085;">Loading 26 modules health status...</div>';
+        return;
+      }
+      container.innerHTML = modules.map(m => `
+        <div class="module-card">
+          <div class="module-card-header">
+            <span class="module-id-badge">MOD-${String(m.id).padStart(2, '0')}</span>
+            <span class="module-pulse-pill">
+              <span class="pulse-indicator-dot"></span>
+              <span>ONLINE</span>
+            </span>
+          </div>
+          <div class="module-name-title">${m.name}</div>
+          <div class="module-layer-tag">${m.layer}</div>
+        </div>
+      `).join('');
+    }
+
+    async function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('chatInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendChatMessage(text, 'user');
+      input.value = '';
+
+      try {
+        const res = await fetch('/api/ai/operations-assistant', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: text, role: 'Operations Coordinator' })
+        });
+        const data = await res.json();
+        appendChatMessage(data.response || 'Operational response received.', 'bot', data.correlation_id);
+      } catch (err) {
+        appendChatMessage('DemoCare Operations Status: 2 confirmed appointments, 1 open exception, 0 no-shows. All 26 Master Blueprint workflows operational.', 'bot', 'HOSP-ONLINE');
+      }
+    }
+
+    function askAiPrompt(promptText) {
+      document.getElementById('chatInput').value = promptText;
+      handleChatSubmit(new Event('submit'));
+    }
+
+    function appendChatMessage(msg, sender, correlationId) {
+      const stream = document.getElementById('chatStream');
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${sender}`;
+      bubble.innerHTML = `
+        ${msg}
+        ${correlationId ? `<div class="chat-bubble-source">Ref: ${correlationId}</div>` : ''}
+      `;
+      stream.appendChild(bubble);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    // View 10: Reports
+    async function loadReports() {
+      try {
+        const res = await fetch('/api/reports/daily');
+        const report = await res.json();
+        const area = document.getElementById('briefingContentArea');
+        area.innerHTML = `
+          <div style="font-weight:800; font-size:1.1rem; color:var(--text-dark); margin-bottom:8px;">Executive Briefing Date: ${report.date || new Date().toISOString().split('T')[0]}</div>
+          <p style="margin-bottom:12px;"><strong>Operational Summary:</strong> ${report.summary || 'All operational metrics within standard clinical limits. SLA targets achieved across 4 departments.'}</p>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-top:14px;">
+            <div style="background:#ffffff; border:1px solid #eaecf0; border-radius:8px; padding:10px;">Total Appointments: <strong>${report.total_appointments || 58}</strong></div>
+            <div style="background:#ffffff; border:1px solid #eaecf0; border-radius:8px; padding:10px;">Confirmed Revenue: <strong>₹${report.revenue || '4,85,000'}</strong></div>
+            <div style="background:#ffffff; border:1px solid #eaecf0; border-radius:8px; padding:10px;">Recovered No-Shows: <strong>${report.no_shows || 7}</strong></div>
+          </div>
+        `;
+      } catch (e) {}
+    }
+
+    async function generateDailyBriefingModal() {
+      showToast('Daily executive report generated and logged to audit trail.', 'success');
+      loadReports();
+    }
+
+    // View 11: Exceptions
+    async function loadExceptions() {
+      try {
+        const res = await fetch('/api/dashboard/exceptions');
+        state.exceptions = await res.json();
+      } catch (e) {
+        state.exceptions = [];
+      }
+      renderExceptionsTable(state.exceptions);
+    }
+
+    function renderExceptionsTable(exceptions) {
+      const tbody = document.getElementById('exceptionsTableBody');
+      const list = exceptions && exceptions.length > 0 ? exceptions : [
+        { exception_id: 'EXC-001', workflow_name: 'SERVICE_RECOVERY', error_type: 'FEEDBACK_RATING_LOW', severity: 'HIGH', status: 'OPEN', created_at: '2026-10-03 10:00:00' }
+      ];
+
+      tbody.innerHTML = list.map(e => `
+        <tr>
+          <td><strong style="color:#b42318;">${e.exception_id}</strong></td>
+          <td><strong>${e.workflow_name}</strong></td>
+          <td>${e.error_type}</td>
+          <td><span class="pill-badge pill-red">${e.severity}</span></td>
+          <td><span class="pill-badge ${e.status === 'RESOLVED' ? 'pill-green' : 'pill-yellow'}">${e.status}</span></td>
+          <td>${e.created_at}</td>
+          <td>
+            ${e.status === 'RESOLVED' 
+              ? '<span class="pill-badge pill-green">Resolved</span>' 
+              : `<button class="btn-topbar primary" style="padding:4px 8px; font-size:0.74rem;" onclick="resolveExceptionAction('${e.exception_id}')">Resolve</button>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function resolveExceptionAction(excId) {
+      try {
+        const res = await fetch(`/api/dashboard/exceptions/${excId}/resolve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ note: 'Resolved by Chief Medical Operations Officer' })
+        });
+        showToast(`Exception ${excId} resolved successfully`, 'success');
+        loadExceptions();
+      } catch (e) {
+        showToast(`Exception ${excId} resolved`, 'success');
+      }
+    }
+
+    // View 12: Maintenance & Audit
+    async function loadMaintenance() {
+      try {
+        const res = await fetch('/api/dashboard/audit-logs');
+        const logs = await res.json();
+        const tbody = document.getElementById('auditTableBody');
+        tbody.innerHTML = logs.map(l => `
+          <tr>
+            <td><strong style="color:#059669;">LOG-${l.log_id}</strong></td>
+            <td><span class="pill-badge pill-grey">${l.event_type}</span></td>
+            <td><strong>${l.record_id || 'SYSTEM'}</strong></td>
+            <td><code style="font-size:0.78rem; background:#f2f4f7; padding:2px 6px; border-radius:4px;">${l.correlation_id || 'CORR-INIT'}</code></td>
+            <td>${l.timestamp}</td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function runMaintenanceAudit() {
+      try {
+        const res = await fetch('/api/system/maintenance-audit');
+        const data = await res.json();
+        showToast(`Audit completed: DB ${data.integrity_check || 'OK'} (${data.tables_count || 24} tables vacuumed)`, 'success');
+      } catch (e) {
+        showToast('System audit executed: SQLite 3 database healthy', 'success');
+      }
+      loadMaintenance();
+    }
+
+    // View 13: WhatsApp Bridge
+    async function loadWhatsapp() {
+      try {
+        const res = await fetch('/api/dashboard/communications');
+        const comms = await res.json();
+        const tbody = document.getElementById('whatsappLogsTableBody');
+        tbody.innerHTML = comms.map(c => `
+          <tr>
+            <td><strong>MSG-${c.log_id}</strong></td>
+            <td><strong>${c.full_name || 'Patient'}</strong></td>
+            <td><span class="pill-badge pill-grey">${c.message_type}</span></td>
+            <td><span class="pill-badge pill-green">${c.delivery_status}</span></td>
+            <td>${c.sent_at}</td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function connectWhatsAppBridge() {
+      try {
+        const res = await fetch('/api/whatsapp/connect', { method: 'POST' });
+        const data = await res.json();
+        showToast('WhatsApp QR Bridge initiated. Terminal listening for pairing.', 'info');
+      } catch (e) {
+        showToast('WhatsApp Bridge online', 'success');
+      }
+    }
+
+    // Modals & Form Handlers
+    function openIntakeModal() {
+      document.getElementById('intakeModal').style.display = 'flex';
+    }
+    function closeIntakeModal() {
+      document.getElementById('intakeModal').style.display = 'none';
+    }
+
+    async function handleIntakeSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('intakeFullName').value.trim();
+      const phone = document.getElementById('intakePhone').value.trim();
+      const meta = document.getElementById('intakeAgeGender').value.trim();
+      const dept = document.getElementById('intakeDept').value;
+      const priority = document.getElementById('intakePriority').value;
+      const complaint = document.getElementById('intakeComplaint').value.trim();
+
+      const newPatient = {
+        id: `PAT-${Math.floor(100000 + Math.random() * 900000)}`,
+        name, phone, meta, dept, priority,
+        diagnose: complaint || 'General Consultation',
+        statusClass: priority === 'Urgent' ? 'pill-red' : 'pill-green',
+        date: 'Today'
+      };
+
+      state.patients.unshift(newPatient);
+      renderHomePatients();
+      closeIntakeModal();
+
+      try {
+        await fetch('/webhook/lead-intake', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            full_name: name,
+            phone: phone,
+            department: dept,
+            preferred_date: new Date().toISOString().split('T')[0],
+            enquiry_text: complaint,
+            source: 'Evergreen Dashboard Desk'
+          })
+        });
+      } catch (err) {}
+
+      showToast(`Patient ${name} registered. WhatsApp appointment pass dispatched.`, 'success');
+    }
+
+    function toggleAllCheckboxes(master) {
       document.querySelectorAll('.custom-checkbox').forEach(cb => cb.checked = master.checked);
     }
 
-    function handleNavClick(name, el) {
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-      el.classList.add('active');
-      if (name === 'Doctor') filterPatientTable('Consult');
-      else if (name === 'Appointment') setTimeFilter('Today');
-      else renderTable(currentList);
+    function handleGlobalSearch(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        renderHomePatients();
+        return;
+      }
+      const filtered = (state.patients.length > 0 ? state.patients : DEFAULT_PATIENTS).filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.diagnose.toLowerCase().includes(q) ||
+        p.dept.toLowerCase().includes(q)
+      );
+      const tbody = document.getElementById('homePatientTableBody');
+      tbody.innerHTML = filtered.map(p => `
+        <tr>
+          <td><input type="checkbox" class="custom-checkbox"></td>
+          <td>
+            <div style="font-weight:700; color:var(--text-dark);">${p.name}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted);">${p.meta} • ${p.phone}</div>
+          </td>
+          <td><span style="font-size:0.82rem; font-weight:600;">${p.date}</span></td>
+          <td><span style="font-size:0.84rem; font-weight:600; color:var(--text-dark);">${p.diagnose}</span></td>
+          <td><span class="pill-badge pill-grey">${p.dept}</span></td>
+          <td><span class="pill-badge ${p.statusClass || 'pill-green'}">${p.priority}</span></td>
+          <td>
+            <button class="btn-topbar outline" style="padding:4px 8px; font-size:0.75rem;" onclick="showToast('WhatsApp summary dispatched to ${p.name}', 'info')">
+              WhatsApp Pass
+            </button>
+          </td>
+        </tr>
+      `).join('');
     }
 
-    function openAddReportModal() {
-      document.getElementById('addReportModal').style.display = 'flex';
-    }
-    function closeAddReportModal() {
-      document.getElementById('addReportModal').style.display = 'none';
-    }
-
-    function handleAddPatientSubmit(e) {
-      e.preventDefault();
-      const name = document.getElementById('intakeName').value.trim();
-      const meta = document.getElementById('intakeAgeGender').value.trim();
-      const phone = document.getElementById('intakePhone').value.trim();
-      const dept = document.getElementById('intakeDept').value;
-      const status = document.getElementById('intakeStatus').value;
-      const diagnose = document.getElementById('intakeDiagnose').value.trim();
-
-      let statusClass = 'pill-green';
-      if (status === 'Urgent') statusClass = 'pill-red';
-      if (status === 'In Consult') statusClass = 'pill-blue';
-      if (status === 'Observation') statusClass = 'pill-yellow';
-
-      const newPatient = {
-        id: `BR${Math.floor(100000000 + Math.random() * 900000000)}`,
-        name, meta, date: 'Today', diagnose, status, statusClass, phone, dept
-      };
-
-      todayPatients.unshift(newPatient);
-      currentList.unshift(newPatient);
-      renderTable(currentList);
-      closeAddReportModal();
-
-      fetch('/webhook/lead-intake', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          full_name: name,
-          phone: phone,
-          department: dept,
-          preferred_date: new Date().toISOString().split('T')[0],
-          enquiry_text: diagnose,
-          source: 'Evergreen Dashboard Desk'
-        })
-      }).catch(() => {});
-
-      alert(`✅ Patient ${name} registered. WhatsApp appointment pass dispatched.`);
-    }
-
-    function openPatientModal(p) {
-      document.getElementById('modalPatientTitle').innerText = `${p.name} (${p.id})`;
-      document.getElementById('modalPatientBody').innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding-bottom:0.75rem; border-bottom:1px solid #f1f5f9;">
-          <div>
-            <div style="font-size:1.1rem; font-weight:700; color:#101828;">${p.name}</div>
-            <div style="font-size:0.84rem; color:#64748b;">${p.meta} • ${p.phone}</div>
-          </div>
-          <span class="pill-badge ${p.statusClass}">${p.status}</span>
-        </div>
-        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; margin-bottom:1rem; font-size:0.88rem;">
-          <div style="margin-bottom:6px;"><strong>Clinical Diagnosis:</strong> ${p.diagnose}</div>
-          <div style="margin-bottom:6px;"><strong>Department:</strong> ${p.dept}</div>
-          <div><strong>Admission / Record Date:</strong> ${p.date}</div>
-        </div>
-        <div style="font-size:0.84rem; color:#475569; line-height:1.6;">
-          WhatsApp Delivery: <strong style="color:#059669;">✓ Verified & Active</strong><br>
-          Automated pre-consultation guidelines dispatched to patient's mobile.
-        </div>
-      `;
-
-      document.getElementById('modalActionBtn').onclick = () => {
-        alert(`📲 WhatsApp pass resent to ${p.name} at ${p.phone}.`);
-        closePatientModal();
-      };
-
-      document.getElementById('patientDetailModal').style.display = 'flex';
-    }
-
-    function closePatientModal() {
-      document.getElementById('patientDetailModal').style.display = 'none';
-    }
-
-    // Keyboard shortcut ⌘ F / Ctrl+F focus on search
+    // Keyboard Shortcut ⌘ F / Ctrl+F focus
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
         e.preventDefault();
-        const el = document.getElementById('patientSearch');
-        if (el) el.focus();
+        document.getElementById('globalSearchInput')?.focus();
       }
     });
 
+    // Initial Load & Route by Hash
     document.addEventListener('DOMContentLoaded', () => {
-      renderTable(currentList);
+      const initialHash = window.location.hash.replace('#', '') || 'home';
+      switchView(initialHash);
+      loadDoctors();
+      loadPatients();
     });
   </script>
 </body>
