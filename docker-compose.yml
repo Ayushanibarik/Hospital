@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  hospital-automation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: democare-hospital-automation
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Toggle when deploying for a paid client:
+      # - PRODUCTION_MODE=true
+      # - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      # - WHATSAPP_API_TOKEN=${WHATSAPP_API_TOKEN}
+      # - WHATSAPP_PHONE_NUMBER_ID=${WHATSAPP_PHONE_NUMBER_ID}
+    volumes:
+      # Persistent SQLite volume (or switch to cloud PostgreSQL)
+      - hospital_data:/app/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  hospital_data:
+    driver: local

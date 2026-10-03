@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
@@ -35,9 +37,64 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Hardened HTTP Security Headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'"]
+    }
+  },
+  crossOriginEmbedderPolicy: false
+}));
+
+// Global Rate Limiter (Protection against brute-force / DDoS)
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests from this IP, please retry after 15 minutes.' }
+});
+app.use(globalLimiter);
+
+// Webhook Ingestion Limiter (Prevents lead spamming)
+const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Webhook rate limit exceeded. Please throttle payload delivery.' }
+});
+app.use('/webhook/', webhookLimiter);
+
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.resolve(__dirname, '../public'), { extensions: ['html'] }));
+
+// Production Health Check & Readiness Probe (Docker / K8s standard)
+app.get('/health', (req, res) => {
+  try {
+    const dbCheck = db.prepare('SELECT 1 as alive').get();
+    res.json({
+      status: 'UP',
+      timestamp: new Date().toISOString(),
+      uptime_seconds: Math.floor(process.uptime()),
+      database: dbCheck.alive === 1 ? 'HEALTHY' : 'DEGRADED',
+      environment: process.env.NODE_ENV || 'development',
+      memory: {
+        rss_mb: (process.memoryUsage().rss / 1024 / 1024).toFixed(2),
+        heap_used_mb: (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)
+      }
+    });
+  } catch (err) {
+    res.status(503).json({ status: 'DOWN', error: err.message });
+  }
+});
 
 // Explicit route for admin dashboard
 app.get('/admin', (req, res) => {
@@ -557,13 +614,51 @@ app.post('/api/mcp/execute', async (req, res) => {
   }
 });
 
+// Centralized 404 handler for unmatched API routes
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ error: 'Endpoint not found', path: req.originalUrl });
+});
+
+// Centralized Error Handling Middleware (Never leak stack traces in production)
+app.use((err, req, res, next) => {
+  console.error('Unhandled Server Error:', err);
+  const isProd = process.env.NODE_ENV === 'production';
+  res.status(err.status || 500).json({
+    success: false,
+    error: isProd ? 'Internal server error occurred. Please contact IT support.' : err.message
+  });
+});
+
 // Start Server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n🏥 Hospital AI Automation Server running at: http://localhost:${PORT}`);
   console.log(`   - Public Demo Patient Form: http://localhost:${PORT}/`);
   console.log(`   - Operations & KPI Dashboard: http://localhost:${PORT}/admin`);
+  console.log(`   - Health & Liveness Probe: http://localhost:${PORT}/health`);
   console.log(`   - Webhook Lead Intake: http://localhost:${PORT}/webhook/lead-intake\n`);
 
   // Start background 24h & 3h appointment reminder scheduler
   startBackgroundScheduler(60000);
 });
+
+// Graceful Shutdown Handler (Docker & Kubernetes standard)
+function gracefulShutdown(signal) {
+  console.log(`\n🛑 Received ${signal}. Initiating graceful shutdown...`);
+  server.close(() => {
+    console.log('✅ HTTP server connections closed cleanly.');
+    try {
+      db.close?.();
+      console.log('✅ Database connections closed.');
+    } catch (e) {}
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    console.error('⚠️ Forcefully terminating process after timeout.');
+    process.exit(1);
+  }, 10000);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
