@@ -38,6 +38,10 @@ test('Frontend HTML Structure & View Completeness', () => {
   // Check critical UI elements
   assert(indexHtml.includes('id="chatStream"'), 'Must contain AI chat stream');
   assert(indexHtml.includes('id="modulesGridContainer"'), 'Must contain 26 modules grid');
+  assert(indexHtml.includes('id="specializedOpsContainer"'), 'Must contain 13 specialized ops grid');
+  assert(indexHtml.includes('id="advancedClinicalContainer"'), 'Must contain 8 advanced clinical grid');
+  assert(adminHtml.includes('id="specializedOpsContainer"'), 'admin.html must contain 13 specialized ops grid');
+  assert(adminHtml.includes('id="advancedClinicalContainer"'), 'admin.html must contain 8 advanced clinical grid');
   assert(indexHtml.includes('id="doctorsGridContainer"'), 'Must contain doctors grid');
   assert(indexHtml.includes('id="appointmentsTableBody"'), 'Must contain appointments table');
   assert(indexHtml.includes('id="tokensTableBody"'), 'Must contain queue tokens table');

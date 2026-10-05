@@ -79,7 +79,8 @@ import {
   runSystemMaintenanceAudit,
   get26ModulesStatus,
   getEnterpriseModulesStatus,
-  getSpecializedOperationsStatus
+  getSpecializedOperationsStatus,
+  getAdvancedClinicalStatus
 } from './workflows/engine.js';
 import { executeMcpTool, MCP_TOOLS_SCHEMA } from './mcp/tools.js';
 import { callClaude } from './ai/claude.js';
@@ -91,6 +92,7 @@ import { requestLogger, logger } from './utils/logger.js';
 import { trackError } from './utils/error_tracker.js';
 import { enterpriseRouter } from './enterprise/routes.js';
 import { operationsRouter } from './operations/routes.js';
+import advancedRouter from './advanced/routes.js';
 
 dotenv.config();
 
@@ -150,6 +152,9 @@ app.use('/api', enterpriseRouter);
 
 // Specialized Hospital Operations & Clinical Statutory Subsystems
 app.use('/api', operationsRouter);
+
+// Advanced Clinical, Engineering & Research Governance Subsystems (Wave 3)
+app.use('/api/advanced', advancedRouter);
 
 app.use(express.static(path.resolve(__dirname, '../public'), {
   extensions: ['html'],
@@ -789,6 +794,44 @@ app.get('/api/modules/status', (req, res) => {
 
 app.get('/api/enterprise/status', (req, res) => {
   res.json(getEnterpriseModulesStatus());
+});
+
+app.get('/api/operations/status', (req, res) => {
+  res.json(getSpecializedOperationsStatus());
+});
+
+app.get('/api/advanced/status', (req, res) => {
+  res.json(getAdvancedClinicalStatus());
+});
+
+app.get('/api/platform/overview', (req, res) => {
+  const m26 = get26ModulesStatus();
+  const ent = getEnterpriseModulesStatus();
+  const ops = getSpecializedOperationsStatus();
+  const adv = getAdvancedClinicalStatus();
+  res.json({
+    platform: 'Enterprise Hospital AI Automation & Healthcare ERP',
+    version: '3.0.0',
+    total_active_modules: m26.total_modules + ent.total_enterprise_modules + ops.total_specialized_modules + adv.total_advanced_modules,
+    breakdown: {
+      base_blueprint_core: m26.total_modules,
+      enterprise_erp_compliance: ent.total_enterprise_modules,
+      specialized_hospital_operations: ops.total_specialized_modules,
+      advanced_clinical_engineering: adv.total_advanced_modules
+    },
+    accreditation_coverage: [
+      'NABH 5th Edition Full Core',
+      'JCI 8th Edition Hospital Standards',
+      'ABDM Ayushman Bharat Digital Mission (Milestone 1, 2, 3)',
+      'AERB Diagnostic Radiology eLORA',
+      'THOTA 1994 & NOTTO Organ Transplant',
+      'BMW Rules 2016 CPCB',
+      'NDPS Act 1985 & Controlled Drugs',
+      'ISO 23500 Hemodialysis Water Quality',
+      'CDSCO NDCT Rules 2019 Clinical Trials',
+      'MoHFW Telemedicine Practice Guidelines 2020'
+    ]
+  });
 });
 
 app.get('/api/dashboard/metrics', async (req, res) => {

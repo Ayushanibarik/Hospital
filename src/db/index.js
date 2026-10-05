@@ -61,6 +61,13 @@ export function initDB() {
     db.exec(specializedSql);
   }
 
+  // Load advanced clinical, engineering & governance schema (HAI/AMSP, Codes, Hemodialysis, Oncology Chemo, Cath Lab STEMI, Biomedical CMMS, CDSCO Trials, NICU/Telemedicine)
+  const clinicalAdvancedSchemaPath = path.resolve(__dirname, 'clinical_advanced_schema.sql');
+  if (fs.existsSync(clinicalAdvancedSchemaPath)) {
+    const clinicalAdvancedSql = fs.readFileSync(clinicalAdvancedSchemaPath, 'utf8');
+    db.exec(clinicalAdvancedSql);
+  }
+
   try {
     db.exec(`ALTER TABLE doctors ADD COLUMN is_available INTEGER DEFAULT 1;`);
   } catch (e) {

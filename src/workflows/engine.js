@@ -1536,3 +1536,25 @@ export function getSpecializedOperationsStatus() {
     modules: operationsModules
   };
 }
+
+export function getAdvancedClinicalStatus() {
+  const advancedModules = [
+    { id: 'AC1', name: 'HAI Surveillance & AMSP', standard: 'NABH HIC & ICMR AMSP Guidelines', route: '/api/advanced/infection-control/*', status: 'ONLINE', description: 'CAUTI, CLABSI, VAP, SSI surveillance, bundle audits, 72h antibiotic timeout' },
+    { id: 'AC2', name: 'Emergency Hospital Codes', standard: 'NABH FMS.5 & Disaster Management', route: '/api/advanced/emergency-codes/*', status: 'ONLINE', description: 'Code Blue (<180s target), Code Red RACE/PASS, Pink, Orange, Yellow, Black, White' },
+    { id: 'AC3', name: 'Hemodialysis Unit & ISO 23500', standard: 'ISO 23500 & AAMI Dialysis Standards', route: '/api/advanced/hemodialysis/*', status: 'ONLINE', description: 'Serology segregation (HBV/HCV/HIV), single-patient dialyzer reuse >=80%, RO endotoxin <0.25 EU/mL' },
+    { id: 'AC4', name: 'Oncology Chemotherapy Daycare', standard: 'ISOPP / ASCO & Mosteller BSA', route: '/api/advanced/oncology/*', status: 'ONLINE', description: 'BSA calculation, laminar hood preparation, dual pharmacist verification, extravasation emergency kit' },
+    { id: 'AC5', name: 'Cath Lab & Interventional Cardiology', standard: 'NABH COP.15 & NPPA / CDSCO MDR 2017', route: '/api/advanced/cathlab/*', status: 'ONLINE', description: 'STEMI Door-to-Balloon <=90 min benchmark, fluoroscopy dosimetry, DES stent implant registry' },
+    { id: 'AC6', name: 'Biomedical Engineering CMMS', standard: 'NABH FMS.6 Medical Device Maintenance', route: '/api/advanced/biomedical/*', status: 'ONLINE', description: 'Asset lifecycle, breakdown work orders, planned preventive maintenance (PPM), MTTR/MTBF, uptime %' },
+    { id: 'AC7', name: 'Clinical Trials & Pharmacovigilance', standard: 'CDSCO NDCT Rules 2019 & Rule 42', route: '/api/advanced/clinical-trials/*', status: 'ONLINE', description: 'CTRI registry, IEC approvals, mandatory 24-hour SAE intimation to SUGAM portal' },
+    { id: 'AC8', name: 'NICU & Telemedicine Suite', standard: 'NMC / MoHFW Telemedicine Guidelines 2020', route: '/api/advanced/nicu/*, /api/advanced/telemedicine/*', status: 'ONLINE', description: 'APGAR 1/5/10 min, KMC skin-to-skin hours, RMP verification, prohibited drug safety screening' }
+  ];
+
+  return {
+    total_advanced_modules: 8,
+    online_advanced_modules: 8,
+    coverage_pct: 100,
+    regulatory_frameworks: ['NABH 5th Ed HIC/FMS/COP', 'ICMR AMSP', 'ISO 23500', 'CDSCO NDCT Rules 2019', 'MoHFW Telemedicine 2020'],
+    modules: advancedModules
+  };
+}
+
