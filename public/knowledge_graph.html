@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital AI Automation — Knowledge Graph Visualizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --bg-surface: #111827;
+      --bg-elevated: #1f2937;
+      --border-subtle: #374151;
+      --border-active: #06b6d4;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-purple: #a855f7;
+      --accent-amber: #f59e0b;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation HUD */
+    header.kg-hud {
+      background: rgba(17, 24, 39, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 100;
+      flex-shrink: 0;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.2));
+      border: 1px solid rgba(6,182,212,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--accent-cyan);
+    }
+
+    .brand-titles h1 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(120deg, #ffffff, #93c5fd, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-titles p {
+      font-size: 0.74rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Live Metrics Chips */
+    .metrics-hud {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hud-chip {
+      background: rgba(31, 41, 55, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .hud-chip strong {
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    .dot-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+    }
+
+    /* Tabs Switcher */
+    .views-switcher {
+      display: flex;
+      align-items: center;
+      background: rgba(10, 15, 29, 0.8);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .view-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      border-radius: 7px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .view-tab-btn:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .view-tab-btn.active {
+      background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(168,85,247,0.25));
+      border: 1px solid rgba(6,182,212,0.5);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(6,182,212,0.2);
+    }
+
+    /* Action Links */
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-action {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .btn-action:hover {
+      background: #374151;
+      border-color: #4b5563;
+      transform: translateY(-1px);
+    }
+
+    .btn-action.primary {
+      background: #06b6d4;
+      border-color: #0891b2;
+      color: #082f49;
+      font-weight: 700;
+    }
+
+    .btn-action.primary:hover {
+      background: #22d3ee;
+    }
+
+    /* Main Viewport Container */
+    main#viewport-container {
+      flex: 1;
+      width: 100%;
+      height: calc(100vh - 61px);
+      position: relative;
+      background: var(--bg-dark);
+      overflow: hidden;
+    }
+
+    .view-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: none;
+      background: #0f0f1a;
+    }
+
+    .view-frame.active {
+      display: block;
+    }
+
+    /* Explorer Search & Inspector Tab */
+    #explorer-view {
+      display: none;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      padding: 24px;
+      background: var(--bg-dark);
+      box-sizing: border-box;
+    }
+
+    #explorer-view.active {
+      display: flex;
+      gap: 24px;
+    }
+
+    .explorer-panel {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .explorer-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-input-box {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input-box input {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px 10px 38px;
+      color: #fff;
+      font-size: 0.88rem;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .search-input-box input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 16px;
+      height: 16px;
+    }
+
+    .nodes-table-wrap {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    table.nodes-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    table.nodes-table th {
+      position: sticky;
+      top: 0;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      padding: 10px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-subtle);
+      z-index: 10;
+    }
+
+    table.nodes-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+      color: var(--text-secondary);
+    }
+
+    table.nodes-table tr:hover td {
+      background: rgba(6, 182, 212, 0.06);
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .node-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .node-pill.code {
+      background: rgba(6, 182, 212, 0.12);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .node-pill.doc {
+      background: rgba(168, 85, 247, 0.12);
+      color: #d8b4fe;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .community-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      background: rgba(31, 41, 55, 0.8);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+
+    /* Detail Inspector Sidebar */
+    .inspector-panel {
+      width: 380px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
+    .inspector-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .inspector-row {
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(55, 65, 81, 0.4);
+    }
+
+    .inspector-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .inspector-val {
+      font-size: 0.86rem;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      word-break: break-all;
+    }
+
+    .connection-list {
+      list-style: none;
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .connection-item {
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: rgba(31, 41, 55, 0.6);
+      border: 1px solid var(--border-subtle);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      color: #93c5fd;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .connection-item:hover {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: var(--accent-cyan);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation HUD -->
+  <header class="kg-hud">
+    <div class="brand-section">
+      <div class="brand-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+      </div>
+      <div class="brand-titles">
+        <h1>Graphify Knowledge Graph Visualizer</h1>
+        <p>Hospital AI Automation & Healthcare ERP Architecture</p>
+      </div>
+    </div>
+
+    <!-- Live Metrics HUD -->
+    <div class="metrics-hud">
+      <div class="hud-chip">
+        <span class="dot-indicator"></span>
+        <span>Nodes:</span>
+        <strong id="metric-nodes">546</strong>
+      </div>
+      <div class="hud-chip">
+        <span>Edges:</span>
+        <strong id="metric-edges">1,505</strong>
+      </div>
+      <div class="hud-chip">
+        <span>Communities:</span>
+        <strong id="metric-communities">37</strong>
+      </div>
+    </div>
+
+    <!-- View Modes Tabs -->
+    <div class="views-switcher">
+      <button class="view-tab-btn active" onclick="switchVisualizer('network')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        Force Network (Vis.js)
+      </button>
+      <button class="view-tab-btn" onclick="switchVisualizer('tree')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="6" y1="3" x2="6" y2="15"></line>
+          <circle cx="18" cy="6" r="3"></circle>
+          <circle cx="6" cy="18" r="3"></circle>
+          <path d="M18 9a9 9 0 0 1-9 9"></path>
+        </svg>
+        Hierarchy Tree (D3)
+      </button>
+      <button class="view-tab-btn" onclick="switchVisualizer('callflow')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+        </svg>
+        Call Flow (Mermaid)
+      </button>
+      <button class="view-tab-btn" onclick="switchVisualizer('explorer')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Live Query Explorer
+      </button>
+    </div>
+
+    <!-- Quick Action Navigation -->
+    <div class="hud-actions">
+      <a href="/" class="btn-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Hospital ERP
+      </a>
+      <a href="/admin" class="btn-action">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"></rect>
+          <rect x="14" y="3" width="7" height="7"></rect>
+          <rect x="14" y="14" width="7" height="7"></rect>
+          <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+        Admin Ops
+      </a>
+      <button onclick="toggleFullscreen()" class="btn-action primary" title="Toggle Fullscreen">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <polyline points="9 21 3 21 3 15"></polyline>
+          <line x1="21" y1="3" x2="14" y2="10"></line>
+          <line x1="3" y1="21" x2="10" y2="14"></line>
+        </svg>
+        Fullscreen
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Viewport Container -->
+  <main id="viewport-container">
+    <!-- View 1: Vis.js Interactive Force Directed Graph -->
+    <iframe id="frame-network" class="view-frame active" src="/graphify/graph.html" title="Interactive Force Directed Graph"></iframe>
+
+    <!-- View 2: D3 Collapsible Tree -->
+    <iframe id="frame-tree" class="view-frame" src="/graphify/GRAPH_TREE.html" title="D3 Collapsible Tree"></iframe>
+
+    <!-- View 3: Mermaid Call Flow -->
+    <iframe id="frame-callflow" class="view-frame" src="/graphify/CALLFLOW.html" title="Call Flow Architecture"></iframe>
+
+    <!-- View 4: Live Query & Symbol Explorer -->
+    <div id="explorer-view">
+      <div class="explorer-panel">
+        <div class="explorer-header">
+          <div class="search-input-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="live-search-input" placeholder="Search 546 symbols, functions, files, or medical workflows (e.g. 'code blue', 'mews', 'dialysis', 'soap')..." oninput="debounceQuery()">
+          </div>
+          <span id="search-status" style="font-size: 0.78rem; color: var(--text-secondary);">Showing top nodes</span>
+        </div>
+        <div class="nodes-table-wrap">
+          <table class="nodes-table">
+            <thead>
+              <tr>
+                <th>Symbol / Node Name</th>
+                <th>Type</th>
+                <th>Community</th>
+                <th>Source File & Location</th>
+              </tr>
+            </thead>
+            <tbody id="nodes-table-body">
+              <tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--text-muted);">Loading graph nodes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detail Inspector -->
+      <aside class="inspector-panel" id="inspector-panel">
+        <div class="inspector-title">
+          <span id="insp-icon">🔹</span>
+          <span id="insp-name">Select a Node</span>
+        </div>
+        <div class="inspector-row">
+          <div class="inspector-label">Node Identifier</div>
+          <div class="inspector-val" id="insp-id">—</div>
+        </div>
+        <div class="inspector-row">
+          <div class="inspector-label">Community / Cluster</div>
+          <div class="inspector-val" id="insp-comm">—</div>
+        </div>
+        <div class="inspector-row">
+          <div class="inspector-label">File Origin</div>
+          <div class="inspector-val" id="insp-source">—</div>
+        </div>
+        <div class="inspector-row">
+          <div class="inspector-label">Direct Graph Connections</div>
+          <ul class="connection-list" id="insp-connections">
+            <li style="color: var(--text-muted); font-size: 0.78rem;">Click any table row to inspect caller-callee links</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    let currentActiveView = 'network';
+    let cachedNodes = [];
+    let debounceTimer = null;
+
+    function switchVisualizer(viewName) {
+      currentActiveView = viewName;
+      document.querySelectorAll('.view-tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      document.querySelectorAll('.view-frame').forEach(f => f.classList.remove('active'));
+      document.getElementById('explorer-view').classList.remove('active');
+
+      if (viewName === 'network') {
+        document.getElementById('frame-network').classList.add('active');
+      } else if (viewName === 'tree') {
+        document.getElementById('frame-tree').classList.add('active');
+      } else if (viewName === 'callflow') {
+        document.getElementById('frame-callflow').classList.add('active');
+      } else if (viewName === 'explorer') {
+        document.getElementById('explorer-view').classList.add('active');
+        if (cachedNodes.length === 0) {
+          executeSearch('clinical');
+        }
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.error(err));
+      } else {
+        document.exitFullscreen().catch(err => console.error(err));
+      }
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/graphify/stats');
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('metric-nodes').textContent = data.nodesCount.toLocaleString();
+          document.getElementById('metric-edges').textContent = data.edgesCount.toLocaleString();
+          document.getElementById('metric-communities').textContent = data.communitiesCount;
+        }
+      } catch (e) {
+        console.warn('Stats fetch fallback', e);
+      }
+    }
+
+    function debounceQuery() {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const q = document.getElementById('live-search-input').value.trim();
+        executeSearch(q || 'clinical');
+      }, 250);
+    }
+
+    async function executeSearch(query) {
+      const tbody = document.getElementById('nodes-table-body');
+      const statusEl = document.getElementById('search-status');
+      statusEl.textContent = 'Searching graph...';
+
+      try {
+        const res = await fetch('/api/graphify/query?q=' + encodeURIComponent(query));
+        const data = await res.json();
+        if (data.success && data.nodes) {
+          cachedNodes = data.nodes;
+          statusEl.textContent = `${data.matchCount} matched in graph`;
+          renderNodesTable(data.nodes, data.relatedLinks || []);
+          if (data.nodes.length > 0) {
+            selectNode(data.nodes[0], data.relatedLinks || []);
+          }
+        } else {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 24px; color: var(--text-muted);">No symbols found matching query</td></tr>';
+          statusEl.textContent = '0 matches';
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #ef4444; padding: 24px;">Failed to query knowledge graph: ${err.message}</td></tr>`;
+      }
+    }
+
+    function renderNodesTable(nodes, links) {
+      const tbody = document.getElementById('nodes-table-body');
+      if (!nodes.length) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 24px; color: var(--text-muted);">No symbols found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = nodes.map(n => {
+        const typeClass = (n.file_type === 'code') ? 'code' : 'doc';
+        const typeLabel = n._callable ? 'Function / API' : (n._callable_class ? 'Class' : (n.file_type || 'Entity'));
+        const sourceLoc = n.source_file ? `${n.source_file} (${n.source_location || 'L1'})` : 'Global';
+
+        return `
+          <tr onclick='selectNode(${JSON.stringify(n).replace(/'/g, "&apos;")})'>
+            <td>
+              <span class="node-pill ${typeClass}">${escapeHtml(n.label || n.id)}</span>
+            </td>
+            <td><span style="font-size:0.75rem; color:var(--text-secondary);">${typeLabel}</span></td>
+            <td><span class="community-tag">${escapeHtml(n.community_name || 'Community ' + (n.community ?? ''))}</span></td>
+            <td><code style="font-size:0.75rem; color:#93c5fd;">${escapeHtml(sourceLoc)}</code></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function selectNode(node) {
+      document.getElementById('insp-name').textContent = node.label || node.id;
+      document.getElementById('insp-id').textContent = node.id || '—';
+      document.getElementById('insp-comm').textContent = `${node.community_name || 'Group ' + node.community} (ID: ${node.community ?? 'N/A'})`;
+      document.getElementById('insp-source').textContent = `${node.source_file || 'N/A'} : ${node.source_location || 'L1'}`;
+
+      const listEl = document.getElementById('insp-connections');
+      listEl.innerHTML = `
+        <li class="connection-item"><span>AST Origin</span><span>${node._origin || 'Tree-sitter'}</span></li>
+        <li class="connection-item"><span>Callable Symbol</span><span>${node._callable ? 'YES' : 'NO'}</span></li>
+        <li class="connection-item"><span>File Classification</span><span>${node.file_type || 'code'}</span></li>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return (str || '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // Initialize stats on load
+    loadStats();
+  </script>
+</body>
+</html>

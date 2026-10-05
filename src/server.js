@@ -109,12 +109,13 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com", "https://d3js.org", "https://cdn.jsdelivr.net"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://unpkg.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "blob:"],
-      connectSrc: ["'self'"]
+      imgSrc: ["'self'", "data:", "blob:", "https:"],
+      connectSrc: ["'self'", "https://unpkg.com", "https://d3js.org", "https://cdn.jsdelivr.net"],
+      frameSrc: ["'self'"]
     }
   },
   crossOriginEmbedderPolicy: false
@@ -159,6 +160,85 @@ app.use('/api/advanced', advancedRouter);
 
 // Doctor & Nursing Clinical Workstation (SOAP, Vitals, ESI Triage, ISBAR, Discharge)
 app.use('/api/clinical', clinicalRouter);
+
+// Graphify Knowledge Base Visualizers & Static Assets
+app.use('/graphify', express.static(path.resolve(__dirname, '../graphify-out'), {
+  extensions: ['html', 'json', 'svg']
+}));
+
+app.get('/graph', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../graphify-out/graph.html'));
+});
+
+app.get('/graph/tree', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../graphify-out/GRAPH_TREE.html'));
+});
+
+app.get('/graph/callflow', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../graphify-out/CALLFLOW.html'));
+});
+
+app.get('/graph/portal', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../public/knowledge_graph.html'));
+});
+
+app.get('/api/graphify/stats', async (req, res) => {
+  try {
+    const fs = await import('node:fs');
+    const raw = fs.readFileSync(path.resolve(__dirname, '../graphify-out/graph.json'), 'utf8');
+    const graphData = JSON.parse(raw);
+    const nodes = graphData.nodes || [];
+    const edges = graphData.links || graphData.edges || [];
+    const communities = new Set(nodes.map(n => n.community_name || n.community)).size;
+    res.json({
+      success: true,
+      nodesCount: nodes.length,
+      edgesCount: edges.length,
+      communitiesCount: communities,
+      builtAt: graphData.built_at_commit || 'HEAD',
+      categories: {
+        code: nodes.filter(n => n.file_type === 'code').length,
+        docs: nodes.filter(n => n.file_type === 'doc' || (n.label && n.label.endsWith('.md'))).length
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/graphify/query', async (req, res) => {
+  try {
+    const query = (req.query.q || '').trim().toLowerCase();
+    if (!query) {
+      return res.status(400).json({ success: false, error: 'Query parameter q is required' });
+    }
+    const fs = await import('node:fs');
+    const raw = fs.readFileSync(path.resolve(__dirname, '../graphify-out/graph.json'), 'utf8');
+    const graphData = JSON.parse(raw);
+    const nodes = graphData.nodes || [];
+    const edges = graphData.links || graphData.edges || [];
+
+    const matches = nodes.filter(n => 
+      (n.label && n.label.toLowerCase().includes(query)) ||
+      (n.id && n.id.toLowerCase().includes(query)) ||
+      (n.community_name && n.community_name.toLowerCase().includes(query)) ||
+      (n.source_file && n.source_file.toLowerCase().includes(query))
+    ).slice(0, 60);
+
+    const matchIds = new Set(matches.map(m => m.id));
+    const directLinks = edges.filter(e => matchIds.has(e.source) || matchIds.has(e.target)).slice(0, 100);
+
+    res.json({
+      success: true,
+      query,
+      matchCount: matches.length,
+      nodes: matches,
+      relatedLinks: directLinks
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 app.use(express.static(path.resolve(__dirname, '../public'), {
   extensions: ['html'],
