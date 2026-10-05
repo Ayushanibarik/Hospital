@@ -47,10 +47,57 @@ export function initDB() {
   const schemaSql = fs.readFileSync(schemaPath, 'utf8');
   db.exec(schemaSql);
 
+  // Load enterprise ERP schema (RBAC, compliance, clinical, SCM, FHIR)
+  const enterpriseSchemaPath = path.resolve(__dirname, 'enterprise_schema.sql');
+  if (fs.existsSync(enterpriseSchemaPath)) {
+    const enterpriseSql = fs.readFileSync(enterpriseSchemaPath, 'utf8');
+    db.exec(enterpriseSql);
+  }
+
   try {
     db.exec(`ALTER TABLE doctors ADD COLUMN is_available INTEGER DEFAULT 1;`);
   } catch (e) {
   }
+
+  // Add site_id and abha_number columns to patients if missing (multi-site + ABDM)
+  try { db.exec(`ALTER TABLE patients ADD COLUMN site_id TEXT;`); } catch (e) {}
+  try { db.exec(`ALTER TABLE patients ADD COLUMN abha_number TEXT;`); } catch (e) {}
+  try { db.exec(`ALTER TABLE patients ADD COLUMN date_of_birth DATE;`); } catch (e) {}
+  try { db.exec(`ALTER TABLE patients ADD COLUMN gender TEXT;`); } catch (e) {}
+  try { db.exec(`ALTER TABLE patients ADD COLUMN blood_group TEXT;`); } catch (e) {}
+  try { db.exec(`ALTER TABLE patients ADD COLUMN address TEXT;`); } catch (e) {}
+  try { db.exec(`ALTER TABLE patients ADD COLUMN emergency_contact TEXT;`); } catch (e) {}
+
+  // Seed default site if none exists
+  try {
+    const siteCount = db.prepare(`SELECT COUNT(*) as c FROM sites`).get().c;
+    if (siteCount === 0) {
+      db.prepare(`INSERT INTO sites (site_id, site_name, site_code, city, state, abdm_facility_id) VALUES (?, ?, ?, ?, ?, ?)`)
+        .run('SITE-HQ', process.env.HOSPITAL_NAME || 'DemoCare Multispeciality Hospital', 'HQ', process.env.HOSPITAL_CITY || 'Mumbai', 'Maharashtra', process.env.ABDM_FACILITY_ID || 'IN-MH-MUM-00941');
+    }
+  } catch (e) {}
+
+  // Seed default RBAC roles
+  try {
+    const roleCount = db.prepare(`SELECT COUNT(*) as c FROM roles`).get().c;
+    if (roleCount === 0) {
+      const roles = [
+        ['ROLE-ADMIN', 'SUPER_ADMIN', 'Full system administrator', 1],
+        ['ROLE-DOC', 'DOCTOR', 'Clinical physician with prescribing rights', 1],
+        ['ROLE-NURSE', 'NURSE', 'Nursing staff with eMAR access', 1],
+        ['ROLE-PHARMA', 'PHARMACIST', 'Pharmacy dispensing and inventory', 1],
+        ['ROLE-RECEP', 'RECEPTIONIST', 'Front desk registration and scheduling', 1],
+        ['ROLE-BILLING', 'BILLING_OFFICER', 'Billing, TPA claims, and finance', 1],
+        ['ROLE-LAB', 'LAB_TECHNICIAN', 'Laboratory operations and result entry', 1],
+        ['ROLE-RAD', 'RADIOLOGIST', 'Imaging and radiology reporting', 1],
+        ['ROLE-SCM', 'SCM_MANAGER', 'Supply chain and inventory management', 1],
+        ['ROLE-QA', 'QUALITY_OFFICER', 'NABH quality metrics and compliance', 1],
+        ['ROLE-MGMT', 'MANAGEMENT', 'C-suite dashboards and reporting', 1]
+      ];
+      const stmt = db.prepare(`INSERT OR IGNORE INTO roles (role_id, role_name, description, is_system_role) VALUES (?, ?, ?, ?)`);
+      for (const r of roles) stmt.run(...r);
+    }
+  } catch (e) {}
 
   return db;
 }

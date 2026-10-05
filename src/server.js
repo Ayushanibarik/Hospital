@@ -77,7 +77,8 @@ import {
   getDepartmentPerformanceMetrics,
   handleAiOperationsQuery,
   runSystemMaintenanceAudit,
-  get26ModulesStatus
+  get26ModulesStatus,
+  getEnterpriseModulesStatus
 } from './workflows/engine.js';
 import { executeMcpTool, MCP_TOOLS_SCHEMA } from './mcp/tools.js';
 import { callClaude } from './ai/claude.js';
@@ -87,6 +88,7 @@ import { startBackgroundScheduler, runAppointmentReminders, runAllBackgroundTask
 import { appCache } from './utils/cache.js';
 import { requestLogger, logger } from './utils/logger.js';
 import { trackError } from './utils/error_tracker.js';
+import { enterpriseRouter } from './enterprise/routes.js';
 
 dotenv.config();
 
@@ -140,6 +142,9 @@ app.use('/webhook/', webhookLimiter);
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
+
+// Enterprise ERP & Indian Regulatory Compliance Router (Phases 1-5)
+app.use('/api', enterpriseRouter);
 
 app.use(express.static(path.resolve(__dirname, '../public'), {
   extensions: ['html'],
@@ -775,6 +780,10 @@ app.get('/api/system/maintenance-audit', async (req, res) => {
 
 app.get('/api/modules/status', (req, res) => {
   res.json(get26ModulesStatus());
+});
+
+app.get('/api/enterprise/status', (req, res) => {
+  res.json(getEnterpriseModulesStatus());
 });
 
 app.get('/api/dashboard/metrics', async (req, res) => {

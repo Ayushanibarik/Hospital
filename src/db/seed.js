@@ -33,6 +33,7 @@ export function seed() {
   console.log('🌱 Seeding DemoCare Multispeciality Hospital data...');
 
   db.exec(`
+    PRAGMA foreign_keys = OFF;
     DELETE FROM available_slots;
     DELETE FROM doctors;
     DELETE FROM communication_logs;
@@ -52,7 +53,50 @@ export function seed() {
     DELETE FROM chronic_programs;
     DELETE FROM appointments;
     DELETE FROM leads;
+
+    -- Enterprise extension tables
+    DELETE FROM fhir_exchange_log;
+    DELETE FROM fhir_resources;
+    DELETE FROM pacs_studies;
+    DELETE FROM lis_results;
+    DELETE FROM tpa_settlements;
+    DELETE FROM tpa_claims;
+    DELETE FROM tpa_preauth_requests;
+    DELETE FROM dispensing_records;
+    DELETE FROM reorder_rules;
+    DELETE FROM purchase_order_lines;
+    DELETE FROM purchase_orders;
+    DELETE FROM stock_transactions;
+    DELETE FROM inventory_items;
+    DELETE FROM emar_safety_alerts;
+    DELETE FROM emar_records;
+    DELETE FROM lab_orders;
+    DELETE FROM imaging_orders;
+    DELETE FROM medication_orders;
+    DELETE FROM prescription_items;
+    DELETE FROM prescriptions;
+    DELETE FROM patient_allergies;
+    DELETE FROM statutory_birth_death;
+    DELETE FROM statutory_mtp_register;
+    DELETE FROM statutory_pcpndt_forms;
+    DELETE FROM equipment_calibrations;
+    DELETE FROM nabh_audit_reports;
+    DELETE FROM nabh_quality_indicators;
+    DELETE FROM gst_invoice_lines;
+    DELETE FROM gst_invoices;
+    DELETE FROM diagnosis_codes;
+    DELETE FROM data_erasure_requests;
+    DELETE FROM data_access_logs;
+    DELETE FROM consent_records;
+    DELETE FROM abdm_hip_requests;
+    DELETE FROM abdm_hiu_requests;
+    DELETE FROM abdm_hpr_registry;
+    DELETE FROM abdm_abha_records;
+    DELETE FROM patient_merge_log;
+    DELETE FROM sessions;
+
     DELETE FROM patients;
+    PRAGMA foreign_keys = ON;
   `);
 
   const insertDoctor = db.prepare(`
