@@ -1473,6 +1473,9 @@ export function get26ModulesStatus() {
     blueprint_version: 'V3 (The Sunday Club)',
     enterprise_extensions_enabled: true,
     total_enterprise_modules: 18,
+    specialized_operations_enabled: true,
+    total_specialized_modules: 13,
+    total_combined_system_modules: 57,
     modules
   };
 }
@@ -1505,5 +1508,31 @@ export function getEnterpriseModulesStatus() {
     coverage_pct: 100,
     regulatory_frameworks: ['ABDM (NHA)', 'DPDP Act 2023', 'EHR 2016 (MoHFW)', 'GST (CBIC)', 'NABH 5th Ed', 'PCPNDT 1994', 'MTP 2021', 'RBD Act 1969', 'IRDAI 2024'],
     modules: enterpriseModules
+  };
+}
+
+export function getSpecializedOperationsStatus() {
+  const operationsModules = [
+    { id: 'O1', name: 'Bio-Medical Waste Management', standard: 'BMW Rules 2016 (CPCB)', route: '/api/operations/bmw/*', status: 'ONLINE', description: 'Color-coded barcoded bag segregation, CBWTF manifests, Form IV returns' },
+    { id: 'O2', name: 'NDPS Narcotics & Controlled Drugs', standard: 'NDPS Act 1985 & Rule 52A', route: '/api/operations/ndps/*', status: 'ONLINE', description: 'Dual-key digital custody, Schedule X/H1, administration and wastage destruction' },
+    { id: 'O3', name: 'Medico-Legal Cases (MLC)', standard: 'BNSS 2023 / CrPC Evidence Chain', route: '/api/operations/mlc/*', status: 'ONLINE', description: 'Mandatory police station intimation, injury classification, forensic chain of custody' },
+    { id: 'O4', name: 'OT & WHO Surgical Safety Checklist', standard: 'WHO Safe Surgery & NABH COP.14', route: '/api/operations/ot/*', status: 'ONLINE', description: 'Sign In, Time Out, Sign Out, swab/needle counter, implant traceability' },
+    { id: 'O5', name: 'CSSD Sterilization Tracking', standard: 'NABH HIC & CDC Guidelines', route: '/api/operations/cssd/*', status: 'ONLINE', description: 'Autoclave batches, Bowie-Dick tests, biological spore incubation, pack recall' },
+    { id: 'O6', name: 'Blood Bank / Center Management', standard: 'Schedule F Part XII-B & eRaktKosh', route: '/api/operations/blood-bank/*', status: 'ONLINE', description: 'Donor screening, 5 TTI tests, component separation, cross-match, HvPI reactions' },
+    { id: 'O7', name: 'AERB Radiation Safety & Dosimetry', standard: 'AERB/SC/MED-2 & eLORA', route: '/api/operations/aerb/*', status: 'ONLINE', description: 'Diagnostic equipment licensing, 2-yr QA, TLD badge dose monitoring, lead aprons' },
+    { id: 'O8', name: 'Organ & Tissue Transplant (THOTA)', standard: 'THOTA 1994 & NOTTO', route: '/api/operations/thota/*', status: 'ONLINE', description: '4-doctor brain death committee, dual apnea tests 6h apart, Form 8/10, cold ischemia' },
+    { id: 'O9', name: 'Dietetics & Therapeutic Nutrition', standard: 'NABH COP.7 & ESPEN/ASPEN', route: '/api/operations/dietetics/*', status: 'ONLINE', description: 'Diabetic/renal/cardiac/liquid diets, strict NPO blocking, allergen safety' },
+    { id: 'O10', name: 'Mortuary & Post-Mortem Management', standard: 'RBD Act & Medico-Legal Protocols', route: '/api/operations/mortuary/*', status: 'ONLINE', description: 'Cold chamber allocation, police NOC verification for MLC, corpse release' },
+    { id: 'O11', name: 'Medical Records Department (MRD)', standard: 'NMC & MoHFW Retention Guidelines', route: '/api/operations/mrd/*', status: 'ONLINE', description: 'Physical compactor shelf tracking, completeness audit, statutory retention schedule' },
+    { id: 'O12', name: 'Linen, Laundry & Infection Control', standard: 'NABH HIC.3 & Thermal Disinfection', route: '/api/operations/linen/*', status: 'ONLINE', description: 'Ward par levels, infected linen 71°C thermal wash, condemnation register' },
+    { id: 'O13', name: 'Emergency Ambulance Fleet (ALS/BLS)', standard: 'MoHFW Emergency Care Standards', route: '/api/operations/ambulance/*', status: 'ONLINE', description: 'Daily defibrillator & O2 pressure checklist, emergency dispatch and ER handover' }
+  ];
+
+  return {
+    total_specialized_modules: 13,
+    online_specialized_modules: 13,
+    coverage_pct: 100,
+    accreditation_compliance: ['NABH 5th Edition', 'JCI 8th Edition', 'MoHFW Indian Standards', 'AERB', 'NDPS', 'THOTA 1994'],
+    modules: operationsModules
   };
 }

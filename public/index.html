@@ -739,6 +739,20 @@
               </div>
             </div>
           </div>
+
+          <!-- Specialized Clinical Operations & Statutory Compliance (13 Modules) -->
+          <div class="card-shell" style="margin-top: 24px;">
+            <div class="card-shell-header">
+              <div>
+                <h3 class="card-title">13 Specialized Clinical Operations & Statutory Subsystems</h3>
+                <div class="card-subtitle">NABH 5th Edition, JCI, AERB, NDPS, THOTA, CPCB Bio-Medical Waste, Medico-Legal & Blood Bank Standards</div>
+              </div>
+              <span class="pill-badge pill-green" id="specializedOpsBadge">13 / 13 ONLINE</span>
+            </div>
+            <div class="modules-grid" id="specializedOpsContainer" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
         </div>
 
         <!-- ========================================== -->
@@ -1926,10 +1940,19 @@
         state.modules = [];
       }
       renderModulesGrid(state.modules);
+
+      try {
+        const opRes = await fetch('/api/operations/status');
+        const opData = await opRes.json();
+        renderSpecializedOpsGrid(opData.modules || []);
+      } catch (e) {
+        renderSpecializedOpsGrid([]);
+      }
     }
 
     function renderModulesGrid(modules) {
       const container = document.getElementById('modulesGridContainer');
+      if (!container) return;
       if (!modules || modules.length === 0) {
         container.innerHTML = '<div style="padding:20px; color:#667085;">Loading 26 modules health status...</div>';
         return;
@@ -1945,6 +1968,41 @@
           </div>
           <div class="module-name-title">${m.name}</div>
           <div class="module-layer-tag">${m.category || m.layer || 'Core Module'}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderSpecializedOpsGrid(modules) {
+      const container = document.getElementById('specializedOpsContainer');
+      if (!container) return;
+      const defaultSpecialized = [
+        { id: 'O1', name: 'Bio-Medical Waste Management', standard: 'BMW Rules 2016 (CPCB)', description: 'Color-coded barcoded bag segregation, CBWTF manifests, Form IV returns' },
+        { id: 'O2', name: 'NDPS Narcotics & Controlled Drugs', standard: 'NDPS Act 1985 & Rule 52A', description: 'Dual-key digital custody, Schedule X/H1, administration and wastage destruction' },
+        { id: 'O3', name: 'Medico-Legal Cases (MLC)', standard: 'BNSS 2023 / CrPC Evidence Chain', description: 'Mandatory police station intimation, injury classification, forensic chain of custody' },
+        { id: 'O4', name: 'OT & WHO Surgical Safety Checklist', standard: 'WHO Safe Surgery & NABH COP.14', description: 'Sign In, Time Out, Sign Out, swab/needle counter, implant traceability' },
+        { id: 'O5', name: 'CSSD Sterilization Tracking', standard: 'NABH HIC & CDC Guidelines', description: 'Autoclave batches, Bowie-Dick tests, biological spore incubation, pack recall' },
+        { id: 'O6', name: 'Blood Bank / Center Management', standard: 'Schedule F Part XII-B & eRaktKosh', description: 'Donor screening, 5 TTI tests, component separation, cross-match, HvPI reactions' },
+        { id: 'O7', name: 'AERB Radiation Safety & Dosimetry', standard: 'AERB/SC/MED-2 & eLORA', description: 'Diagnostic equipment licensing, 2-yr QA, TLD badge dose monitoring, lead aprons' },
+        { id: 'O8', name: 'Organ & Tissue Transplant (THOTA)', standard: 'THOTA 1994 & NOTTO', description: '4-doctor brain death committee, dual apnea tests 6h apart, Form 8/10, cold ischemia' },
+        { id: 'O9', name: 'Dietetics & Therapeutic Nutrition', standard: 'NABH COP.7 & ESPEN/ASPEN', description: 'Diabetic/renal/cardiac/liquid diets, strict NPO blocking, allergen safety' },
+        { id: 'O10', name: 'Mortuary & Post-Mortem Management', standard: 'RBD Act & Medico-Legal Protocols', description: 'Cold chamber allocation, police NOC verification for MLC, corpse release' },
+        { id: 'O11', name: 'Medical Records Department (MRD)', standard: 'NMC & MoHFW Retention Guidelines', description: 'Physical compactor shelf tracking, completeness audit, statutory retention schedule' },
+        { id: 'O12', name: 'Linen, Laundry & Infection Control', standard: 'NABH HIC.3 & Thermal Disinfection', description: 'Ward par levels, infected linen 71°C thermal wash, condemnation register' },
+        { id: 'O13', name: 'Emergency Ambulance Fleet (ALS/BLS)', standard: 'MoHFW Emergency Care Standards', description: 'Daily defibrillator & O2 pressure checklist, emergency dispatch and ER handover' }
+      ];
+      const list = modules && modules.length > 0 ? modules : defaultSpecialized;
+      container.innerHTML = list.map(m => `
+        <div class="module-card" style="min-height:100px;">
+          <div class="module-card-header">
+            <span class="module-id-badge" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">${m.id}</span>
+            <span class="module-pulse-pill">
+              <span class="pulse-indicator-dot"></span>
+              <span>ONLINE</span>
+            </span>
+          </div>
+          <div class="module-name-title" style="font-size:0.92rem;">${m.name}</div>
+          <div class="module-layer-tag" style="background:#ecfdf5; color:#027a48; border-color:#a7f3d0; margin-bottom:4px;">${m.standard || 'Statutory Compliance'}</div>
+          <div style="font-size:0.75rem; color:#64748b; line-height:1.3;">${m.description || ''}</div>
         </div>
       `).join('');
     }

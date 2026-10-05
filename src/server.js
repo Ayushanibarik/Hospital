@@ -78,7 +78,8 @@ import {
   handleAiOperationsQuery,
   runSystemMaintenanceAudit,
   get26ModulesStatus,
-  getEnterpriseModulesStatus
+  getEnterpriseModulesStatus,
+  getSpecializedOperationsStatus
 } from './workflows/engine.js';
 import { executeMcpTool, MCP_TOOLS_SCHEMA } from './mcp/tools.js';
 import { callClaude } from './ai/claude.js';
@@ -89,6 +90,7 @@ import { appCache } from './utils/cache.js';
 import { requestLogger, logger } from './utils/logger.js';
 import { trackError } from './utils/error_tracker.js';
 import { enterpriseRouter } from './enterprise/routes.js';
+import { operationsRouter } from './operations/routes.js';
 
 dotenv.config();
 
@@ -145,6 +147,9 @@ app.use(express.json({ limit: '2mb' }));
 
 // Enterprise ERP & Indian Regulatory Compliance Router (Phases 1-5)
 app.use('/api', enterpriseRouter);
+
+// Specialized Hospital Operations & Clinical Statutory Subsystems
+app.use('/api', operationsRouter);
 
 app.use(express.static(path.resolve(__dirname, '../public'), {
   extensions: ['html'],

@@ -54,6 +54,13 @@ export function initDB() {
     db.exec(enterpriseSql);
   }
 
+  // Load specialized hospital operations schema (BMW, NDPS, MLC, OT, CSSD, Blood Bank, AERB, THOTA, etc.)
+  const specializedSchemaPath = path.resolve(__dirname, 'specialized_operations_schema.sql');
+  if (fs.existsSync(specializedSchemaPath)) {
+    const specializedSql = fs.readFileSync(specializedSchemaPath, 'utf8');
+    db.exec(specializedSql);
+  }
+
   try {
     db.exec(`ALTER TABLE doctors ADD COLUMN is_available INTEGER DEFAULT 1;`);
   } catch (e) {
