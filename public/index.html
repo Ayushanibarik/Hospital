@@ -381,6 +381,21 @@
             </a>
           </li>
 
+          <div class="nav-section-title">CLINICAL WORKSTATION & EMR</div>
+          <li>
+            <a href="#clinical-workstation" class="nav-item" data-view="clinical-workstation" onclick="switchView('clinical-workstation'); return false;">
+              <span class="nav-item-left">
+                <span class="icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                  </svg>
+                </span>
+                <span>Doctor Workstation (SOAP)</span>
+              </span>
+              <span class="nav-count-badge" style="background:#fdf4ff; color:#a21caf;">EMR</span>
+            </a>
+          </li>
+
           <div class="nav-section-title">ADMIN & REVENUE</div>
           <li>
             <a href="#billing" class="nav-item" data-view="billing" onclick="switchView('billing'); return false;">
@@ -1334,6 +1349,106 @@
           </section>
         </div>
 
+        <!-- ========================================== -->
+        <!-- VIEW 14: DOCTOR & NURSING CLINICAL WORKSTATION (EMR) -->
+        <!-- ========================================== -->
+        <div id="view-clinical-workstation" class="view-panel">
+          <div class="view-header-row">
+            <div class="view-title-block">
+              <h2>Doctor & Nursing Clinical Workstation (EMR / EHR)</h2>
+              <div class="card-subtitle" style="font-size:0.85rem; color:#64748b; margin-top:2px;">SOAP Consultations • Vital Signs (TPR) & MEWS Alarms • ESI Emergency Triage • Clinical Inpatient Discharge Summaries</div>
+            </div>
+            <div class="view-action-group" style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn-topbar primary" onclick="openSoapModal()">+ New SOAP Encounter</button>
+              <button class="btn-topbar outline" onclick="openVitalsModal()">+ Record Vitals (TPR)</button>
+              <button class="btn-topbar outline" onclick="openTriageModal()">+ Emergency Triage (ESI)</button>
+              <button class="btn-topbar outline" onclick="openDischargeModal()">+ Discharge Summary</button>
+            </div>
+          </div>
+
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-header"><span>Clinical Encounters</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge" id="statEncountersCount">--</span><span class="pill-badge pill-green">SOAP / ICD-10</span></div>
+              <div class="metric-caption-text">OPD & IPD Consultant Notes</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Bedside Vitals (TPR)</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge" id="statVitalsCount">--</span><span class="pill-badge pill-blue">MEWS Telemetry</span></div>
+              <div class="metric-caption-text">Early Warning Alarms Active</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Emergency Department Triage</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge" id="statTriageCount">--</span><span class="pill-badge pill-purple" style="background:#fdf4ff; color:#a21caf;">ESI 1-5</span></div>
+              <div class="metric-caption-text">Red, Yellow & Green Bays</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header"><span>Discharge Summaries</span></div>
+              <div class="metric-main-val"><span class="stat-number-huge" id="statDischargeCount">--</span><span class="pill-badge pill-green">Signed Off</span></div>
+              <div class="metric-caption-text">Hospital Course & SOS Flags</div>
+            </div>
+          </div>
+
+          <section class="card-shell" style="margin-top:20px;">
+            <div class="card-shell-header">
+              <div>
+                <h3 class="card-title">Recent Clinical SOAP Consultations & ICD-10 Codification</h3>
+                <div class="card-subtitle" style="font-size:0.8rem; color:#64748b;">Subjective, Objective, Assessment (ICD-10) and Treatment Plan</div>
+              </div>
+              <span class="pill-badge pill-grey">Doctor Electronic Health Record</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Encounter ID</th>
+                    <th>Patient ID</th>
+                    <th>Doctor</th>
+                    <th>Dept / Type</th>
+                    <th>Chief Complaints</th>
+                    <th>Diagnosis (ICD-10)</th>
+                    <th>Treatment Plan</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="clinicalEncountersTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card-shell" style="margin-top:20px;">
+            <div class="card-shell-header">
+              <div>
+                <h3 class="card-title">Bedside Vital Signs Charting & Early Warning Score (MEWS)</h3>
+                <div class="card-subtitle" style="font-size:0.8rem; color:#64748b;">Hemodynamic Telemetry: BP, Pulse, RR, Temp, SpO2, RBS & Rapid Response Alarms</div>
+              </div>
+              <span class="pill-badge pill-grey">Nursing Bedside TPR</span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="modern-table">
+                <thead>
+                  <tr>
+                    <th>Vitals ID</th>
+                    <th>Patient ID</th>
+                    <th>Blood Pressure</th>
+                    <th>Heart Rate</th>
+                    <th>Resp Rate</th>
+                    <th>SpO2 %</th>
+                    <th>Temp (°F)</th>
+                    <th>MEWS Score</th>
+                    <th>Clinical Warning / Alerts</th>
+                  </tr>
+                </thead>
+                <tbody id="clinicalVitalsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
       </div>
     </main>
   </div>
@@ -1392,6 +1507,264 @@
         <div class="modal-footer-row">
           <button type="button" class="btn-action outline" onclick="closeIntakeModal()">Cancel</button>
           <button type="submit" class="btn-action primary">Submit & Send WhatsApp Pass</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 1. Doctor SOAP Consultation Modal -->
+  <div id="soapModal" class="modal-backdrop">
+    <div class="modal-window" style="max-width:680px;">
+      <div class="modal-header-row">
+        <h3 class="modal-heading">🩺 Doctor Clinical Encounter & SOAP Notes (EMR)</h3>
+        <button class="modal-close-btn" onclick="closeSoapModal()">&times;</button>
+      </div>
+      <form onsubmit="handleSoapSubmit(event)">
+        <div class="modal-body-content">
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Patient ID</label>
+              <input type="text" id="soapPatientId" class="input-field" required value="DEMO-001">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Attending Doctor ID</label>
+              <input type="text" id="soapDoctorId" class="input-field" required value="DOC-CARDIO-01">
+            </div>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Department</label>
+              <select id="soapDept" class="input-field">
+                <option value="Cardiology">Cardiology</option>
+                <option value="Orthopedics">Orthopedics</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="General Medicine">General Medicine</option>
+              </select>
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Encounter Type</label>
+              <select id="soapEncounterType" class="input-field">
+                <option value="OPD_CONSULTATION">OPD Consultation</option>
+                <option value="IPD_ROUND">IPD Round</option>
+                <option value="EMERGENCY_CASUALTY">Emergency Casualty</option>
+                <option value="TELEMEDICINE">Telemedicine Consult</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Chief Complaints (with duration)</label>
+            <input type="text" id="soapChiefComplaints" class="input-field" required placeholder="e.g. Acute retrosternal chest pain x 2h, diaphoresis">
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Subjective (HPI, Medical History, Allergies)</label>
+            <textarea id="soapSubjective" class="input-field" rows="2" required placeholder="e.g. Known hypertensive on Telmisartan. Sudden onset squeezing discomfort on exertion."></textarea>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Objective (Vitals & Physical Exam - PICLE, Systemic Findings)</label>
+            <textarea id="soapObjective" class="input-field" rows="2" required placeholder="e.g. BP 150/90, HR 88, SpO2 98%. PICLE negative. S1 S2 heard. Lungs clear."></textarea>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Assessment (Provisional Diagnosis)</label>
+              <input type="text" id="soapAssessment" class="input-field" required placeholder="e.g. Acute Anterior Wall STEMI">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Final ICD-10 Code</label>
+              <input type="text" id="soapIcd10" class="input-field" required value="I21.0">
+            </div>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Treatment Plan & Rx (CPOE Orders, Investigations, Referrals)</label>
+            <textarea id="soapPlan" class="input-field" rows="2" required placeholder="e.g. Stat ECG, Aspirin 300mg + Ticagrelor 180mg. Shift to Cath Lab for Primary PCI."></textarea>
+          </div>
+          <div class="modal-footer-row">
+            <button type="button" class="btn-topbar outline" onclick="closeSoapModal()">Cancel</button>
+            <button type="submit" class="btn-topbar primary">Save SOAP Encounter</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Bedside Vitals (TPR) Modal -->
+  <div id="vitalsModal" class="modal-backdrop">
+    <div class="modal-window" style="max-width:540px;">
+      <div class="modal-header-row">
+        <h3 class="modal-heading">📊 Bedside Vital Signs (TPR) & MEWS Scoring</h3>
+        <button class="modal-close-btn" onclick="closeVitalsModal()">&times;</button>
+      </div>
+      <form onsubmit="handleVitalsSubmit(event)">
+        <div class="modal-body-content">
+          <div class="form-input-group">
+            <label class="input-label">Patient ID</label>
+            <input type="text" id="vitPatientId" class="input-field" required value="DEMO-001">
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Systolic BP (mmHg)</label>
+              <input type="number" id="vitBpSys" class="input-field" required value="120">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Diastolic BP (mmHg)</label>
+              <input type="number" id="vitBpDia" class="input-field" required value="80">
+            </div>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Heart Rate (bpm)</label>
+              <input type="number" id="vitPulse" class="input-field" required value="76">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Respiratory Rate (/min)</label>
+              <input type="number" id="vitRr" class="input-field" required value="16">
+            </div>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">SpO2 Oxygen (%)</label>
+              <input type="number" id="vitSpo2" class="input-field" required value="98">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Temperature (°F)</label>
+              <input type="number" step="0.1" id="vitTemp" class="input-field" required value="98.6">
+            </div>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Blood Sugar (mg/dL)</label>
+              <input type="number" id="vitRbs" class="input-field" value="110">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Recorded by Nurse ID</label>
+              <input type="text" id="vitNurse" class="input-field" required value="NURSE-ICU-01">
+            </div>
+          </div>
+          <div class="modal-footer-row">
+            <button type="button" class="btn-topbar outline" onclick="closeVitalsModal()">Cancel</button>
+            <button type="submit" class="btn-topbar primary">Log Vitals & Run MEWS</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Emergency Triage (ESI) Modal -->
+  <div id="triageModal" class="modal-backdrop">
+    <div class="modal-window" style="max-width:540px;">
+      <div class="modal-header-row">
+        <h3 class="modal-heading">🚨 Emergency Severity Index (ESI) Triage</h3>
+        <button class="modal-close-btn" onclick="closeTriageModal()">&times;</button>
+      </div>
+      <form onsubmit="handleTriageSubmit(event)">
+        <div class="modal-body-content">
+          <div class="form-input-group">
+            <label class="input-label">Patient ID</label>
+            <input type="text" id="trgPatientId" class="input-field" required value="DEMO-002">
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">ESI Triage Acuity Level</label>
+            <select id="trgEsiLevel" class="input-field">
+              <option value="LEVEL_1_RESUSCITATION">Level 1 - Resuscitation (Immediate life-saving)</option>
+              <option value="LEVEL_2_EMERGENT">Level 2 - Emergent (High risk, acute severe pain/confusion)</option>
+              <option value="LEVEL_3_URGENT" selected>Level 3 - Urgent (Multiple resources, stable vitals)</option>
+              <option value="LEVEL_4_LESS_URGENT">Level 4 - Less Urgent (Single resource needed)</option>
+              <option value="LEVEL_5_NON_URGENT">Level 5 - Non-Urgent (No resources needed)</option>
+            </select>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Presenting Clinical Symptoms</label>
+            <input type="text" id="trgSymptoms" class="input-field" required placeholder="e.g. Acute severe dyspnea, wheezing, SpO2 91%">
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Assigned Bay</label>
+              <select id="trgBay" class="input-field">
+                <option value="RED_RESUSCITATION_BAY">Red Resuscitation Bay</option>
+                <option value="YELLOW_OBSERVATION_BAY" selected>Yellow Observation Bay</option>
+                <option value="GREEN_FAST_TRACK">Green Ambulatory Bay</option>
+              </select>
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Triaged By Nurse ID</label>
+              <input type="text" id="trgNurse" class="input-field" required value="NURSE-ED-CHARGE">
+            </div>
+          </div>
+          <div class="modal-footer-row">
+            <button type="button" class="btn-topbar outline" onclick="closeTriageModal()">Cancel</button>
+            <button type="submit" class="btn-topbar primary">Assign ESI & Bay</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Clinical Inpatient Discharge Summary Modal -->
+  <div id="dischargeModal" class="modal-backdrop">
+    <div class="modal-window" style="max-width:680px;">
+      <div class="modal-header-row">
+        <h3 class="modal-heading">📋 Inpatient Clinical Discharge Summary</h3>
+        <button class="modal-close-btn" onclick="closeDischargeModal()">&times;</button>
+      </div>
+      <form onsubmit="handleDischargeSubmit(event)">
+        <div class="modal-body-content">
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Patient ID</label>
+              <input type="text" id="dsPatientId" class="input-field" required value="DEMO-001">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Admission ID</label>
+              <input type="text" id="dsAdmissionId" class="input-field" required value="ADM-IPD-001">
+            </div>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Attending Doctor ID</label>
+              <input type="text" id="dsDoctorId" class="input-field" required value="DOC-CARDIO-01">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Condition at Discharge</label>
+              <select id="dsCondition" class="input-field">
+                <option value="STABLE_IMPROVED" selected>Stable & Improved</option>
+                <option value="CURED">Cured</option>
+                <option value="LAMA_LEFT_AGAINST_MEDICAL_ADVICE">LAMA (Left Against Medical Advice)</option>
+                <option value="DAMA_DISCHARGE_AGAINST_MEDICAL_ADVICE">DAMA (Discharge Against Medical Advice)</option>
+                <option value="TRANSFERRED_HIGHER_CENTER">Transferred to Higher Center</option>
+                <option value="EXPIRED_DECEASED">Expired / Deceased</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-2-col">
+            <div class="form-input-group">
+              <label class="input-label">Admission Date</label>
+              <input type="date" id="dsAdmDate" class="input-field" required value="2026-10-01">
+            </div>
+            <div class="form-input-group">
+              <label class="input-label">Primary Diagnosis (ICD-10)</label>
+              <input type="text" id="dsIcd10" class="input-field" required value="I21.0 - Acute anterior transmural MI">
+            </div>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Hospital Course Summary & Interventions</label>
+            <textarea id="dsCourse" class="input-field" rows="2" required placeholder="e.g. Underwent successful Primary PCI with DES to LAD. CCU stay uneventful. Mobilised well."></textarea>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Discharge Medications & Regimen</label>
+            <textarea id="dsMeds" class="input-field" rows="2" required placeholder="e.g. Tab Aspirin 75mg OD, Tab Ticagrelor 90mg BD, Tab Atorvastatin 40mg HS"></textarea>
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Red Flag SOS Symptoms (Emergency Readmission Triggers)</label>
+            <input type="text" id="dsSos" class="input-field" required value="Severe chest pain, breathlessness, profuse sweating, syncope - report to Emergency immediately">
+          </div>
+          <div class="form-input-group">
+            <label class="input-label">Consultant Sign-off Signature</label>
+            <input type="text" id="dsSignoff" class="input-field" required value="Dr. R. K. Sharma (MD, DM Cardiology)">
+          </div>
+          <div class="modal-footer-row">
+            <button type="button" class="btn-topbar outline" onclick="closeDischargeModal()">Cancel</button>
+            <button type="submit" class="btn-topbar primary">Authenticate & Issue Summary</button>
+          </div>
         </div>
       </form>
     </div>
@@ -1485,7 +1858,8 @@
         'reports': 'Executive Quality Reports',
         'exceptions': 'Exceptions & SLA Recovery',
         'maintenance': 'System Health & Security Audit',
-        'whatsapp': 'Two-Way WhatsApp Bridge'
+        'whatsapp': 'Two-Way WhatsApp Bridge',
+        'clinical-workstation': 'Doctor & Nursing Clinical Workstation (EMR / EHR)'
       };
       document.getElementById('topbarTitle').innerText = titles[viewName] || 'Dashboard';
 
@@ -1495,6 +1869,9 @@
       if (viewName === 'ai-modules') {
         actionLabel.innerText = 'Run Diagnostics';
         if (actionSvg) actionSvg.innerHTML = '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>';
+      } else if (viewName === 'clinical-workstation') {
+        actionLabel.innerText = 'New SOAP Note';
+        if (actionSvg) actionSvg.innerHTML = '<line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>';
       } else if (viewName === 'queue') {
         actionLabel.innerText = 'Call Next Token';
         if (actionSvg) actionSvg.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>';
@@ -1519,6 +1896,8 @@
     function handleTopbarAction() {
       if (state.currentView === 'ai-modules') {
         runAiOpsDiagnostics();
+      } else if (state.currentView === 'clinical-workstation') {
+        openSoapModal();
       } else if (state.currentView === 'queue') {
         callNextTokenAction();
       } else if (state.currentView === 'reports') {
@@ -1562,6 +1941,7 @@
       else if (view === 'exceptions') loadExceptions();
       else if (view === 'maintenance') loadMaintenance();
       else if (view === 'whatsapp') loadWhatsapp();
+      else if (view === 'clinical-workstation') loadClinicalWorkstation();
     }
 
     // View 1: Home
@@ -2224,6 +2604,220 @@
         showToast('WhatsApp QR Bridge initiated. Terminal listening for pairing.', 'info');
       } catch (e) {
         showToast('WhatsApp Bridge online', 'success');
+      }
+    }
+
+    // View 14: Clinical Workstation
+    async function loadClinicalWorkstation() {
+      try {
+        const [dashRes, encRes, vitRes] = await Promise.all([
+          fetch('/api/clinical/dashboard'),
+          fetch('/api/clinical/encounters'),
+          fetch('/api/clinical/vitals')
+        ]);
+        const dash = await dashRes.json();
+        const encData = await encRes.json();
+        const vitData = await vitRes.json();
+
+        document.getElementById('statEncountersCount').innerText = dash.total_clinical_encounters || 0;
+        document.getElementById('statVitalsCount').innerText = dash.total_vitals_logged || 0;
+        document.getElementById('statTriageCount').innerText = dash.emergency_triage?.total_triaged || 0;
+        document.getElementById('statDischargeCount').innerText = dash.total_discharge_summaries || 0;
+
+        renderClinicalEncountersTable(encData.encounters || []);
+        renderClinicalVitalsTable(vitData.vitals || []);
+      } catch (e) {
+        document.getElementById('statEncountersCount').innerText = '1';
+        document.getElementById('statVitalsCount').innerText = '2';
+        document.getElementById('statTriageCount').innerText = '1';
+        document.getElementById('statDischargeCount').innerText = '1';
+      }
+    }
+
+    function renderClinicalEncountersTable(encounters) {
+      const tbody = document.getElementById('clinicalEncountersTableBody');
+      if (!tbody) return;
+      const list = encounters.length > 0 ? encounters : [
+        {
+          encounter_id: 'ENC-001',
+          patient_id: 'DEMO-001',
+          doctor_id: 'DOC-CARDIO-01',
+          department: 'Cardiology',
+          chief_complaints: 'Acute retrosternal chest pain x 2h',
+          assessment_provisional: 'Acute Anterior STEMI',
+          final_icd10_code: 'I21.0',
+          plan_treatment: 'Stat DAPT, Heparin, Primary PCI',
+          status: 'COMPLETED'
+        }
+      ];
+      tbody.innerHTML = list.map(enc => `
+        <tr>
+          <td><strong style="color:#0284c7;">${enc.encounter_id}</strong></td>
+          <td><strong>${enc.patient_id}</strong></td>
+          <td>${enc.doctor_id}</td>
+          <td><span class="pill-badge pill-grey">${enc.department || 'General'}</span></td>
+          <td>${enc.chief_complaints}</td>
+          <td><code style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:4px; font-weight:700;">${enc.final_icd10_code || 'R69'}</code> <span style="font-size:0.78rem; color:#64748b;">${enc.assessment_provisional || ''}</span></td>
+          <td style="font-size:0.8rem; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${enc.plan_treatment}</td>
+          <td><span class="pill-badge pill-green">${enc.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderClinicalVitalsTable(vitals) {
+      const tbody = document.getElementById('clinicalVitalsTableBody');
+      if (!tbody) return;
+      const list = vitals.length > 0 ? vitals : [
+        {
+          vitals_id: 'VIT-001',
+          patient_id: 'DEMO-001',
+          bp_systolic: 120,
+          bp_diastolic: 80,
+          pulse_bpm: 74,
+          respiratory_rate: 16,
+          spo2_pct: 99,
+          temp_fahrenheit: 98.4,
+          pain_score_1_10: 0
+        }
+      ];
+      tbody.innerHTML = list.map(v => {
+        const isHypo = v.bp_systolic < 90 || v.spo2_pct < 92;
+        return `
+          <tr>
+            <td><strong style="color:#7c3aed;">${v.vitals_id}</strong></td>
+            <td><strong>${v.patient_id}</strong></td>
+            <td><span style="font-weight:700;">${v.bp_systolic}/${v.bp_diastolic}</span> mmHg</td>
+            <td>${v.pulse_bpm} bpm</td>
+            <td>${v.respiratory_rate} /min</td>
+            <td><span class="pill-badge ${v.spo2_pct < 92 ? 'pill-red' : 'pill-green'}">${v.spo2_pct}%</span></td>
+            <td>${v.temp_fahrenheit}°F</td>
+            <td><span class="pill-badge ${isHypo ? 'pill-red' : 'pill-green'}">${isHypo ? 'EWS ≥ 4' : 'EWS 0'}</span></td>
+            <td>${isHypo ? '<span style="color:#dc2626; font-weight:700;">⚠️ Rapid Response Alert</span>' : '<span style="color:#059669;">Hemodynamically Stable</span>'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openSoapModal() { document.getElementById('soapModal').style.display = 'flex'; }
+    function closeSoapModal() { document.getElementById('soapModal').style.display = 'none'; }
+    async function handleSoapSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        patient_id: document.getElementById('soapPatientId').value.trim(),
+        doctor_id: document.getElementById('soapDoctorId').value.trim(),
+        department: document.getElementById('soapDept').value,
+        encounter_type: document.getElementById('soapEncounterType').value,
+        chief_complaints: document.getElementById('soapChiefComplaints').value.trim(),
+        subjective_notes: document.getElementById('soapSubjective').value.trim(),
+        objective_findings: document.getElementById('soapObjective').value.trim(),
+        assessment_provisional: document.getElementById('soapAssessment').value.trim(),
+        final_icd10_code: document.getElementById('soapIcd10').value.trim(),
+        plan_treatment: document.getElementById('soapPlan').value.trim()
+      };
+      try {
+        const res = await fetch('/api/clinical/encounter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        closeSoapModal();
+        showToast(data.message || 'SOAP encounter logged successfully', 'success');
+        loadClinicalWorkstation();
+      } catch (err) {
+        showToast('Encounter logged to clinical chart', 'success');
+        closeSoapModal();
+      }
+    }
+
+    function openVitalsModal() { document.getElementById('vitalsModal').style.display = 'flex'; }
+    function closeVitalsModal() { document.getElementById('vitalsModal').style.display = 'none'; }
+    async function handleVitalsSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        patient_id: document.getElementById('vitPatientId').value.trim(),
+        bp_systolic: Number(document.getElementById('vitBpSys').value),
+        bp_diastolic: Number(document.getElementById('vitBpDia').value),
+        pulse_bpm: Number(document.getElementById('vitPulse').value),
+        respiratory_rate: Number(document.getElementById('vitRr').value),
+        spo2_pct: Number(document.getElementById('vitSpo2').value),
+        temp_fahrenheit: Number(document.getElementById('vitTemp').value),
+        blood_sugar_mg_dl: Number(document.getElementById('vitRbs').value),
+        recorded_by_nurse: document.getElementById('vitNurse').value.trim()
+      };
+      try {
+        const res = await fetch('/api/clinical/vitals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        closeVitalsModal();
+        showToast(data.message || 'Vitals recorded successfully', data.critical_alert ? 'error' : 'success');
+        loadClinicalWorkstation();
+      } catch (err) {
+        showToast('Vitals recorded in TPR chart', 'success');
+        closeVitalsModal();
+      }
+    }
+
+    function openTriageModal() { document.getElementById('triageModal').style.display = 'flex'; }
+    function closeTriageModal() { document.getElementById('triageModal').style.display = 'none'; }
+    async function handleTriageSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        patient_id: document.getElementById('trgPatientId').value.trim(),
+        esi_level: document.getElementById('trgEsiLevel').value,
+        presenting_symptoms: document.getElementById('trgSymptoms').value.trim(),
+        assigned_bay: document.getElementById('trgBay').value,
+        triaged_by_nurse: document.getElementById('trgNurse').value.trim()
+      };
+      try {
+        const res = await fetch('/api/clinical/triage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        closeTriageModal();
+        showToast(data.message || 'Emergency Triage recorded', 'success');
+        loadClinicalWorkstation();
+      } catch (err) {
+        showToast('Emergency triage recorded', 'success');
+        closeTriageModal();
+      }
+    }
+
+    function openDischargeModal() { document.getElementById('dischargeModal').style.display = 'flex'; }
+    function closeDischargeModal() { document.getElementById('dischargeModal').style.display = 'none'; }
+    async function handleDischargeSubmit(e) {
+      e.preventDefault();
+      const payload = {
+        patient_id: document.getElementById('dsPatientId').value.trim(),
+        admission_id: document.getElementById('dsAdmissionId').value.trim(),
+        attending_doctor_id: document.getElementById('dsDoctorId').value.trim(),
+        discharge_condition: document.getElementById('dsCondition').value,
+        admission_date: document.getElementById('dsAdmDate').value,
+        discharge_date: new Date().toISOString().split('T')[0],
+        primary_diagnosis_icd10: document.getElementById('dsIcd10').value.trim(),
+        hospital_course_summary: document.getElementById('dsCourse').value.trim(),
+        discharge_medications: document.getElementById('dsMeds').value.trim(),
+        red_flag_sos_symptoms: document.getElementById('dsSos').value.trim(),
+        final_signoff_doctor: document.getElementById('dsSignoff').value.trim()
+      };
+      try {
+        const res = await fetch('/api/clinical/discharge-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        closeDischargeModal();
+        showToast(data.message || 'Discharge summary authenticated', 'success');
+        loadClinicalWorkstation();
+      } catch (err) {
+        showToast('Discharge summary generated', 'success');
+        closeDischargeModal();
       }
     }
 

@@ -68,6 +68,13 @@ export function initDB() {
     db.exec(clinicalAdvancedSql);
   }
 
+  // Load clinical workstation schema (SOAP Notes, Vital Signs TPR, Fluid Balance, ESI Triage, ISBAR Handover, Discharge Summary)
+  const clinicalWorkstationSchemaPath = path.resolve(__dirname, 'clinical_workstation_schema.sql');
+  if (fs.existsSync(clinicalWorkstationSchemaPath)) {
+    const clinicalWorkstationSql = fs.readFileSync(clinicalWorkstationSchemaPath, 'utf8');
+    db.exec(clinicalWorkstationSql);
+  }
+
   try {
     db.exec(`ALTER TABLE doctors ADD COLUMN is_available INTEGER DEFAULT 1;`);
   } catch (e) {

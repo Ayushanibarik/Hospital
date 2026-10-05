@@ -21,7 +21,8 @@ const REQUIRED_VIEWS = [
   'reports',
   'exceptions',
   'maintenance',
-  'whatsapp'
+  'whatsapp',
+  'clinical-workstation'
 ];
 
 test('Frontend HTML Structure & View Completeness', () => {

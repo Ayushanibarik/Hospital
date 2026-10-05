@@ -93,6 +93,7 @@ import { trackError } from './utils/error_tracker.js';
 import { enterpriseRouter } from './enterprise/routes.js';
 import { operationsRouter } from './operations/routes.js';
 import advancedRouter from './advanced/routes.js';
+import clinicalRouter from './clinical/routes.js';
 
 dotenv.config();
 
@@ -155,6 +156,9 @@ app.use('/api', operationsRouter);
 
 // Advanced Clinical, Engineering & Research Governance Subsystems (Wave 3)
 app.use('/api/advanced', advancedRouter);
+
+// Doctor & Nursing Clinical Workstation (SOAP, Vitals, ESI Triage, ISBAR, Discharge)
+app.use('/api/clinical', clinicalRouter);
 
 app.use(express.static(path.resolve(__dirname, '../public'), {
   extensions: ['html'],
